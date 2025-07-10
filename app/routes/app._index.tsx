@@ -102,15 +102,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       const responseJson = await productsResponse.json();
       const data = responseJson.data;
       
+      const existingMetafields = data?.metafieldDefinitions?.edges.map((edge: any) => edge.node.key) || [];
+      const requiredMetafieldKeys = new Set(METAFIELD_DEFINITIONS.map(def => def.key));
+      
+      const configuredCount = existingMetafields.filter((key: string) => requiredMetafieldKeys.has(key)).length;
+
       const products = data?.products?.edges.map((edge: any) => edge.node) || [];
-      const metafields = data?.metafieldDefinitions?.edges.map((edge: any) => edge.node) || [];
       
       stats = {
         totalProducts: products.length,
         activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
         customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
         totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
-        metafieldsConfigured: metafields.length,
+        metafieldsConfigured: configuredCount,
         appEnabled: config.appIsEnabled
       };
     } catch (error) {
