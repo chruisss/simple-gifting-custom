@@ -1,25 +1,33 @@
-node_modules
-.DS_Store
+# Dependencies
+/node_modules
 
-/.cache
+# Build artifacts
 /build
-/app/build
-/public/build/
-/public/_dev
-/app/public/build
-/prisma/dev.sqlite
-/prisma/dev.sqlite-journal
-database.sqlite
+/public/build
+/vite-env.d.ts
+/.vite
+/.vercel
 
-.env
-.env.*
+# Local Environment Variables
+.env*
+!.env.example
+!.env.vault
 
+# Prisma
+*.sqlite
+*.sqlite-journal
 
+# Logs
+npm-debug.log*
+yarn-error.log
+pnpm-debug.log
+*.log
 
+# IDEs
+/.vscode
+/.idea
+*.iml
 
-
-/extensions/*/dist
-
-# Ignore shopify files created during app dev
-.shopify/*
-.shopify.lock
+# OS
+.DS_Store
+Thumbs.db

@@ -11,11 +11,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const shop = url.searchParams.get("shop");
   const path = params["*"];
 
-  // Enable CORS for public API
+  // Enable CORS and disable caching for public API
   const headers = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "no-cache, no-store, must-revalidate",
   };
 
   if (request.method === "OPTIONS") {
