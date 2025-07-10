@@ -37,11 +37,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       }`
   );
 
-  const {
-    data: {
-      currentAppInstallation: { activeSubscriptions: subscriptions },
-    },
-  } = await response.json();
+  const subData = await response.json();
+  const subscriptions = subData.data?.currentAppInstallation?.activeSubscriptions || [];
 
   const activeSubscription = subscriptions.find(
     (sub: { name: string; status: string }) =>
