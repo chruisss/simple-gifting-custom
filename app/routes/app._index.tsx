@@ -31,55 +31,57 @@ import { getShopConfiguration } from "../models/ShopConfiguration.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const { shop } = session;
-  
-  // Get shop configuration
-  const config = await getShopConfiguration(shop);
-  
-  // Get product statistics
-  const productsResponse = await admin.graphql(
-    `#graphql
-      query getDashboardStats {
-        products(first: 250, query: "tag:simple-gifting-product") {
-          edges {
-            node {
-              id
-              status
-              totalInventory
-              customizable: metafield(namespace: "simple_gifting", key: "customizable") {
-                value
+
+  try {
+    // Get shop configuration
+    const config = await getShopConfiguration(shop);
+
+    // Get product statistics
+    const productsResponse = await admin.graphql(
+      `#graphql
+        query getDashboardStats {
+          products(first: 1) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+          metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
+            edges {
+              node {
+                id
               }
             }
           }
         }
-        metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
-          edges {
-            node {
-              id
-              key
-              name
-            }
-          }
-        }
-      }
-    `
-  );
+      `
+    );
 
-  const responseJson = await productsResponse.json();
-  const data = responseJson.data;
-  
-  const products = data.products.edges.map((edge: any) => edge.node);
-  const metafields = data.metafieldDefinitions.edges.map((edge: any) => edge.node);
-  
-  const stats = {
-    totalProducts: products.length,
-    activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
-    customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
-    totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
-    metafieldsConfigured: metafields.length,
-    appEnabled: config.appIsEnabled
-  };
+    const responseJson = await productsResponse.json();
+    if (!responseJson.data) {
+      throw new Error("Failed to fetch dashboard stats.");
+    }
+    const data = responseJson.data;
 
-  return json({ config, stats, shop });
+    const products = data.products.edges;
+    const metafields = data.metafieldDefinitions.edges;
+
+    const stats = {
+      totalProducts: products.length,
+      metafieldsConfigured: metafields.length,
+    };
+
+    return json({ config, stats, shop, error: null });
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+    return json({
+      config: { appIsEnabled: false }, // Default safe config
+      stats: { totalProducts: 0, metafieldsConfigured: 0 },
+      shop,
+      error: "Er was een probleem bij het laden van het dashboard. Probeer het opnieuw."
+    });
+  }
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -185,7 +187,7 @@ const METAFIELD_DEFINITIONS = [
 ];
 
 export default function Dashboard() {
-  const { config, stats, shop } = useLoaderData<typeof loader>();
+  const { config, stats, shop, error } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const submit = useSubmit();
 
@@ -196,152 +198,50 @@ export default function Dashboard() {
   };
 
   const isConfigured = stats.metafieldsConfigured >= 4;
-  const hasProducts = stats.totalProducts > 0;
-
-  return (
-    <Page title="Dashboard">
-      <TitleBar title="Simple Gifting - Dashboard" />
-      
-      {!isConfigured && (
+  
+  if (error) {
+    return (
+      <Page>
         <Layout.Section>
-          <Banner
-            title="Eerste configuratie vereist"
-            tone="warning"
-            action={{
-              content: "Configureer nu",
-              onAction: handleInitialize
-            }}
-          >
-            <p>Voordat je de app kunt gebruiken, moeten de product metafields worden geïnitialiseerd.</p>
+          <Banner title="Fout" tone="critical">
+            <p>{error}</p>
           </Banner>
         </Layout.Section>
-      )}
+      </Page>
+    );
+  }
 
+  return (
+    <Page title="Welkom bij Simple Gifting">
+      <TitleBar title="Simple Gifting" />
+      
       <Layout>
         <Layout.Section>
-          <Grid>
-            <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
-              <Card>
-                <BlockStack gap="200">
-                  <InlineStack align="space-between">
-                    <Text as="h3" variant="headingMd">App Status</Text>
-                    <Badge tone={config.appIsEnabled ? "success" : "critical"}>
-                      {config.appIsEnabled ? "Actief" : "Inactief"}
-                    </Badge>
-                  </InlineStack>
-                  <Text as="p" variant="bodyMd" tone="subdued">
-                    {config.appIsEnabled 
-                      ? "De app is actief en klanten kunnen producten personaliseren"
-                      : "De app is uitgeschakeld voor klanten"
-                    }
-                  </Text>
-                  <Button onClick={() => navigate("/app/settings")}>
-                    Instellingen aanpassen
-                  </Button>
-                </BlockStack>
-              </Card>
-            </Grid.Cell>
-            
-            <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
-              <Card>
-                <BlockStack gap="200">
-                  <InlineStack align="space-between">
-                    <Text as="h3" variant="headingMd">Configuratie Status</Text>
-                    <Badge tone={isConfigured ? "success" : "warning"}>
-                      {isConfigured ? "Voltooid" : "Onvolledig"}
-                    </Badge>
-                  </InlineStack>
-                  <Text as="p" variant="bodyMd" tone="subdued">
-                    {isConfigured 
-                      ? "Alle metafields zijn correct geïnstalleerd"
-                      : `${stats.metafieldsConfigured} van de 4 benodigde metafields zijn gevonden`
-                    }
-                  </Text>
-                  {!isConfigured && (
-                    <Button onClick={handleInitialize}>
-                      Start configuratie
-                    </Button>
-                  )}
-                  {isConfigured && (
-                     <Text as="p" tone="subdued">
-                      Alles is up-to-date
-                    </Text>
-                  )}
-                </BlockStack>
-              </Card>
-            </Grid.Cell>
-          </Grid>
-        </Layout.Section>
-        
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">Product Overzicht</Text>
-              
-              <Grid>
-                <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Totaal producten</Text>
-                    <Text as="p" variant="headingLg">{stats.totalProducts}</Text>
-                  </BlockStack>
-                </Grid.Cell>
-                 <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Actieve producten</Text>
-                    <Text as="p" variant="headingLg">{stats.activeProducts}</Text>
-                  </BlockStack>
-                </Grid.Cell>
-                 <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Personaliseerbaar</Text>
-                    <Text as="p" variant="headingLg">{stats.customizableProducts}</Text>
-                  </BlockStack>
-                </Grid.Cell>
-                 <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Totale voorraad</Text>
-                    <Text as="p" variant="headingLg">{stats.totalInventory}</Text>
-                  </BlockStack>
-                </Grid.Cell>
-              </Grid>
-              
-              <Button 
-                variant="primary" 
-                onClick={() => navigate("/app/cards")}
-              >
-                Beheer producten
-              </Button>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-
-        <Layout.Section>
           <CalloutCard
-            title="Maak je eerste product"
-            illustration="https://cdn.shopify.com/s/files/1/0533/2089/files/empty-state.svg"
+            title="Aan de slag met Simple Gifting"
+            illustration="https://cdn.shopify.com/s/assets/admin/checkout/settings-customize-card-background-shape-for-checkout-step-1-53C49A5868B34C4F25BE06F19A0AB2A6.svg"
             primaryAction={{
-              content: "Nieuw product aanmaken",
-              onAction: () => {
-                const shopName = shop.replace('.myshopify.com', '');
-                const adminUrl = `https://admin.shopify.com/store/${shopName}/products/new?tags=simple-gifting-product`;
-                window.open(adminUrl, '_blank');
-              }
-            }}
-            secondaryAction={{
-              content: "Bestaand product koppelen",
-              onAction: () => navigate("/app/cards"),
+              content: isConfigured ? "Producten Bekijken" : "Start configuratie",
+              onAction: isConfigured ? () => navigate("/app/cards") : handleInitialize
             }}
           >
             <BlockStack gap="200">
               <Text as="p">
-                Voeg je eerste gifting product toe. Dit kan een wenskaart, een lint, een sticker, of elk ander product zijn dat je klanten willen personaliseren.
+                Welkom! Volg deze stappen om je winkel klaar te maken voor gepersonaliseerde cadeaus.
               </Text>
               <List>
                 <List.Item>
-                  Klik op <strong>"Nieuw product aanmaken"</strong> om direct naar Shopify te gaan.
+                  <InlineStack gap="200" blockAlign="center">
+                    {isConfigured ? <Icon source={CheckCircleIcon} tone="success" /> : <Icon source={AlertCircleIcon} tone="warning" />}
+                    <Text as="span">Stap 1: App configuratie</Text>
+                    {isConfigured && <Badge tone="success">Voltooid</Badge>}
+                  </InlineStack>
                 </List.Item>
                 <List.Item>
-                  Of ga naar <strong>"Producten"</strong> om een bestaand product te koppelen.
+                  <InlineStack gap="200" blockAlign="center">
+                    <Icon source={ProductIcon} tone="base" />
+                    <Text as="span">Stap 2: Producten toevoegen en personaliseren</Text>
+                  </InlineStack>
                 </List.Item>
               </List>
             </BlockStack>
