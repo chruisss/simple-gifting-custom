@@ -22,33 +22,40 @@ import { authenticate } from "../shopify.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
-  // Check current subscription status
-  const response = await admin.graphql(
-    `#graphql
-      query appSubscription {
-        currentAppInstallation {
-          activeSubscriptions {
-            name
-            status
-            test
-            createdAt
+  try {
+    // Check current subscription status
+    const response = await admin.graphql(
+      `#graphql
+        query appSubscription {
+          currentAppInstallation {
+            activeSubscriptions {
+              name
+              status
+              test
+              createdAt
+            }
           }
         }
       }`
-  );
+    );
 
-  const subData = await response.json();
-  const subscriptions = subData.data?.currentAppInstallation?.activeSubscriptions || [];
+    const subData = await response.json();
+    const subscriptions = subData.data?.currentAppInstallation?.activeSubscriptions || [];
 
-  const activeSubscription = subscriptions.find(
-    (sub: { name: string; status: string }) =>
-      sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
-  );
+    const activeSubscription = subscriptions.find(
+      (sub: { name: string; status: string }) =>
+        sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
+    );
 
-  return json({
-    hasActiveSubscription: !!activeSubscription,
-    subscription: activeSubscription || null,
-  });
+    return json({
+      hasActiveSubscription: !!activeSubscription,
+      subscription: activeSubscription || null,
+    });
+  } catch (error) {
+    console.error("Error fetching subscription status:", error);
+    // Re-throw a response to be caught by the ErrorBoundary
+    throw new Response("Failed to load subscription details.", { status: 500 });
+  }
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

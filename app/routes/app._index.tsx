@@ -70,48 +70,53 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // Only get detailed stats if subscribed
   if (isSubscribed) {
-    const productsResponse = await admin.graphql(
-      `#graphql
-        query getDashboardStats {
-          products(first: 250, query: "tag:simple-gifting-product") {
-            edges {
-              node {
-                id
-                status
-                totalInventory
-                customizable: metafield(namespace: "simple_gifting", key: "customizable") {
-                  value
+    try {
+      const productsResponse = await admin.graphql(
+        `#graphql
+          query getDashboardStats {
+            products(first: 250, query: "tag:simple-gifting-product") {
+              edges {
+                node {
+                  id
+                  status
+                  totalInventory
+                  customizable: metafield(namespace: "simple_gifting", key: "customizable") {
+                    value
+                  }
+                }
+              }
+            }
+            metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
+              edges {
+                node {
+                  id
+                  key
+                  name
                 }
               }
             }
           }
-          metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
-            edges {
-              node {
-                id
-                key
-                name
-              }
-            }
-          }
-        }
-      `
-    );
+        `
+      );
 
-    const responseJson = await productsResponse.json();
-    const data = responseJson.data;
-    
-    const products = data?.products?.edges.map((edge: any) => edge.node) || [];
-    const metafields = data?.metafieldDefinitions?.edges.map((edge: any) => edge.node) || [];
-    
-    stats = {
-      totalProducts: products.length,
-      activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
-      customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
-      totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
-      metafieldsConfigured: metafields.length,
-      appEnabled: config.appIsEnabled
-    };
+      const responseJson = await productsResponse.json();
+      const data = responseJson.data;
+      
+      const products = data?.products?.edges.map((edge: any) => edge.node) || [];
+      const metafields = data?.metafieldDefinitions?.edges.map((edge: any) => edge.node) || [];
+      
+      stats = {
+        totalProducts: products.length,
+        activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
+        customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
+        totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
+        metafieldsConfigured: metafields.length,
+        appEnabled: config.appIsEnabled
+      };
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      // Don't crash the page, just return stats as 0
+    }
   }
 
   return json({ config, stats, shop, isSubscribed });
@@ -123,62 +128,68 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const action = formData.get("action");
 
   if (action === "initialize") {
-    const results = [];
-    
-    // Create all metafield definitions
-    for (const definition of METAFIELD_DEFINITIONS) {
-      const response = await admin.graphql(
-        `#graphql
-          mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
-            metafieldDefinitionCreate(definition: $definition) {
-              createdDefinition {
-                id
-                name
-                namespace
-                key
+    try {
+      const results = [];
+      
+      // Create all metafield definitions
+      for (const definition of METAFIELD_DEFINITIONS) {
+        const response = await admin.graphql(
+          `#graphql
+            mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
+              metafieldDefinitionCreate(definition: $definition) {
+                createdDefinition {
+                  id
+                  name
+                  namespace
+                  key
+                }
+                userErrors {
+                  field
+                  message
+                }
               }
-              userErrors {
-                field
-                message
-              }
-            }
-          }`,
-        {
-          variables: {
-            definition: {
-              name: definition.name,
-              namespace: definition.namespace,
-              key: definition.key,
-              type: definition.type,
-              description: definition.description,
-              ownerType: definition.ownerType,
+            }`,
+          {
+            variables: {
+              definition: {
+                name: definition.name,
+                namespace: definition.namespace,
+                key: definition.key,
+                type: definition.type,
+                description: definition.description,
+                ownerType: definition.ownerType,
+              },
             },
           },
-        },
-      );
+        );
 
-      const responseJson = await response.json();
-      const result = responseJson.data?.metafieldDefinitionCreate;
-      
-      if (result && result.userErrors.length > 0) {
-        console.error(`Metafield definition creation failed for ${definition.key}:`, result.userErrors);
+        const responseJson = await response.json();
+        const result = responseJson.data?.metafieldDefinitionCreate;
+        
+        if (result?.userErrors.length > 0) {
+          console.error(`Metafield definition creation failed for ${definition.key}:`, result.userErrors);
+        }
+        
+        results.push({
+          key: definition.key,
+          success: result && result.createdDefinition !== null,
+          errors: result ? result.userErrors : [{ message: `Failed to create metafield definition for ${definition.key}.` }],
+        });
       }
-      
-      results.push({
-        key: definition.key,
-        success: result && result.createdDefinition !== null,
-        errors: result ? result.userErrors : [{ message: "Failed to create metafield definition." }],
+
+      const allSuccessful = results.every(r => r.success);
+      const allErrors = results.flatMap(r => r.errors);
+
+      return json({
+        success: allSuccessful,
+        results,
+        errors: allErrors,
       });
+    } catch (error) {
+      console.error("Error during metafield initialization:", error);
+      // Re-throw a response to be caught by the ErrorBoundary
+      throw new Response("Failed to initialize metafields.", { status: 500 });
     }
-
-    const allSuccessful = results.every(r => r.success);
-    const allErrors = results.flatMap(r => r.errors);
-
-    return json({
-      success: allSuccessful,
-      results,
-      errors: allErrors,
-    });
   }
 
   return json({ success: false, errors: [] });
