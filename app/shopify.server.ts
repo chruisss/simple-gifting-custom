@@ -23,9 +23,13 @@ const shopify = shopifyApp({
   distribution: AppDistribution.SingleMerchant,
   billing: {
     "Monthly Subscription": {
-      amount: 19.99,
-      currencyCode: "USD",
-      interval: BillingInterval.Every30Days,
+      lineItems: [
+        {
+          amount: 24.99,
+          currencyCode: "USD",
+          interval: BillingInterval.Every30Days,
+        }
+      ],
       trialDays: 14,
     },
   },
