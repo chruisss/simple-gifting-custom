@@ -197,28 +197,28 @@ const METAFIELD_DEFINITIONS = [
     ownerType: "PRODUCT"
   },
   {
-    namespace: "simple_gifting", 
-    key: "product_type",
-    name: "Gifting Product Type",
-    description: "Type of gifting product: card or ribbon",
-    type: "single_line_text_field",
-    ownerType: "PRODUCT"
-  },
-  {
     namespace: "simple_gifting",
-    key: "ribbon_length", 
-    name: "Ribbon Length",
-    description: "Length of ribbon in centimeters",
-    type: "number_integer",
-    ownerType: "PRODUCT"
-  },
-  {
-    namespace: "simple_gifting",
-    key: "customizable",
-    name: "Customizable",
-    description: "Whether this product can be personalized",
+    key: "is_gifting_product",
+    name: "Is Gifting Product",
+    description: "Flags if this product is used for gifting personalization.",
     type: "boolean",
     ownerType: "PRODUCT"
+  },
+  {
+    namespace: "simple_gifting",
+    key: "gifting_product_handle",
+    name: "Gifting Product Handle",
+    description: "The handle of the associated gifting product to be added.",
+    type: "product_reference",
+    ownerType: "PRODUCT"
+  },
+  {
+    namespace: "simple_gifting",
+    key: "custom_message",
+    name: "Custom Message",
+    description: "The custom message from the customer.",
+    type: "string",
+    ownerType: "LINE_ITEM"
   }
 ];
 
