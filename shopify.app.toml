@@ -6,6 +6,10 @@ handle = "simple-gifting"
 application_url = "https://simple-gifting.vercel.app"
 embedded = true
 
+[access]
+admin.direct_api_mode = "offline"
+admin.embedded_app_direct_api_access = true
+
 [build]
 include_config_on_deploy = true
 automatically_update_urls_on_dev = true
@@ -28,9 +32,10 @@ api_version = "2025-07"
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products"
+use_legacy_install_flow = false
 
 [auth]
-redirect_urls = ["https://simple-gifting.vercel.app/auth/callback", "https://simple-gifting.vercel.app/auth/shopify/callback", "https://simple-gifting.vercel.app/api/auth/callback"]
+redirect_urls = []
 
 [pos]
 embedded = false

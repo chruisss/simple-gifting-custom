@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import styles from './styles.module.css';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -16,6 +17,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Index() {
   const { showForm } = useLoaderData<typeof loader>();
+  const [shop, setShop] = useState("");
+
+  const handleInstall = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!shop) return;
+    
+    // Clean shop domain
+    const cleanShop = shop.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const shopDomain = cleanShop.includes('.myshopify.com') ? cleanShop : `${cleanShop}.myshopify.com`;
+    
+    // For the new embedded auth strategy, redirect to the app with shop parameter
+    // This triggers the managed installation flow
+    window.location.href = `${window.location.origin}/app?shop=${shopDomain}`;
+  };
 
   return (
     <div className={styles.container}>
@@ -24,7 +39,7 @@ export default function Index() {
         <p className={styles.tagline}>The easiest way to offer personalized gift options.</p>
         
         {showForm && (
-          <Form method="post" action="/auth/login" className={styles.installForm}>
+          <form onSubmit={handleInstall} className={styles.installForm}>
             <div className={styles.formGroup}>
               <label htmlFor="shop" className={styles.label}>
                 Shop domain
@@ -33,6 +48,8 @@ export default function Index() {
                 type="text" 
                 id="shop"
                 name="shop" 
+                value={shop}
+                onChange={(e) => setShop(e.target.value)}
                 placeholder="my-shop-domain.myshopify.com"
                 className={styles.input}
                 required
@@ -41,7 +58,7 @@ export default function Index() {
             <button type="submit" className={styles.ctaButton}>
               Install App
             </button>
-          </Form>
+          </form>
         )}
       </header>
       
