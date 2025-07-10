@@ -3,7 +3,7 @@
 client_id = "8dfb08219af561d6761ad2f9b891702f"
 name = "Simple gifting"
 handle = "simple-gifting"
-application_url = "https://affordable-metres-technologies-tablets.trycloudflare.com"
+application_url = "https://simple-gifting.vercel.app"
 embedded = true
 
 [build]
@@ -42,12 +42,12 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://affordable-metres-technologies-tablets.trycloudflare.com/auth/callback", "https://affordable-metres-technologies-tablets.trycloudflare.com/auth/shopify/callback", "https://affordable-metres-technologies-tablets.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://simple-gifting.vercel.app/auth/callback", "https://simple-gifting.vercel.app/auth/shopify/callback", "https://simple-gifting.vercel.app/api/auth/callback"]
 
 [pos]
 embedded = false
 
 [app_proxy]
-url = "https://affordable-metres-technologies-tablets.trycloudflare.com/proxy"
+url = "https://simple-gifting.vercel.app/proxy"
 subpath = "gifting"
 prefix = "apps"

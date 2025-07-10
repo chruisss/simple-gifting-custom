@@ -13,11 +13,7 @@ const shopify = shopifyApp({
   apiSecretKey: process.env.SHOPIFY_API_SECRET!,
   apiVersion: ApiVersion.July25,
   scopes: ["write_products"],
-  appUrl:
-    process.env.SHOPIFY_APP_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://app.example.com"),
+  appUrl: "https://simple-gifting.vercel.app/",
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.SingleMerchant,
