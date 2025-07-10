@@ -245,14 +245,6 @@ const METAFIELD_DEFINITIONS = [
     description: "The handle of the associated gifting product to be added.",
     type: "product_reference",
     ownerType: "PRODUCT"
-  },
-  {
-    namespace: "simple_gifting",
-    key: "custom_message",
-    name: "Custom Message",
-    description: "The custom message from the customer.",
-    type: "string",
-    ownerType: "LINE_ITEM"
   }
 ];
 
@@ -300,7 +292,8 @@ export default function Dashboard() {
     navigate("/app/settings");
   };
 
-  const configurationStatus = stats.metafieldsConfigured >= 4
+  const requiredMetafields = 3;
+  const configurationStatus = stats.metafieldsConfigured >= requiredMetafields
     ? {
         title: "Configuratie Compleet",
         status: "success",
@@ -312,7 +305,7 @@ export default function Dashboard() {
         title: "Configuratie Vereist",
         status: "critical",
         icon: AlertCircleIcon,
-        description: `${stats.metafieldsConfigured} van de 4 benodigde metafields zijn gevonden.`,
+        description: `${stats.metafieldsConfigured} van de ${requiredMetafields} benodigde metafields zijn gevonden.`,
         button: (
           <Button
             onClick={handleInitialize}
@@ -321,7 +314,7 @@ export default function Dashboard() {
           >
             Configureer nu
           </Button>
-        ),
+        )
       };
 
   const subscriptionStatus = isSubscribed
@@ -348,7 +341,7 @@ export default function Dashboard() {
         )
       };
 
-  const isReady = stats.metafieldsConfigured >= 4 && isSubscribed;
+  const isReady = stats.metafieldsConfigured >= requiredMetafields && isSubscribed;
 
   return (
     <Page>
