@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigate, useSubmit, useActionData, useNavigation } from "@remix-run/react";
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -33,7 +33,35 @@ import { getShopConfiguration } from "../models/ShopConfiguration.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const { shop } = session;
-  
+
+  const activeSubscriptions = await admin.graphql(
+    `#graphql
+      query appSubscription {
+        currentAppInstallation {
+          activeSubscriptions {
+            name
+            status
+            test
+          }
+        }
+      }`
+  );
+
+  const {
+    data: {
+      currentAppInstallation: { activeSubscriptions: subscriptions },
+    },
+  } = await activeSubscriptions.json();
+
+  const isSubscribed = subscriptions.some(
+    (sub: { name: string; status: string }) =>
+      sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
+  );
+
+  if (!isSubscribed) {
+    return redirect("/app/pricing");
+  }
+
   // Get shop configuration
   const config = await getShopConfiguration(shop);
   
