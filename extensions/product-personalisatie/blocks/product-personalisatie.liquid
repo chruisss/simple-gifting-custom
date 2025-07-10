@@ -715,6 +715,14 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+#gifting-message.error {
+  border-color: #dc2626 !important;
+}
+#gifting-message.error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
 #gifting-message::placeholder {
   color: #9ca3af;
 }
@@ -1752,6 +1760,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxLength = selectedProduct?.maxCharacters || 0;
         charCount.textContent = `${currentLength}/${maxLength}`;
         
+        if (currentLength > 0 && messageTextarea.classList.contains('error')) {
+          messageTextarea.classList.remove('error');
+        }
+
         // Change color based on length
         const percentage = currentLength / maxLength;
         if (percentage > 0.9) {
@@ -1769,25 +1781,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasRequiredSelections = selectedProduct && 
                                     (selectedProduct.variants?.length <= 1 || selectedVariant);
         
+        const messageIsRequired = selectedProduct?.customizable && selectedProduct?.maxCharacters > 0;
+        const messageIsMissing = messageTextarea.value.trim() === '';
+        const canAddToCart = hasRequiredSelections && !(messageIsRequired && messageIsMissing);
+        
         console.log('Updating add to cart button:', {
             selectedProduct: selectedProduct?.title,
             hasVariants: selectedProduct?.variants?.length > 1,
             selectedVariant: selectedVariant?.title,
-            hasRequiredSelections
+            hasRequiredSelections,
+            messageIsRequired,
+            messageIsMissing,
+            canAddToCart
         });
         
-        addToCartButton.disabled = !hasRequiredSelections;
+        addToCartButton.disabled = !canAddToCart;
         
-        if (hasRequiredSelections) {
+        if (canAddToCart) {
             addToCartButton.classList.remove('disabled');
             addToCartButtonText.textContent = blockSettings.add_button_text;
             console.log('Button enabled');
         } else {
             addToCartButton.classList.add('disabled');
-            if (selectedProduct && selectedProduct.variants?.length > 1) {
-                addToCartButtonText.textContent = blockSettings.select_variant_text;
-            } else {
-                addToCartButtonText.textContent = blockSettings.select_product_text;
+            if (!hasRequiredSelections) {
+                if (selectedProduct && selectedProduct.variants?.length > 1) {
+                    addToCartButtonText.textContent = blockSettings.select_variant_text;
+                } else {
+                    addToCartButtonText.textContent = blockSettings.select_product_text;
+                }
+            } else if (messageIsRequired && messageIsMissing) {
+                addToCartButtonText.textContent = 'Bericht is verplicht';
             }
             console.log('Button disabled');
         }
@@ -1803,6 +1826,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const addProductToCart = async () => {
         if (!selectedProduct || (selectedProduct.variants?.length > 1 && !selectedVariant)) {
             showErrorMessage('Selecteer eerst een product en variant.');
+            return;
+        }
+
+        const messageIsRequired = selectedProduct.customizable && selectedProduct.maxCharacters > 0;
+        if (messageIsRequired && messageTextarea.value.trim() === '') {
+            showErrorMessage('Een persoonlijk bericht is verplicht voor dit item.');
+            messageTextarea.classList.add('error');
+            messageTextarea.focus();
             return;
         }
 
@@ -2038,6 +2069,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedProduct = null;
         selectedVariant = null;
         messageTextarea.value = '';
+        messageTextarea.classList.remove('error');
         charCount.textContent = '0/0';
         variantSection.style.display = 'none';
         messageSection.style.display = 'none';
