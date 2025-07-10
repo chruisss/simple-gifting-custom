@@ -104,8 +104,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const responseJson = await productsResponse.json();
     const data = responseJson.data;
     
-    const products = data.products.edges.map((edge: any) => edge.node);
-    const metafields = data.metafieldDefinitions.edges.map((edge: any) => edge.node);
+    const products = data?.products?.edges.map((edge: any) => edge.node) || [];
+    const metafields = data?.metafieldDefinitions?.edges.map((edge: any) => edge.node) || [];
     
     stats = {
       totalProducts: products.length,
