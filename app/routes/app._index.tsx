@@ -31,8 +31,8 @@ import { authenticate } from "../shopify.server";
 import { getShopConfiguration } from "../models/ShopConfiguration.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
-  const { shop } = session;
+  const { admin } = await authenticate.admin(request);
+  const shop = process.env.SHOPIFY_APP_SHOP!;
   
   // Get shop configuration
   const config = await getShopConfiguration(shop);
