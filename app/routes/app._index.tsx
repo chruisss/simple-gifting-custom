@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useSubmit, Form } from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit, useActionData, useNavigation } from "@remix-run/react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Page,
   Layout,
@@ -16,6 +17,7 @@ import {
   List,
   Banner,
   CalloutCard,
+  Toast,
 } from "@shopify/polaris";
 import { 
   GiftCardIcon, 
@@ -186,8 +188,36 @@ const METAFIELD_DEFINITIONS = [
 
 export default function Dashboard() {
   const { config, stats, shop } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
   const navigate = useNavigate();
   const submit = useSubmit();
+
+  const [toastActive, setToastActive] = useState(false);
+  const [toastContent, setToastContent] = useState("");
+  const [toastIsError, setToastIsError] = useState(false);
+
+  const toggleToastActive = useCallback(() => setToastActive((active) => !active), []);
+  const toastMarkup = toastActive ? (
+    <Toast content={toastContent} onDismiss={toggleToastActive} error={toastIsError} />
+  ) : null;
+
+  const isLoading =
+    navigation.state === "submitting" &&
+    navigation.formData?.get("action") === "initialize";
+
+  useEffect(() => {
+    if (actionData) {
+      if (actionData.success) {
+        setToastContent("Configuratie succesvol opgeslagen!");
+        setToastIsError(false);
+      } else {
+        setToastContent("Er is een fout opgetreden bij het configureren.");
+        setToastIsError(true);
+      }
+      setToastActive(true);
+    }
+  }, [actionData]);
 
   const handleInitialize = () => {
     const formData = new FormData();
@@ -200,6 +230,7 @@ export default function Dashboard() {
 
   return (
     <Page title="Dashboard">
+      {toastMarkup}
       <TitleBar title="Simple Gifting - Dashboard" />
       
       {!isConfigured && (
@@ -209,7 +240,8 @@ export default function Dashboard() {
             tone="warning"
             action={{
               content: "Configureer nu",
-              onAction: handleInitialize
+              onAction: handleInitialize,
+              loading: isLoading,
             }}
           >
             <p>Voordat je de app kunt gebruiken, moeten de product metafields worden geïnitialiseerd.</p>
