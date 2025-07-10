@@ -1,19 +1,50 @@
-import { Link } from '@remix-run/react';
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 import styles from './styles.module.css';
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+
+  // If we have a shop parameter, redirect to app (embedded flow)
+  if (url.searchParams.get("shop")) {
+    throw redirect(`/app?${url.searchParams.toString()}`);
+  }
+
+  return json({ showForm: true });
+};
+
 export default function Index() {
+  const { showForm } = useLoaderData<typeof loader>();
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Simple Gifting</h1>
         <p className={styles.tagline}>The easiest way to offer personalized gift options.</p>
-        <a 
-          href="/auth/login" 
-          className={styles.ctaButton}
-        >
-          Install App
-        </a>
+        
+        {showForm && (
+          <Form method="post" action="/auth/login" className={styles.installForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="shop" className={styles.label}>
+                Shop domain
+              </label>
+              <input 
+                type="text" 
+                id="shop"
+                name="shop" 
+                placeholder="my-shop-domain.myshopify.com"
+                className={styles.input}
+                required
+              />
+            </div>
+            <button type="submit" className={styles.ctaButton}>
+              Install App
+            </button>
+          </Form>
+        )}
       </header>
+      
       <main className={styles.main}>
         <div className={styles.feature}>
           <h2 className={styles.featureTitle}>Enhance Every Gift</h2>
