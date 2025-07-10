@@ -1,13 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import {
-  useLoaderData,
-  useNavigate,
-  useSubmit,
-  useActionData,
-  useNavigation,
-  useRevalidator,
-} from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit, useActionData, useNavigation } from "@remix-run/react";
 import { useState, useCallback, useEffect } from "react";
 import {
   Page,
@@ -261,7 +254,6 @@ export default function Dashboard() {
   const navigation = useNavigation();
   const navigate = useNavigate();
   const submit = useSubmit();
-  const revalidator = useRevalidator();
 
   const [toastActive, setToastActive] = useState(false);
   const [toastContent, setToastContent] = useState("");
@@ -281,7 +273,6 @@ export default function Dashboard() {
       if (actionData.success) {
         setToastContent("Configuratie succesvol opgeslagen!");
         setToastIsError(false);
-        revalidator.revalidate();
       } else {
         setToastContent("Er is een fout opgetreden bij het configureren.");
         setToastIsError(true);
