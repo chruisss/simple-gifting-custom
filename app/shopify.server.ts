@@ -14,7 +14,6 @@ const shopify = shopifyApp({
   apiVersion: ApiVersion.July25,
   scopes: ["write_products"],
   appUrl: "https://simple-gifting.vercel.app/",
-  authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.SingleMerchant,
   billing: {
