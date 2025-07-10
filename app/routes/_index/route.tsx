@@ -1,29 +1,15 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { Form } from "@remix-run/react";
 
 import { login } from "../../shopify.server";
 
 import styles from "./styles.module.css";
 
-export const loader = async () => {
-  return json({
-    polarisTranslations: require("@shopify/polaris/locales/en.json"),
-  });
-};
-
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { shop } = await request.json();
-
-  if (!shop) {
-    return json({ error: "Shop domain is required" }, { status: 400 });
-  }
-
   return login(request);
 };
 
 export default function Index() {
-  const { polarisTranslations } = useLoaderData<typeof loader>();
-
   return (
     <div className={styles.container}>
       <h1>A short heading about [your app]</h1>
