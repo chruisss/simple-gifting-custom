@@ -55,23 +55,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin, billing } = await authenticate.admin(request);
+  const { billing } = await authenticate.admin(request);
 
-  try {
-    const billingResponse = await billing.require({
-      plans: ["Monthly Subscription"],
-      onFailure: async () => billing.request({
+  const billingResponse = await billing.require({
+    plans: ["Monthly Subscription"],
+    onFailure: async () =>
+      billing.request({
         plan: "Monthly Subscription",
         isTest: true, // Set to false in production
         returnUrl: `${process.env.SHOPIFY_APP_URL}/app`,
       }),
-    });
+  });
 
-    return json({ success: true, billingResponse });
-  } catch (error) {
-    console.error("Billing error:", error);
-    return json({ success: false, error: "Failed to process subscription" }, { status: 500 });
-  }
+  return json({ success: true, billingResponse });
 };
 
 export default function Pricing() {
@@ -179,7 +175,7 @@ export default function Pricing() {
         <Layout.Section>
           <CalloutCard
             title="Questions about pricing?"
-            illustration="/help-icon.svg"
+            illustration=""
             primaryAction={{
               content: "Contact Support",
               url: "/app/help",
