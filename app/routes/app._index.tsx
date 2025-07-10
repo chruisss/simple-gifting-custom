@@ -58,58 +58,66 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
   );
 
-  if (!isSubscribed) {
-    return redirect("/app/pricing");
-  }
-
   // Get shop configuration
   const config = await getShopConfiguration(shop);
   
-  // Get product statistics
-  const productsResponse = await admin.graphql(
-    `#graphql
-      query getDashboardStats {
-        products(first: 250, query: "tag:simple-gifting-product") {
-          edges {
-            node {
-              id
-              status
-              totalInventory
-              customizable: metafield(namespace: "simple_gifting", key: "customizable") {
-                value
+  // Get basic stats even without subscription
+  let stats = {
+    totalProducts: 0,
+    activeProducts: 0,
+    customizableProducts: 0,
+    totalInventory: 0,
+    metafieldsConfigured: 0,
+    appEnabled: config.appIsEnabled
+  };
+
+  // Only get detailed stats if subscribed
+  if (isSubscribed) {
+    const productsResponse = await admin.graphql(
+      `#graphql
+        query getDashboardStats {
+          products(first: 250, query: "tag:simple-gifting-product") {
+            edges {
+              node {
+                id
+                status
+                totalInventory
+                customizable: metafield(namespace: "simple_gifting", key: "customizable") {
+                  value
+                }
+              }
+            }
+          }
+          metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
+            edges {
+              node {
+                id
+                key
+                name
               }
             }
           }
         }
-        metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
-          edges {
-            node {
-              id
-              key
-              name
-            }
-          }
-        }
-      }
-    `
-  );
+      `
+    );
 
-  const responseJson = await productsResponse.json();
-  const data = responseJson.data;
-  
-  const products = data.products.edges.map((edge: any) => edge.node);
-  const metafields = data.metafieldDefinitions.edges.map((edge: any) => edge.node);
-  
-  const stats = {
-    totalProducts: products.length,
-    activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
-    customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
-    totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
-    metafieldsConfigured: metafields.length,
-    appEnabled: config.appIsEnabled
-  };
+    const responseJson = await productsResponse.json();
+    const data = responseJson.data;
+    
+    const products = data.products.edges.map((edge: any) => edge.node);
+    const metafields = data.metafieldDefinitions.edges.map((edge: any) => edge.node);
+    
+    stats = {
+      totalProducts: products.length,
+      activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
+      customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
+      totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
+      metafieldsConfigured: metafields.length,
+      appEnabled: config.appIsEnabled
+    };
+  }
 
-  return json({ config, stats, shop });
+  return json({ config, stats, shop, isSubscribed });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -215,7 +223,7 @@ const METAFIELD_DEFINITIONS = [
 ];
 
 export default function Dashboard() {
-  const { config, stats, shop } = useLoaderData<typeof loader>();
+  const { config, stats, shop, isSubscribed } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const navigate = useNavigate();
@@ -261,18 +269,17 @@ export default function Dashboard() {
       {toastMarkup}
       <TitleBar title="Simple Gifting - Dashboard" />
       
-      {!isConfigured && (
+      {!isSubscribed && (
         <Layout.Section>
           <Banner
-            title="Eerste configuratie vereist"
+            title="Abonnement vereist"
             tone="warning"
             action={{
-              content: "Configureer nu",
-              onAction: handleInitialize,
-              loading: isLoading,
+              content: "Abonneer je nu",
+              onAction: () => navigate("/app/pricing"),
             }}
           >
-            <p>Voordat je de app kunt gebruiken, moeten de product metafields worden geïnitialiseerd.</p>
+            <p>Om de volledige functionaliteit van de app te gebruiken, moet je een abonnement aanvragen.</p>
           </Banner>
         </Layout.Section>
       )}
