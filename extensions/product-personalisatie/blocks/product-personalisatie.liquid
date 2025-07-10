@@ -1,0 +1,2308 @@
+<div class="gifting-app-container">
+  <button id="gifting-modal-trigger" class="gifting-trigger-btn">
+    {% if block.settings.show_button_icon %}
+      <svg class="gifting-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    {% endif %}
+    {{ block.settings.button_label | default: "Voeg personalisatie toe" }}
+  </button>
+</div>
+
+<!-- Modal will be dynamically inserted into body -->
+<div id="gifting-modal-template" style="display: none;">
+  <div id="gifting-modal" class="gifting-modal-overlay" style="display: none;">
+  <div class="gifting-modal-backdrop"></div>
+  <div class="gifting-modal-container">
+    <div class="gifting-modal-content">
+      <!-- Header -->
+      <div class="gifting-modal-header">
+        <div class="gifting-header-content">
+          <div class="gifting-icon-wrapper">
+            <svg class="gifting-header-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/>
+              <path d="M2 7h20l-2 5H4l-2-5z"/>
+              <path d="M12 22V7"/>
+              <path d="M8 7V5a4 4 0 0 1 8 0v2"/>
+            </svg>
+          </div>
+          <div class="gifting-header-text">
+            <h2 id="gifting-modal-title" class="gifting-title">{{ block.settings.modal_title | default: "Voeg een persoonlijk bericht toe" }}</h2>
+            <p class="gifting-subtitle">{{ block.settings.modal_subtitle | default: "Maak het extra speciaal met een persoonlijk bericht" }}</p>
+          </div>
+        </div>
+        <button class="gifting-modal-close" aria-label="Sluit popup">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+
+
+      <!-- Content -->
+      <div class="gifting-modal-body">
+        <!-- Product Selection -->
+        <div id="gifting-product-section" class="gifting-section">
+          <div class="gifting-carousel-container">
+            <button class="gifting-carousel-btn gifting-carousel-prev" id="carousel-prev" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15,18 9,12 15,6"></polyline>
+              </svg>
+            </button>
+            <div class="gifting-carousel-wrapper">
+              <div id="gifting-product-list" class="gifting-product-carousel"></div>
+            </div>
+            <button class="gifting-carousel-btn gifting-carousel-next" id="carousel-next" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9,18 15,12 9,6"></polyline>
+              </svg>
+            </button>
+          </div>
+          <div class="gifting-carousel-dots" id="carousel-dots" style="display: none;"></div>
+        </div>
+        
+        <!-- Variant Selection -->
+        <div id="gifting-variant-section" class="gifting-section" style="display: none;">
+          <div class="gifting-section-header">
+            <h3 class="gifting-section-title">Kies een optie</h3>
+            <p class="gifting-section-description">Selecteer jouw voorkeur</p>
+          </div>
+          <div id="gifting-variant-options" class="gifting-variant-grid"></div>
+        </div>
+        
+        <!-- Message Section -->
+        <div id="gifting-message-section" class="gifting-section" style="display: none;">
+          <div class="gifting-section-header">
+            <h3 class="gifting-section-title">Jouw persoonlijke bericht</h3>
+            <p class="gifting-section-description">Voeg een liefdevolle boodschap toe</p>
+          </div>
+          <div class="gifting-message-container">
+            <div class="gifting-textarea-wrapper">
+              <textarea 
+                id="gifting-message" 
+                name="properties[Message]" 
+                placeholder="Bijv: Gefeliciteerd met je verjaardag! Ik hoop dat dit je dag nog specialer maakt..."
+                rows="4"
+              ></textarea>
+              <div class="gifting-textarea-border"></div>
+            </div>
+            <div class="gifting-message-footer">
+              <div class="gifting-message-tips">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 16v-4"/>
+                  <path d="M12 8h.01"/>
+                </svg>
+              </div>
+              <p id="gifting-char-count" class="gifting-char-count">0/0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="gifting-modal-footer">
+        <div class="gifting-footer-combined">
+          {% if block.settings.enable_quantity_selector %}
+          <div class="gifting-quantity-section">
+            <label for="gifting-quantity" class="gifting-quantity-label">{{ block.settings.quantity_label | default: "Aantal kaartjes:" }}</label>
+            <div class="gifting-quantity-controls">
+              <button type="button" id="quantity-decrease" class="gifting-quantity-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+              <input type="number" id="gifting-quantity" class="gifting-quantity-input" value="1" min="1" max="{{ block.settings.max_quantity | default: 99 }}">
+              <button type="button" id="quantity-increase" class="gifting-quantity-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          {% endif %}
+          <div class="gifting-modal-actions">
+            <input type="hidden" id="selected-variant-id" name="id">
+            <input type="hidden" id="selected-product-title" name="properties[Gifting Product]">
+            <button type="button" id="gifting-add-to-cart" class="gifting-btn gifting-btn-primary" disabled>
+              <svg class="gifting-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-6M7 13l-1.5-8"/>
+              </svg>
+              <span class="gifting-btn-text">{{ block.settings.select_product_text | default: "Selecteer product" }}</span>
+              <div class="gifting-btn-loading" style="display: none;">
+                <div class="gifting-spinner"></div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<style>
+/* CSS Custom Properties - Will be set dynamically by JavaScript */
+:root {
+  --gifting-primary-color: #2563eb;
+  --gifting-secondary-color: #1d4ed8;
+  --gifting-accent-color: #059669;
+  --gifting-background-color: #ffffff;
+  --gifting-text-color: #1e293b;
+  --gifting-border-radius: 12px;
+  --gifting-modal-width: {{ block.settings.modal_width | default: 85 }}%;
+  --gifting-modal-height: {{ block.settings.modal_height | default: 90 }}vh;
+  --gifting-product-image-height: {{ block.settings.product_image_height | default: 120 }}px;
+  --gifting-font-family: 'Inter', sans-serif;
+  --gifting-font-size: 16px;
+  --gifting-font-weight: 500;
+}
+
+/* Reset and base styles */
+.gifting-app-container * {
+  box-sizing: border-box;
+}
+
+/* Trigger Button */
+.gifting-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--gifting-primary-color) 0%, var(--gifting-secondary-color) 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--gifting-border-radius);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.gifting-trigger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.gifting-trigger-btn:active {
+  transform: translateY(0);
+}
+
+.gifting-trigger-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.gifting-trigger-btn:hover::before {
+  left: 100%;
+}
+
+.gifting-icon {
+  transition: transform 0.3s ease;
+}
+
+.gifting-trigger-btn:hover .gifting-icon {
+  transform: scale(1.1);
+}
+
+/* Button size variants */
+.gifting-btn-small {
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+}
+
+.gifting-btn-medium {
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+}
+
+.gifting-btn-large {
+  padding: 16px 32px !important;
+  font-size: 18px !important;
+}
+
+/* Modal Overlay */
+.gifting-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: giftingFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.gifting-modal-backdrop {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  animation: giftingBackdropFadeIn 0.3s ease;
+}
+
+.gifting-modal-container {
+  position: relative;
+  width: var(--gifting-modal-width);
+  max-width: 900px;
+  max-height: 95vh;
+  animation: giftingSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gifting-modal-content {
+  background: var(--gifting-background-color);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: var(--gifting-modal-height);
+  max-height: var(--gifting-modal-height);
+  font-family: var(--gifting-font-family);
+  font-size: var(--gifting-font-size);
+  color: var(--gifting-text-color);
+}
+
+/* Header */
+.gifting-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.gifting-header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gifting-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-radius: 12px;
+  border: 2px solid rgba(37, 99, 235, 0.1);
+}
+
+.gifting-header-icon {
+  color: #2563eb;
+}
+
+.gifting-header-text {
+  flex: 1;
+}
+
+.gifting-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.gifting-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.gifting-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #64748b;
+}
+
+.gifting-modal-close:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #374151;
+  transform: scale(1.05);
+}
+
+
+
+/* Modal Body */
+.gifting-modal-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.gifting-section {
+  margin-bottom: 40px;
+}
+
+.gifting-section:last-child {
+  margin-bottom: 0;
+}
+
+.gifting-section-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.gifting-section-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.gifting-section-description {
+  margin: 0;
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Product Carousel */
+.gifting-carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gifting-carousel-wrapper {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.gifting-product-carousel {
+  display: flex;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 24px;
+}
+
+.gifting-carousel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.gifting-carousel-btn:hover {
+  background: #f8fafc;
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: scale(1.05);
+}
+
+.gifting-carousel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gifting-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.gifting-carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.gifting-carousel-dot.active {
+  background: #2563eb;
+  transform: scale(1.2);
+}
+
+/* Grid fallback when carousel is disabled */
+.gifting-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.gifting-product-grid .gifting-product-item {
+  width: auto;
+}
+
+.gifting-product-item {
+  background: white;
+  border: 2px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 240px;
+  flex-shrink: 0;
+  width: 220px;
+}
+
+.gifting-product-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gifting-product-item:hover {
+  border-color: #dbeafe;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.gifting-product-item:hover::before {
+  opacity: 1;
+}
+
+.gifting-product-item.selected {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);
+}
+
+.gifting-product-item.selected::before {
+  opacity: 1;
+}
+
+.gifting-product-item img {
+  width: 100%;
+  height: var(--gifting-product-image-height);
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.gifting-product-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.gifting-product-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #059669;
+  margin: 0 0 6px 0;
+}
+
+.gifting-product-description {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.gifting-product-item.selected .gifting-product-title {
+  color: #1e40af;
+}
+
+/* Variant Grid */
+.gifting-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+}
+
+.gifting-variant-option {
+  padding: 20px 24px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s ease;
+  text-align: center;
+  font-weight: 600;
+  color: #374151;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gifting-variant-option:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-2px);
+}
+
+.gifting-variant-option.selected {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Message Section */
+.gifting-message-container {
+  max-width: 100%;
+}
+
+.gifting-textarea-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+#gifting-message {
+  width: 100%;
+  min-height: 120px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #1e293b;
+  background: white;
+  resize: vertical;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+#gifting-message:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+#gifting-message::placeholder {
+  color: #9ca3af;
+}
+
+.gifting-textarea-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  pointer-events: none;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background-clip: padding-box;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#gifting-message:focus + .gifting-textarea-border {
+  opacity: 1;
+}
+
+.gifting-message-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.gifting-message-tips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.gifting-message-tips svg {
+  color: #3b82f6;
+}
+
+.gifting-char-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Footer */
+.gifting-modal-footer {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.gifting-footer-combined {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gifting-modal-actions {
+  display: flex !important;
+  gap: 16px;
+  justify-content: flex-end;
+  padding: 0;
+  visibility: visible !important;
+  flex-shrink: 0;
+}
+
+.gifting-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border: none;
+  min-height: 48px;
+  visibility: visible !important;
+}
+
+.gifting-btn-secondary {
+  background: white !important;
+  color: #6b7280 !important;
+  border: 2px solid #e5e7eb !important;
+  flex: 0 0 auto;
+}
+
+.gifting-btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+.gifting-btn-primary {
+  background: linear-gradient(135deg, var(--gifting-primary-color) 0%, var(--gifting-secondary-color) 100%);
+  color: white;
+  border: 2px solid transparent;
+  flex: 1;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.gifting-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+}
+
+.gifting-btn-primary:disabled {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.7 !important;
+}
+
+.gifting-btn-icon {
+  transition: transform 0.3s ease;
+}
+
+.gifting-btn-primary:hover:not(:disabled) .gifting-btn-icon {
+  transform: scale(1.1);
+}
+
+.gifting-btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gifting-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: giftingSpin 1s linear infinite;
+}
+
+.gifting-footer-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #059669;
+  font-weight: 500;
+  padding: 0 32px 24px 32px;
+}
+
+.gifting-footer-note svg {
+  color: #10b981;
+}
+
+/* Quantity Section */
+.gifting-quantity-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+}
+
+.gifting-quantity-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.gifting-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.gifting-quantity-controls:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.gifting-quantity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gifting-quantity-btn:hover {
+  background: #e2e8f0;
+  color: #2563eb;
+}
+
+.gifting-quantity-btn:active {
+  background: #cbd5e1;
+  transform: scale(0.95);
+}
+
+.gifting-quantity-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.gifting-quantity-input {
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.gifting-quantity-input::-webkit-outer-spin-button,
+.gifting-quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes giftingFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes giftingBackdropFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes giftingSlideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes giftingSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .gifting-modal-overlay {
+    padding: 10px !important;
+  }
+  
+  .gifting-modal-container {
+    max-width: 95vw;
+    margin: 0 auto;
+  }
+  
+  .gifting-modal-content {
+    height: 90vh;
+  }
+
+  .gifting-modal-header,
+  .gifting-modal-body,
+  .gifting-modal-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .gifting-title {
+    font-size: 20px;
+  }
+
+  .gifting-subtitle {
+    font-size: 14px;
+  }
+
+  .gifting-product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .gifting-carousel-container {
+    gap: 12px;
+  }
+  
+  .gifting-carousel-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .gifting-product-item {
+    width: 180px;
+  }
+
+  .gifting-variant-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+
+  .gifting-footer-combined {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 24px;
+  }
+  
+  .gifting-quantity-section {
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .gifting-quantity-label {
+    text-align: center;
+  }
+  
+  .gifting-quantity-controls {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  
+  .gifting-quantity-btn {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .gifting-quantity-input {
+    width: 70px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .gifting-modal-actions {
+    padding: 0;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .gifting-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .gifting-message-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+
+}
+
+@media (max-width: 480px) {
+  .gifting-modal-overlay {
+    padding: 10px !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+  }
+
+  .gifting-modal-content {
+    border-radius: 16px;
+    height: 90vh;
+  }
+
+  .gifting-header-content {
+    gap: 12px;
+  }
+
+  .gifting-icon-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .gifting-product-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gifting-carousel-container {
+    gap: 8px;
+  }
+  
+  .gifting-carousel-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .gifting-product-item {
+    width: 160px;
+    min-height: 200px;
+  }
+
+  .gifting-variant-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  #gifting-message {
+    min-height: 120px;
+    padding: 20px;
+  }
+  
+  .gifting-footer-combined {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  .gifting-quantity-section {
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .gifting-quantity-label {
+    font-size: 15px;
+    text-align: center;
+  }
+  
+  .gifting-quantity-controls {
+    max-width: 180px;
+    margin: 0 auto;
+  }
+  
+  .gifting-quantity-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .gifting-quantity-input {
+    width: 60px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .gifting-modal-actions {
+    padding: 0;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .gifting-modal-content {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .gifting-modal-header {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    border-bottom-color: #4b5563;
+  }
+
+  .gifting-title {
+    color: #f9fafb;
+  }
+
+  .gifting-subtitle {
+    color: #d1d5db;
+  }
+
+  .gifting-modal-close {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+
+  .gifting-modal-close:hover {
+    background: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .gifting-product-item {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .gifting-product-title {
+    color: #f9fafb;
+  }
+
+  #gifting-message {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .gifting-modal-footer {
+    background: #374151;
+    border-top-color: #4b5563;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Load and apply dynamic styling from the API
+    const loadDynamicStyling = async () => {
+        try {
+            const shopDomain = Shopify.shop || window.location.hostname;
+            const response = await fetch(`/apps/gifting/styling?shop=${shopDomain}`);
+            
+            if (response.ok) {
+                const styling = await response.json();
+                console.log('Loaded dynamic styling:', styling);
+                
+                // Apply CSS custom properties
+                const root = document.documentElement;
+                
+                if (styling.primaryColor) root.style.setProperty('--gifting-primary-color', styling.primaryColor);
+                if (styling.secondaryColor) root.style.setProperty('--gifting-secondary-color', styling.secondaryColor);
+                if (styling.accentColor) root.style.setProperty('--gifting-accent-color', styling.accentColor);
+                if (styling.backgroundColor) root.style.setProperty('--gifting-background-color', styling.backgroundColor);
+                if (styling.textColor) root.style.setProperty('--gifting-text-color', styling.textColor);
+                if (styling.buttonBorderRadius) root.style.setProperty('--gifting-border-radius', styling.buttonBorderRadius + 'px');
+                if (styling.fontFamily) root.style.setProperty('--gifting-font-family', styling.fontFamily);
+                if (styling.fontSize) root.style.setProperty('--gifting-font-size', styling.fontSize + 'px');
+                if (styling.fontWeight) root.style.setProperty('--gifting-font-weight', styling.fontWeight);
+                
+                // Load custom font if specified
+                if (styling.fontFamily === 'Custom' && styling.customFontUrl) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = styling.customFontUrl;
+                    document.head.appendChild(link);
+                }
+                
+                // Apply button size classes
+                if (styling.buttonSize) {
+                    const triggerButton = document.getElementById('gifting-modal-trigger');
+                    if (triggerButton) {
+                        triggerButton.classList.add(`gifting-btn-${styling.buttonSize}`);
+                    }
+                }
+                
+                // Apply custom CSS if provided
+                if (styling.customCss) {
+                    const customStyle = document.createElement('style');
+                    customStyle.textContent = styling.customCss;
+                    document.head.appendChild(customStyle);
+                }
+                
+                // Store modal animation setting for later use
+                window.giftingModalAnimation = styling.modalAnimation || 'fade';
+                window.giftingAutoOpenPopup = styling.autoOpenPopup || false;
+                window.giftingBlurBackground = styling.blurBackground !== false;
+                
+            } else {
+                console.warn('Could not load dynamic styling, using defaults');
+            }
+        } catch (error) {
+            console.warn('Error loading dynamic styling:', error);
+        }
+    };
+    
+    // Load styling immediately
+    loadDynamicStyling();
+
+    // If auto-open is enabled, trigger the modal automatically
+    if (window.giftingAutoOpenPopup) {
+      setTimeout(() => {
+        openModal();
+      }, 500); // Small delay to ensure everything is loaded
+    }
+
+    const modal = document.getElementById('gifting-modal');
+    const modalBackdrop = document.querySelector('.gifting-modal-backdrop');
+    const triggerButton = document.getElementById('gifting-modal-trigger');
+    const closeButton = document.querySelector('.gifting-modal-close');
+    
+    // Initialize modal positioning - move to body on page load
+    const initializeModal = () => {
+        if (modal && modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+        
+        // Ensure modal is always properly positioned
+        if (modal) {
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.right = '0';
+            modal.style.bottom = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.zIndex = '999999';
+            modal.style.margin = '0';
+            modal.style.transform = 'none';
+        }
+    };
+    
+    // Initialize on page load
+    initializeModal();
+    
+    const modalTitle = document.getElementById('gifting-modal-title');
+    const addToCartButton = document.getElementById('gifting-add-to-cart');
+    const addToCartButtonText = document.querySelector('.gifting-btn-text');
+    const addToCartButtonLoading = document.querySelector('.gifting-btn-loading');
+    
+    console.log('Add to cart button elements:', {
+        addToCartButton,
+        addToCartButtonText,
+        addToCartButtonLoading
+    });
+    
+    const productList = document.getElementById('gifting-product-list');
+    
+    const variantSection = document.getElementById('gifting-variant-section');
+    const variantOptions = document.getElementById('gifting-variant-options');
+    
+    const messageSection = document.getElementById('gifting-message-section');
+    const messageTextarea = document.getElementById('gifting-message');
+    const charCount = document.getElementById('gifting-char-count');
+    
+    const selectedVariantIdInput = document.getElementById('selected-variant-id');
+    const selectedProductTitleInput = document.getElementById('selected-product-title');
+    
+    // Quantity controls
+    const quantityInput = document.getElementById('gifting-quantity');
+    const quantityDecrease = document.getElementById('quantity-decrease');
+    const quantityIncrease = document.getElementById('quantity-increase');
+    
+    // Carousel elements
+    const carouselContainer = document.querySelector('.gifting-carousel-container');
+    const carouselWrapper = document.querySelector('.gifting-carousel-wrapper');
+    const carouselPrev = document.getElementById('carousel-prev');
+    const carouselNext = document.getElementById('carousel-next');
+    const carouselDots = document.getElementById('carousel-dots');
+    
+    let currentData = {};
+    let selectedProduct = null;
+    let selectedVariant = null;
+    let carouselPosition = 0;
+    let autoScrollInterval = null;
+    
+    // All settings from block configuration
+    const blockSettings = {
+        // Carousel settings
+        enableCarousel: {{ block.settings.enable_carousel | default: true }},
+        visibleProducts: {{ block.settings.visible_products | default: 2 }},
+        visibleProductsMobile: {{ block.settings.visible_products_mobile | default: 2 }},
+        showDots: {{ block.settings.show_dots | default: true }},
+        showArrows: {{ block.settings.show_arrows | default: true }},
+        autoScroll: {{ block.settings.auto_scroll | default: false }},
+        autoScrollSpeed: {{ block.settings.auto_scroll_speed | default: 5 }} * 1000,
+        
+        // Modal settings
+        modalTitle: "{{ block.settings.modal_title | default: 'Voeg een persoonlijk bericht toe' }}",
+        modalSubtitle: "{{ block.settings.modal_subtitle | default: 'Maak het extra speciaal met een persoonlijk bericht' }}",
+        
+        // Button texts
+        addButtonText: "{{ block.settings.add_button_text | default: 'Toevoegen' }}",
+        selectProductText: "{{ block.settings.select_product_text | default: 'Selecteer product' }}",
+        selectVariantText: "{{ block.settings.select_variant_text | default: 'Selecteer variant' }}",
+        
+        // Product display
+        showProductPrices: {{ block.settings.show_product_prices | default: true }},
+        showProductDescriptions: {{ block.settings.show_product_descriptions | default: false }},
+        
+        // Advanced options
+        enableQuantitySelector: {{ block.settings.enable_quantity_selector | default: true }},
+        maxQuantity: {{ block.settings.max_quantity | default: 99 }},
+        enableBackdropClose: {{ block.settings.enable_backdrop_close | default: true }},
+        enableEscapeClose: {{ block.settings.enable_escape_close | default: true }}
+    };
+    
+    // Get responsive visible products count
+    const getVisibleProducts = () => {
+        if (window.innerWidth <= 768) {
+            return blockSettings.visibleProductsMobile;
+        } else {
+            return blockSettings.visibleProducts;
+        }
+    };
+
+    const openModal = async () => {
+        try {
+            // Ensure modal is attached to body for proper centering
+            if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+            }
+            
+            // Reinitialize modal positioning to ensure proper centering
+            initializeModal();
+            
+            // Apply animation and backdrop blur based on settings
+            const modalContainer = modal.querySelector('.gifting-modal-container');
+            if (window.giftingModalAnimation && window.giftingModalAnimation !== 'none') {
+              const animationName = `gifting-${window.giftingModalAnimation}-in`;
+              modalContainer.style.animation = `${animationName} 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)`;
+            }
+
+            if (window.giftingBlurBackground === false) {
+              const backdrop = modal.querySelector('.gifting-modal-backdrop');
+              if (backdrop) {
+                backdrop.style.backdropFilter = 'none';
+                backdrop.style.background = 'rgba(0, 0, 0, 0.6)';
+              }
+            }
+            
+            console.log('Opening modal, fetching products...');
+            
+            const response = await fetch(`/apps/gifting/products?shop=${Shopify.shop || window.location.hostname}`);
+            if (!response.ok) throw new Error('Failed to fetch gifting products');
+            
+            const data = await response.json();
+            console.log('Fetched gifting data:', data);
+            
+            currentData = data;
+            modalTitle.textContent = data.popupTitle || 'Personaliseer je cadeau';
+            addToCartButtonText.textContent = data.addButtonText || 'Toevoegen';
+            
+            renderProducts();
+            resetModal();
+            modal.style.display = 'flex';
+            
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+            
+        } catch (error) {
+            console.error('Gifting App Error:', error);
+            showErrorMessage('Er is een fout opgetreden bij het laden van de opties.');
+            
+            // Show button even if there's an error, so user knows it exists
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    const renderProducts = () => {
+        if (!currentData.products || currentData.products.length === 0) {
+            productList.innerHTML = '<div class="gifting-empty-state"><p>Geen personalisatie opties beschikbaar.</p></div>';
+            return;
+        }
+        
+        productList.innerHTML = '';
+        currentData.products.forEach(product => {
+            const productElement = document.createElement('div');
+            productElement.className = 'gifting-product-item';
+            productElement.dataset.productId = product.id;
+
+            let priceDisplay = '';
+            if (product.productType === 'ribbon' && product.ribbonLength > 0) {
+                priceDisplay = `${product.ribbonLength}cm`;
+            } else {
+                priceDisplay = `+${formatCurrency(product.price)}`;
+            }
+
+            // Build product HTML based on settings
+            let productHtml = `
+                <img src="${product.imageUrl || 'https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png'}" alt="${product.title}" loading="lazy">
+                <h4 class="gifting-product-title">${product.title}</h4>
+            `;
+            
+            // Add description if enabled and available
+            if (blockSettings.showProductDescriptions && product.description) {
+                productHtml += `<p class="gifting-product-description">${product.description}</p>`;
+            }
+            
+            // Add price if enabled
+            if (blockSettings.showProductPrices) {
+                productHtml += `<p class="gifting-product-price">${priceDisplay}</p>`;
+            }
+            
+            productElement.innerHTML = productHtml;
+            productElement.addEventListener('click', () => selectProduct(product));
+            productList.appendChild(productElement);
+        });
+        
+        // Initialize carousel after products are rendered
+        if (blockSettings.enableCarousel) {
+            initializeCarousel();
+        } else {
+            // Show as grid instead of carousel
+            productList.classList.remove('gifting-product-carousel');
+            productList.classList.add('gifting-product-grid');
+            carouselContainer.style.display = 'block';
+            carouselPrev.style.display = 'none';
+            carouselNext.style.display = 'none';
+            carouselDots.style.display = 'none';
+        }
+    };
+
+    const initializeCarousel = () => {
+        const products = currentData.products || [];
+        const totalProducts = products.length;
+        
+        if (totalProducts <= getVisibleProducts()) {
+            // No need for carousel if all products fit
+            carouselPrev.style.display = 'none';
+            carouselNext.style.display = 'none';
+            carouselDots.style.display = 'none';
+            return;
+        }
+        
+        // Show carousel controls based on settings
+        carouselPrev.style.display = blockSettings.showArrows ? 'flex' : 'none';
+        carouselNext.style.display = blockSettings.showArrows ? 'flex' : 'none';
+        
+        // Setup dots if enabled
+        if (blockSettings.showDots) {
+            setupCarouselDots();
+            carouselDots.style.display = 'flex';
+        }
+        
+        // Setup auto scroll if enabled
+        if (blockSettings.autoScroll) {
+            startAutoScroll();
+        }
+        
+        // Set initial carousel width
+        updateCarouselWidth();
+        updateCarouselPosition();
+    };
+    
+    const setupCarouselDots = () => {
+        const totalProducts = currentData.products.length;
+        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
+        
+        carouselDots.innerHTML = '';
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'gifting-carousel-dot';
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(i));
+            carouselDots.appendChild(dot);
+        }
+    };
+    
+    const getItemWidth = () => {
+        // Responsive item width calculation
+        if (window.innerWidth <= 480) {
+            return 160 + 16; // mobile width + gap (smaller for 2 products)
+        } else if (window.innerWidth <= 768) {
+            return 180 + 16; // tablet width + gap
+        } else {
+            return 220 + 20; // desktop width + gap (updated for new size)
+        }
+    };
+    
+    const updateCarouselWidth = () => {
+        const itemWidth = getItemWidth();
+        productList.style.width = `${currentData.products.length * itemWidth}px`;
+    };
+    
+    const updateCarouselPosition = () => {
+        const itemWidth = getItemWidth();
+        const translateX = -(carouselPosition * getVisibleProducts() * itemWidth);
+        productList.style.transform = `translateX(${translateX}px)`;
+        
+        // Update dots
+        const dots = carouselDots.querySelectorAll('.gifting-carousel-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === carouselPosition);
+        });
+        
+        // Update button states
+        const totalProducts = currentData.products.length;
+        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
+        
+        carouselPrev.disabled = carouselPosition === 0;
+        carouselNext.disabled = carouselPosition >= totalSlides - 1;
+    };
+    
+    const goToSlide = (slideIndex) => {
+        const totalProducts = currentData.products.length;
+        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
+        
+        carouselPosition = Math.max(0, Math.min(slideIndex, totalSlides - 1));
+        updateCarouselPosition();
+        
+        // Restart auto scroll if enabled
+        if (blockSettings.autoScroll) {
+            stopAutoScroll();
+            startAutoScroll();
+        }
+    };
+    
+    const nextSlide = () => {
+        const totalProducts = currentData.products.length;
+        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
+        
+        if (carouselPosition < totalSlides - 1) {
+            goToSlide(carouselPosition + 1);
+        } else if (blockSettings.autoScroll) {
+            // Loop back to start for auto scroll
+            goToSlide(0);
+        }
+    };
+    
+    const prevSlide = () => {
+        if (carouselPosition > 0) {
+            goToSlide(carouselPosition - 1);
+        }
+    };
+    
+    const startAutoScroll = () => {
+        stopAutoScroll();
+        autoScrollInterval = setInterval(nextSlide, blockSettings.autoScrollSpeed);
+    };
+    
+    const stopAutoScroll = () => {
+        if (autoScrollInterval) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+        }
+    };
+
+    const selectProduct = (product) => {
+        console.log('Selecting product:', product);
+        selectedProduct = product;
+
+        // Update selection visual with smooth animation
+        document.querySelectorAll('.gifting-product-item').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        const selectedElement = document.querySelector(`.gifting-product-item[data-product-id='${product.id}']`);
+        if (selectedElement) {
+            selectedElement.classList.add('selected');
+        } else {
+            console.warn('Selected element not found for product:', product.id);
+        }
+        
+        selectedProductTitleInput.value = product.title;
+
+        // Handle variants
+        if (product.variants && product.variants.length > 1) {
+            renderVariants(product.variants);
+            variantSection.style.display = 'block';
+            selectedVariant = null;
+        } else {
+            variantSection.style.display = 'none';
+            selectedVariant = product.variants?.[0] || null;
+            if(selectedVariant) selectedVariantIdInput.value = selectedVariant.id;
+        }
+        
+        // Handle message/customization
+        if (product.customizable && product.maxCharacters > 0) {
+            messageSection.style.display = 'block';
+            charCount.textContent = `0/${product.maxCharacters}`;
+            messageTextarea.setAttribute('maxlength', product.maxCharacters);
+            
+            // Auto-focus on message field if no variants to choose
+            if (!product.variants || product.variants.length <= 1) {
+                setTimeout(() => {
+                    messageTextarea.focus();
+                }, 300);
+            }
+        } else {
+            messageSection.style.display = 'none';
+        }
+        
+        updateAddToCartButton();
+    };
+
+    const renderVariants = (variants) => {
+        variantOptions.innerHTML = '';
+        variants.forEach(variant => {
+            const variantElement = document.createElement('div');
+            variantElement.className = 'gifting-variant-option';
+            variantElement.dataset.variantId = variant.id;
+            variantElement.textContent = variant.title;
+            variantElement.addEventListener('click', () => selectVariant(variant));
+            variantOptions.appendChild(variantElement);
+        });
+    };
+
+    const selectVariant = (variant) => {
+        selectedVariant = variant;
+        selectedVariantIdInput.value = variant.id;
+
+        // Update selection visual
+        document.querySelectorAll('.gifting-variant-option').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        const selectedElement = document.querySelector(`.gifting-variant-option[data-variant-id='${variant.id}']`);
+        selectedElement.classList.add('selected');
+        
+        // Focus message field if customizable
+        if (selectedProduct?.customizable && selectedProduct?.maxCharacters > 0) {
+            setTimeout(() => {
+                messageTextarea.focus();
+            }, 300);
+        }
+        
+        updateAddToCartButton();
+    };
+
+    const updateCharCount = () => {
+        const currentLength = messageTextarea.value.length;
+        const maxLength = selectedProduct?.maxCharacters || 0;
+        charCount.textContent = `${currentLength}/${maxLength}`;
+        
+        // Change color based on length
+        const percentage = currentLength / maxLength;
+        if (percentage > 0.9) {
+            charCount.style.color = '#dc2626';
+        } else if (percentage > 0.7) {
+            charCount.style.color = '#d97706';
+        } else {
+            charCount.style.color = '#6b7280';
+        }
+        
+        updateAddToCartButton();
+    };
+
+    const updateAddToCartButton = () => {
+        const hasRequiredSelections = selectedProduct && 
+                                    (selectedProduct.variants?.length <= 1 || selectedVariant);
+        
+        console.log('Updating add to cart button:', {
+            selectedProduct: selectedProduct?.title,
+            hasVariants: selectedProduct?.variants?.length > 1,
+            selectedVariant: selectedVariant?.title,
+            hasRequiredSelections
+        });
+        
+        addToCartButton.disabled = !hasRequiredSelections;
+        
+        if (hasRequiredSelections) {
+            addToCartButton.classList.remove('disabled');
+            addToCartButtonText.textContent = blockSettings.addButtonText;
+            console.log('Button enabled');
+        } else {
+            addToCartButton.classList.add('disabled');
+            if (selectedProduct && selectedProduct.variants?.length > 1) {
+                addToCartButtonText.textContent = blockSettings.selectVariantText;
+            } else {
+                addToCartButtonText.textContent = blockSettings.selectProductText;
+            }
+            console.log('Button disabled');
+        }
+    };
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('nl-NL', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+    };
+
+    const addProductToCart = async () => {
+        if (!selectedProduct || (selectedProduct.variants?.length > 1 && !selectedVariant)) {
+            showErrorMessage('Selecteer eerst een product en variant.');
+            return;
+        }
+
+        // Show loading state
+        addToCartButtonText.style.display = 'none';
+        addToCartButtonLoading.style.display = 'flex';
+        addToCartButton.disabled = true;
+
+        try {
+            // Get the correct variant ID
+            let variantId = selectedVariant?.id || selectedProduct.variants?.[0]?.id;
+            
+            // Extract numeric ID if it's a Shopify GraphQL ID
+            if (variantId && typeof variantId === 'string' && variantId.includes('/')) {
+                variantId = variantId.split('/').pop();
+            }
+            
+            if (!variantId) {
+                throw new Error('Geen geldige variant gevonden');
+            }
+            
+            console.log('Adding product to cart:', {
+                variantId,
+                productTitle: selectedProduct.title,
+                hasMessage: selectedProduct.customizable && messageTextarea.value.trim()
+            });
+            
+            // Get quantity from input
+            const quantity = parseInt(quantityInput.value) || 1;
+            
+            // Create request data in JSON format (more reliable than FormData)
+            const requestData = {
+                items: [{
+                    id: parseInt(variantId),
+                    quantity: quantity,
+                    properties: {}
+                }]
+            };
+            
+            // Add custom message if provided
+            if (selectedProduct.customizable && messageTextarea.value.trim()) {
+                requestData.items[0].properties['Message'] = messageTextarea.value.trim();
+            }
+            
+            // Add product type identifier
+            requestData.items[0].properties['Gifting Product'] = selectedProduct.title;
+            
+            console.log('Request data:', requestData);
+            
+            const response = await fetch('/cart/add.js', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            const responseData = await response.text();
+            console.log('Cart response status:', response.status);
+            console.log('Cart response:', responseData);
+
+            if (response.ok) {
+                // Success animation
+                addToCartButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                addToCartButtonText.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                    ${quantity > 1 ? `${quantity}x ` : ''}Toegevoegd!
+                `;
+                addToCartButtonText.style.display = 'flex';
+                addToCartButtonLoading.style.display = 'none';
+                
+                // Trigger cart update events
+                if (typeof window.cartUpdateCallback === 'function') {
+                    window.cartUpdateCallback();
+                }
+                
+                // Trigger Shopify theme cart refresh events
+                document.dispatchEvent(new CustomEvent('cart:updated'));
+                
+                // Legacy cart update events
+                if (window.Shopify && window.Shopify.theme) {
+                    window.dispatchEvent(new CustomEvent('cart:build'));
+                }
+                
+                // Close modal after short delay
+                setTimeout(() => {
+                    closeModal();
+                    showSuccessMessage(quantity);
+                }, 1000);
+            } else {
+                let errorMessage = 'Failed to add to cart';
+                try {
+                    const errorData = JSON.parse(responseData);
+                    errorMessage = errorData.message || errorData.description || errorMessage;
+                } catch (e) {
+                    // If response is not JSON, use the raw text
+                    errorMessage = responseData || errorMessage;
+                }
+                throw new Error(errorMessage);
+            }
+            
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            
+            let userMessage = 'Er is een fout opgetreden bij het toevoegen aan de winkelwagen.';
+            
+            // Provide more specific error messages
+            if (error.message.includes('variant') || error.message.includes('Variant')) {
+                userMessage = 'Dit product variant is niet beschikbaar.';
+            } else if (error.message.includes('inventory') || error.message.includes('stock')) {
+                userMessage = 'Dit product is niet meer op voorraad.';
+            } else if (error.message.includes('Geen geldige variant')) {
+                userMessage = 'Product informatie is niet compleet.';
+            } else if (error.message.includes('422')) {
+                userMessage = 'Dit product kan momenteel niet worden toegevoegd.';
+            }
+            
+            showErrorMessage(userMessage);
+            
+            // Reset button state
+            addToCartButtonText.style.display = 'flex';
+            addToCartButtonLoading.style.display = 'none';
+            updateAddToCartButton();
+        }
+    };
+
+    const showSuccessMessage = (quantity = 1) => {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed; top: 24px; right: 24px; z-index: 10000;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white; padding: 16px 20px; border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+            animation: giftingSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: inherit; font-weight: 500;
+            display: flex; align-items: center; gap: 12px;
+            max-width: 320px;
+        `;
+        notification.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            <div>
+                <div style="font-weight: 600;">Toegevoegd!</div>
+                <div style="font-size: 14px; opacity: 0.9;">${quantity > 1 ? `${quantity}x ` : ''}${selectedProduct.title} is toegevoegd aan je winkelwagen.</div>
+            </div>
+        `;
+        
+        // Add slide in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes giftingSlideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'giftingSlideIn 0.3s reverse';
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 300);
+        }, 2700);
+    };
+
+    const showErrorMessage = (message) => {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed; top: 24px; right: 24px; z-index: 10000;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white; padding: 16px 20px; border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.25);
+            animation: giftingSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: inherit; font-weight: 500;
+            display: flex; align-items: center; gap: 12px;
+            max-width: 320px;
+        `;
+        notification.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <div>
+                <div style="font-weight: 600;">Fout</div>
+                <div style="font-size: 14px; opacity: 0.9;">${message}</div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'giftingSlideIn 0.3s reverse';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3700);
+    };
+
+    const closeModal = () => {
+        const modalContainer = modal.querySelector('.gifting-modal-container');
+
+        // Add closing animation
+        if (window.giftingModalAnimation && window.giftingModalAnimation !== 'none') {
+          modalContainer.style.animation = `gifting-${window.giftingModalAnimation}-out 0.3s forwards`;
+        } else {
+          modal.style.opacity = 0;
+        }
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+        
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.style.opacity = 1; // Reset opacity
+            modalContainer.style.animation = ''; // Clear animation
+            resetModal();
+        }, 300);
+    };
+
+    const resetModal = () => {
+        selectedProduct = null;
+        selectedVariant = null;
+        messageTextarea.value = '';
+        charCount.textContent = '0/0';
+        variantSection.style.display = 'none';
+        messageSection.style.display = 'none';
+        
+        // Reset quantity to 1
+        if (quantityInput) {
+            quantityInput.value = 1;
+        }
+        
+        // Reset carousel position
+        carouselPosition = 0;
+        if (blockSettings.enableCarousel && currentData.products) {
+            updateCarouselPosition();
+        }
+        
+        // Stop auto scroll
+        stopAutoScroll();
+        
+        // Reset button state
+        addToCartButton.style.background = '';
+        addToCartButtonText.innerHTML = `
+            <svg class="gifting-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-6M7 13l-1.5-8"/>
+            </svg>
+            <span class="gifting-btn-text">${blockSettings.addButtonText}</span>
+        `;
+        addToCartButtonText.style.display = 'flex';
+        addToCartButtonLoading.style.display = 'none';
+        
+        document.querySelectorAll('.gifting-product-item.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        document.querySelectorAll('.gifting-variant-option.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        updateAddToCartButton();
+    };
+
+    // Event listeners
+    triggerButton.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+    addToCartButton.addEventListener('click', addProductToCart);
+    messageTextarea.addEventListener('input', updateCharCount);
+    
+    // Quantity controls event listeners
+    if (quantityDecrease) {
+        quantityDecrease.addEventListener('click', () => {
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        });
+    }
+    
+    if (quantityIncrease) {
+        quantityIncrease.addEventListener('click', () => {
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue < blockSettings.maxQuantity) {
+                quantityInput.value = currentValue + 1;
+            }
+        });
+    }
+    
+    if (quantityInput) {
+        quantityInput.addEventListener('change', () => {
+            const value = parseInt(quantityInput.value);
+            if (value < 1) {
+                quantityInput.value = 1;
+            } else if (value > blockSettings.maxQuantity) {
+                quantityInput.value = blockSettings.maxQuantity;
+            }
+        });
+    }
+    
+    // Carousel event listeners
+    if (carouselPrev) carouselPrev.addEventListener('click', prevSlide);
+    if (carouselNext) carouselNext.addEventListener('click', nextSlide);
+    
+    // Close on backdrop click (if enabled)
+    if (blockSettings.enableBackdropClose) {
+        modalBackdrop.addEventListener('click', closeModal);
+    }
+    
+    // Close with Escape key (if enabled)
+    if (blockSettings.enableEscapeClose) {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                closeModal();
+            }
+        });
+    }
+    
+    // Handle window resize to ensure proper centering and carousel responsiveness
+    window.addEventListener('resize', () => {
+        if (modal.style.display === 'flex') {
+            initializeModal();
+            
+            // Update carousel if active
+            if (blockSettings.enableCarousel && currentData.products) {
+                // Reset carousel position if needed
+                const totalProducts = currentData.products.length;
+                const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
+                if (carouselPosition >= totalSlides) {
+                    carouselPosition = Math.max(0, totalSlides - 1);
+                }
+                
+                updateCarouselWidth();
+                updateCarouselPosition();
+                setupCarouselDots();
+            }
+        }
+    });
+    
+    // Add closing animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .gifting-modal-overlay.closing .gifting-modal-container {
+            animation: giftingSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .gifting-modal-overlay.closing .gifting-modal-backdrop {
+            animation: giftingBackdropFadeOut 0.3s ease;
+        }
+        @keyframes giftingSlideDown {
+            to { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+        }
+        @keyframes giftingBackdropFadeOut {
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+
+{% schema %}
+{
+  "name": "Gifting Producten",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Trigger Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Tekst op knop",
+      "default": "Voeg personalisatie toe"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button_icon",
+      "label": "Toon icoon op knop",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Modal Instellingen"
+    },
+    {
+      "type": "text",
+      "id": "modal_title",
+      "label": "Modal titel",
+      "default": "Voeg een persoonlijk bericht toe"
+    },
+    {
+      "type": "text",
+      "id": "modal_subtitle",
+      "label": "Modal ondertitel",
+      "default": "Maak het extra speciaal met een persoonlijk bericht"
+    },
+    {
+      "type": "range",
+      "id": "modal_width",
+      "label": "Modal breedte (%)",
+      "min": 60,
+      "max": 95,
+      "step": 5,
+      "default": 85,
+      "info": "Percentage van scherm breedte"
+    },
+    {
+      "type": "range",
+      "id": "modal_height",
+      "label": "Modal hoogte (%)",
+      "min": 70,
+      "max": 95,
+      "step": 5,
+      "default": 90,
+      "info": "Percentage van scherm hoogte"
+    },
+    {
+      "type": "header",
+      "content": "Button Teksten"
+    },
+    {
+      "type": "text",
+      "id": "add_button_text",
+      "label": "Toevoegen knop tekst",
+      "default": "Toevoegen"
+    },
+    {
+      "type": "text",
+      "id": "select_product_text",
+      "label": "Selecteer product tekst",
+      "default": "Selecteer product"
+    },
+    {
+      "type": "text",
+      "id": "select_variant_text",
+      "label": "Selecteer variant tekst",
+      "default": "Selecteer variant"
+    },
+    {
+      "type": "text",
+      "id": "quantity_label",
+      "label": "Aantal label",
+      "default": "Aantal kaartjes:"
+    },
+    {
+      "type": "header",
+      "content": "Product Display"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_prices",
+      "label": "Toon product prijzen",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_descriptions",
+      "label": "Toon product beschrijvingen",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "product_image_height",
+      "label": "Product afbeelding hoogte (px)",
+      "min": 80,
+      "max": 200,
+      "step": 10,
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Carousel Instellingen"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "label": "Carousel inschakelen",
+      "default": true,
+      "info": "Toon producten in een carousel in plaats van een grid"
+    },
+    {
+      "type": "range",
+      "id": "visible_products",
+      "label": "Aantal zichtbare producten (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2,
+      "info": "Hoeveel producten tegelijk zichtbaar zijn in de carousel op desktop"
+    },
+    {
+      "type": "range",
+      "id": "visible_products_mobile",
+      "label": "Aantal zichtbare producten (mobile)",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2,
+      "info": "Hoeveel producten tegelijk zichtbaar zijn op mobiele apparaten"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Toon navigatie dots",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Toon navigatie pijlen",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_scroll",
+      "label": "Automatisch scrollen",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "auto_scroll_speed",
+      "label": "Auto scroll snelheid (seconden)",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "info": "Alleen actief wanneer automatisch scrollen is ingeschakeld"
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primaire kleur",
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "Secundaire kleur",
+      "default": "#1d4ed8"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius (px)",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Geavanceerde Opties"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_quantity_selector",
+      "label": "Aantal selector inschakelen",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "max_quantity",
+      "label": "Maximum aantal",
+      "min": 10,
+      "max": 100,
+      "step": 10,
+      "default": 99
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_backdrop_close",
+      "label": "Sluiten door buiten modal te klikken",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_escape_close",
+      "label": "Sluiten met Escape toets",
+      "default": true
+    }
+  ]
+}
+{% endschema %}
+
