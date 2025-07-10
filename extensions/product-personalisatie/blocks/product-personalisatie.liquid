@@ -1,12 +1,19 @@
 <div class="gifting-app-container" id="gifting-app-container-{{ block.id }}">
-  <button id="gifting-modal-trigger" class="gifting-trigger-btn">
-    {%- if block.settings.show_icon -%}
-      <svg class="gifting-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 6L9 17l-5-5"/>
-      </svg>
-    {% endif %}
-    {{ block.settings.button_label | default: "Voeg personalisatie toe" }}
-  </button>
+  <div class="gifting-checkbox-container">
+    <input
+      type="checkbox"
+      id="personalization-checkbox-{{ block.id }}"
+      class="gifting-checkbox-input"
+    >
+    <label for="personalization-checkbox-{{ block.id }}" class="gifting-checkbox-label">
+      <span class="gifting-checkbox-box">
+        <svg class="gifting-checkbox-icon" viewBox="0 0 16 16">
+          <polyline points="3.5 8 6.5 11 12.5 5"></polyline>
+        </svg>
+      </span>
+      {{ block.settings.checkbox_label | default: "Ja, ik wil een persoonlijk kaartje toevoegen" }}
+    </label>
+  </div>
 </div>
 
 <!-- Modal will be dynamically inserted into body -->
@@ -191,73 +198,78 @@
   box-sizing: border-box;
 }
 
-/* Trigger Button */
-.gifting-trigger-btn {
-  display: inline-flex;
+/* Checkbox Container */
+.gifting-checkbox-container {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, var(--gifting-primary-color) 0%, var(--gifting-secondary-color) 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: var(--gifting-border-radius);
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  padding: 10px 0;
   position: relative;
-  overflow: hidden;
 }
 
-.gifting-trigger-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-}
-
-.gifting-trigger-btn:active {
-  transform: translateY(0);
-}
-
-.gifting-trigger-btn::before {
-  content: '';
+.gifting-checkbox-input {
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
 }
 
-.gifting-trigger-btn:hover::before {
-  left: 100%;
+.gifting-checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--gifting-text-color);
+  font-weight: 500;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.gifting-icon {
-  transition: transform 0.3s ease;
+.gifting-checkbox-box {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  background-color: transparent;
+  flex-shrink: 0;
 }
 
-.gifting-trigger-btn:hover .gifting-icon {
-  transform: scale(1.1);
+.gifting-checkbox-icon {
+  width: 14px;
+  height: 14px;
+  stroke: white;
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(0.5) rotate(-45deg);
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-/* Button size variants */
-.gifting-btn-small {
-  padding: 8px 16px !important;
-  font-size: 14px !important;
+.gifting-checkbox-input:checked + .gifting-checkbox-label .gifting-checkbox-box {
+  background-color: var(--gifting-primary-color);
+  border-color: var(--gifting-primary-color);
 }
 
-.gifting-btn-medium {
-  padding: 12px 24px !important;
-  font-size: 16px !important;
+.gifting-checkbox-input:checked + .gifting-checkbox-label .gifting-checkbox-icon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
 }
 
-.gifting-btn-large {
-  padding: 16px 32px !important;
-  font-size: 18px !important;
+.gifting-checkbox-container:hover .gifting-checkbox-box {
+  border-color: var(--gifting-primary-color);
+}
+
+.gifting-checkbox-input:focus-visible + .gifting-checkbox-label .gifting-checkbox-box {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 /* Modal Overlay */
@@ -1182,958 +1194,27 @@
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const containerId = "gifting-app-container-{{ block.id }}";
-    const container = document.getElementById(containerId);
-    
-    if (!container) {
-      console.error("Gifting App: Container not found!");
-      return;
-    }
-
-    // Load and apply dynamic styling from the API
-    const loadDynamicStyling = async () => {
-        try {
-            const shopDomain = Shopify.shop || window.location.hostname;
-            const cacheBuster = new Date().getTime();
-            const response = await fetch(`/apps/gifting/styling?shop=${shopDomain}&t=${cacheBuster}`);
-            
-            if (response.ok) {
-                const styling = await response.json();
-                console.log('Loaded dynamic styling:', styling);
-                
-                // Apply CSS custom properties to the block's container
-                const root = container;
-                
-                if (styling.primaryColor) root.style.setProperty('--gifting-primary-color', styling.primaryColor);
-                if (styling.secondaryColor) root.style.setProperty('--gifting-secondary-color', styling.secondaryColor);
-                if (styling.accentColor) root.style.setProperty('--gifting-accent-color', styling.accentColor);
-                if (styling.backgroundColor) root.style.setProperty('--gifting-background-color', styling.backgroundColor);
-                if (styling.textColor) root.style.setProperty('--gifting-text-color', styling.textColor);
-                if (styling.buttonBorderRadius) root.style.setProperty('--gifting-border-radius', styling.buttonBorderRadius + 'px');
-                if (styling.fontFamily) root.style.setProperty('--gifting-font-family', styling.fontFamily);
-                if (styling.fontSize) root.style.setProperty('--gifting-font-size', styling.fontSize + 'px');
-                if (styling.fontWeight) root.style.setProperty('--gifting-font-weight', styling.fontWeight);
-                
-                // Load custom font if specified
-                if (styling.fontFamily === 'Custom' && styling.customFontUrl) {
-                    const link = document.createElement('link');
-                    link.rel = 'stylesheet';
-                    link.href = styling.customFontUrl;
-                    document.head.appendChild(link);
-                }
-                
-                // Apply button size classes
-                if (styling.buttonSize) {
-                    const triggerButton = container.querySelector('.gifting-trigger-btn');
-                    if (triggerButton) {
-                        triggerButton.classList.add(`gifting-btn-${styling.buttonSize}`);
-                    }
-                }
-                
-                // Apply custom CSS if provided
-                if (styling.customCss) {
-                    const customStyle = document.createElement('style');
-                    customStyle.textContent = styling.customCss;
-                    document.head.appendChild(customStyle);
-                }
-                
-                // Store modal animation setting for later use
-                window.giftingModalAnimation = styling.modalAnimation || 'fade';
-                window.giftingAutoOpenPopup = styling.autoOpenPopup || false;
-                window.giftingBlurBackground = styling.blurBackground !== false;
-                
-            } else {
-                console.warn('Could not load dynamic styling, using defaults');
-            }
-        } catch (error) {
-            console.warn('Error loading dynamic styling:', error);
-        }
-    };
-    
-    // Load styling immediately
-    loadDynamicStyling();
-
-    // If auto-open is enabled, trigger the modal automatically
-    if (window.giftingAutoOpenPopup) {
-      setTimeout(() => {
-        openModal();
-      }, 500); // Small delay to ensure everything is loaded
-    }
-
-    const modal = container.querySelector('#gifting-modal');
-    const modalBackdrop = container.querySelector('.gifting-modal-backdrop');
-    const triggerButton = container.querySelector('#gifting-modal-trigger');
-    const closeButton = container.querySelector('.gifting-modal-close');
-    
-    // Initialize modal positioning - move to body on page load
-    const initializeModal = () => {
-        if (modal && modal.parentElement !== document.body) {
-            document.body.appendChild(modal);
-        }
-        
-        // Ensure modal is always properly positioned
-        if (modal) {
-            modal.style.position = 'fixed';
-            modal.style.top = '0';
-            modal.style.left = '0';
-            modal.style.right = '0';
-            modal.style.bottom = '0';
-            modal.style.width = '100vw';
-            modal.style.height = '100vh';
-            modal.style.zIndex = '999999';
-            modal.style.margin = '0';
-            modal.style.transform = 'none';
-        }
-    };
-    
-    // Initialize on page load
-    initializeModal();
-    
-    const modalTitle = container.querySelector('#gifting-modal-title');
-    const addToCartButton = container.querySelector('#gifting-add-to-cart');
-    const addToCartButtonText = container.querySelector('.gifting-btn-text');
-    const addToCartButtonLoading = container.querySelector('.gifting-btn-loading');
-    
-    console.log('Add to cart button elements:', {
-        addToCartButton,
-        addToCartButtonText,
-        addToCartButtonLoading
-    });
-    
-    const productList = container.querySelector('#gifting-product-list');
-    
-    const variantSection = container.querySelector('#gifting-variant-section');
-    const variantOptions = container.querySelector('#gifting-variant-options');
-    
-    const messageSection = container.querySelector('#gifting-message-section');
-    const messageTextarea = container.querySelector('#gifting-message');
-    const charCount = container.querySelector('#gifting-char-count');
-    
-    const selectedVariantIdInput = container.querySelector('#selected-variant-id');
-    const selectedProductTitleInput = container.querySelector('#selected-product-title');
-    
-    // Quantity controls
-    const quantityInput = container.querySelector('#gifting-quantity');
-    const quantityDecrease = container.querySelector('#quantity-decrease');
-    const quantityIncrease = container.querySelector('#quantity-increase');
-    
-    // Carousel elements
-    const carouselContainer = container.querySelector('.gifting-carousel-container');
-    const carouselWrapper = container.querySelector('.gifting-carousel-wrapper');
-    const carouselPrev = container.querySelector('#carousel-prev');
-    const carouselNext = container.querySelector('#carousel-next');
-    const carouselDots = container.querySelector('#carousel-dots');
-    
-    let currentData = {};
-    let selectedProduct = null;
-    let selectedVariant = null;
-    let carouselPosition = 0;
-    let autoScrollInterval = null;
-    
-    // All settings from block configuration
-    const blockSettings = {
-        button_label: '{{ block.settings.button_label }}',
-        show_icon: {{ block.settings.show_icon }},
-        modal_title: '{{ block.settings.modal_title }}',
-        modal_subtitle: '{{ block.settings.modal_subtitle }}',
-        modal_width: {{ block.settings.modal_width }},
-        modal_height: {{ block.settings.modal_height }},
-        add_button_text: '{{ block.settings.add_button_text }}',
-        select_product_text: '{{ block.settings.select_product_text }}',
-        select_variant_text: '{{ block.settings.select_variant_text }}',
-        quantity_label: '{{ block.settings.quantity_label }}',
-        show_product_prices: {{ block.settings.show_product_prices }},
-        show_product_descriptions: {{ block.settings.show_product_descriptions }},
-        product_image_height: {{ block.settings.product_image_height }},
-        enable_carousel: {{ block.settings.enable_carousel | default: true }},
-        visible_products: {{ block.settings.visible_products | default: 2 }},
-        visible_products_mobile: {{ block.settings.visible_products_mobile | default: 2 }},
-        show_carousel_navigation: {{ block.settings.show_carousel_navigation | default: true }},
-        auto_scroll: {{ block.settings.auto_scroll | default: false }},
-        auto_scroll_speed: {{ block.settings.auto_scroll_speed | default: 5 }} * 1000,
-        primary_color: '{{ block.settings.primary_color }}',
-        secondary_color: '{{ block.settings.secondary_color }}',
-        border_radius: {{ block.settings.border_radius }},
-        enable_quantity_selector: {{ block.settings.enable_quantity_selector | default: true }},
-        max_quantity: {{ block.settings.max_quantity | default: 99 }},
-        enable_easy_closing: {{ block.settings.enable_easy_closing | default: true }}
-    };
-    
-    // Get responsive visible products count
-    const getVisibleProducts = () => {
-        if (window.innerWidth <= 768) {
-            return blockSettings.visible_products_mobile;
-        } else {
-            return blockSettings.visible_products;
-        }
-    };
-
-    const openModal = async () => {
-        try {
-            // Ensure modal is attached to body for proper centering
-            if (modal.parentElement !== document.body) {
-                document.body.appendChild(modal);
-            }
-            
-            // Reinitialize modal positioning to ensure proper centering
-            initializeModal();
-            
-            // Apply animation and backdrop blur based on settings
-            const modalContainer = modal.querySelector('.gifting-modal-container');
-            if (window.giftingModalAnimation && window.giftingModalAnimation !== 'none') {
-              const animationName = `gifting-${window.giftingModalAnimation}-in`;
-              modalContainer.style.animation = `${animationName} 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)`;
-            }
-
-            if (window.giftingBlurBackground === false) {
-              const backdrop = modal.querySelector('.gifting-modal-backdrop');
-              if (backdrop) {
-                backdrop.style.backdropFilter = 'none';
-                backdrop.style.background = 'rgba(0, 0, 0, 0.6)';
-              }
-            }
-            
-            console.log('Opening modal, fetching products...');
-            
-            const cacheBuster = new Date().getTime();
-            const response = await fetch(`/apps/gifting/products?shop=${Shopify.shop || window.location.hostname}&t=${cacheBuster}`);
-            if (!response.ok) throw new Error('Failed to fetch gifting products');
-            
-            const data = await response.json();
-            console.log('Fetched gifting data:', data);
-            
-            currentData = data;
-            modalTitle.textContent = data.popupTitle || 'Personaliseer je cadeau';
-            addToCartButtonText.textContent = data.addButtonText || 'Toevoegen';
-            
-            renderProducts();
-            resetModal();
-            modal.style.display = 'flex';
-            
-            // Prevent body scroll when modal is open
-            document.body.style.overflow = 'hidden';
-            
-        } catch (error) {
-            console.error('Gifting App Error:', error);
-            showErrorMessage('Er is een fout opgetreden bij het laden van de opties.');
-            
-            // Show button even if there's an error, so user knows it exists
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-    };
-
-    const renderProducts = () => {
-        if (!currentData.products || currentData.products.length === 0) {
-            productList.innerHTML = '<div class="gifting-empty-state"><p>Geen personalisatie opties beschikbaar.</p></div>';
-            return;
-        }
-        
-        productList.innerHTML = '';
-        currentData.products.forEach(product => {
-            const productElement = document.createElement('div');
-            productElement.className = 'gifting-product-item';
-            productElement.dataset.productId = product.id;
-
-            let priceDisplay = '';
-            if (product.productType === 'ribbon' && product.ribbonLength > 0) {
-                priceDisplay = `${product.ribbonLength}cm`;
-            } else {
-                priceDisplay = `+${formatCurrency(product.price)}`;
-            }
-
-            // Build product HTML based on settings
-            let productHtml = `
-                <img src="${product.imageUrl || 'https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png'}" alt="${product.title}" loading="lazy">
-                <h4 class="gifting-product-title">${product.title}</h4>
-            `;
-            
-            // Add description if enabled and available
-            if (blockSettings.show_product_descriptions && product.description) {
-                productHtml += `<p class="gifting-product-description">${product.description}</p>`;
-            }
-            
-            // Add price if enabled
-            if (blockSettings.show_product_prices) {
-                productHtml += `<p class="gifting-product-price">${priceDisplay}</p>`;
-            }
-            
-            productElement.innerHTML = productHtml;
-            productElement.addEventListener('click', () => selectProduct(product));
-            productList.appendChild(productElement);
-        });
-        
-        // Initialize carousel after products are rendered
-        if (blockSettings.enable_carousel) {
-            initializeCarousel();
-        } else {
-            // Show as grid instead of carousel
-            productList.classList.remove('gifting-product-carousel');
-            productList.classList.add('gifting-product-grid');
-            carouselContainer.style.display = 'block';
-            carouselPrev.style.display = 'none';
-            carouselNext.style.display = 'none';
-            carouselDots.style.display = 'none';
-        }
-    };
-
-    const initializeCarousel = () => {
-        const products = currentData.products || [];
-        const totalProducts = products.length;
-        
-        if (totalProducts <= getVisibleProducts()) {
-            // No need for carousel if all products fit
-            carouselPrev.style.display = 'none';
-            carouselNext.style.display = 'none';
-            carouselDots.style.display = 'none';
-            return;
-        }
-        
-        // Show carousel controls based on settings
-        carouselPrev.style.display = blockSettings.show_carousel_navigation ? 'flex' : 'none';
-        carouselNext.style.display = blockSettings.show_carousel_navigation ? 'flex' : 'none';
-        
-        // Setup dots if enabled
-        if (blockSettings.show_carousel_navigation) {
-            setupCarouselDots();
-            carouselDots.style.display = 'flex';
-        }
-        
-        // Setup auto scroll if enabled
-        if (blockSettings.auto_scroll) {
-            startAutoScroll();
-        }
-        
-        // Set initial carousel width
-        updateCarouselWidth();
-        updateCarouselPosition();
-    };
-    
-    const setupCarouselDots = () => {
-        const totalProducts = currentData.products.length;
-        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
-        
-        carouselDots.innerHTML = '';
-        for (let i = 0; i < totalSlides; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'gifting-carousel-dot';
-            if (i === 0) dot.classList.add('active');
-            dot.addEventListener('click', () => goToSlide(i));
-            carouselDots.appendChild(dot);
-        }
-    };
-    
-    const getItemWidth = () => {
-        // Responsive item width calculation
-        if (window.innerWidth <= 480) {
-            return 160 + 16; // mobile width + gap (smaller for 2 products)
-        } else if (window.innerWidth <= 768) {
-            return 180 + 16; // tablet width + gap
-        } else {
-            return 220 + 20; // desktop width + gap (updated for new size)
-        }
-    };
-    
-    const updateCarouselWidth = () => {
-        const itemWidth = getItemWidth();
-        productList.style.width = `${currentData.products.length * itemWidth}px`;
-    };
-    
-    const updateCarouselPosition = () => {
-        const itemWidth = getItemWidth();
-        const translateX = -(carouselPosition * getVisibleProducts() * itemWidth);
-        productList.style.transform = `translateX(${translateX}px)`;
-        
-        // Update dots
-        const dots = carouselDots.querySelectorAll('.gifting-carousel-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === carouselPosition);
-        });
-        
-        // Update button states
-        const totalProducts = currentData.products.length;
-        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
-        
-        carouselPrev.disabled = carouselPosition === 0;
-        carouselNext.disabled = carouselPosition >= totalSlides - 1;
-    };
-    
-    const goToSlide = (slideIndex) => {
-        const totalProducts = currentData.products.length;
-        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
-        
-        carouselPosition = Math.max(0, Math.min(slideIndex, totalSlides - 1));
-        updateCarouselPosition();
-        
-        // Restart auto scroll if enabled
-        if (blockSettings.auto_scroll) {
-            stopAutoScroll();
-            startAutoScroll();
-        }
-    };
-    
-    const nextSlide = () => {
-        const totalProducts = currentData.products.length;
-        const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
-        
-        if (carouselPosition < totalSlides - 1) {
-            goToSlide(carouselPosition + 1);
-        } else if (blockSettings.auto_scroll) {
-            // Loop back to start for auto scroll
-            goToSlide(0);
-        }
-    };
-    
-    const prevSlide = () => {
-        if (carouselPosition > 0) {
-            goToSlide(carouselPosition - 1);
-        }
-    };
-    
-    const startAutoScroll = () => {
-        stopAutoScroll();
-        autoScrollInterval = setInterval(nextSlide, blockSettings.auto_scroll_speed);
-    };
-    
-    const stopAutoScroll = () => {
-        if (autoScrollInterval) {
-            clearInterval(autoScrollInterval);
-            autoScrollInterval = null;
-        }
-    };
-
-    const selectProduct = (product) => {
-        console.log('Selecting product:', product);
-        selectedProduct = product;
-
-        // Update selection visual with smooth animation
-        document.querySelectorAll('.gifting-product-item').forEach(el => {
-            el.classList.remove('selected');
-        });
-        
-        const selectedElement = document.querySelector(`.gifting-product-item[data-product-id='${product.id}']`);
-        if (selectedElement) {
-            selectedElement.classList.add('selected');
-        } else {
-            console.warn('Selected element not found for product:', product.id);
-        }
-        
-        selectedProductTitleInput.value = product.title;
-
-        // Handle variants
-        if (product.variants && product.variants.length > 1) {
-            renderVariants(product.variants);
-            variantSection.style.display = 'block';
-            selectedVariant = null;
-        } else {
-            variantSection.style.display = 'none';
-            selectedVariant = product.variants?.[0] || null;
-            if(selectedVariant) selectedVariantIdInput.value = selectedVariant.id;
-        }
-        
-        // Handle message/customization
-        if (product.customizable && product.maxCharacters > 0) {
-            messageSection.style.display = 'block';
-            charCount.textContent = `0/${product.maxCharacters}`;
-            messageTextarea.setAttribute('maxlength', product.maxCharacters);
-            
-            // Auto-focus on message field if no variants to choose
-            if (!product.variants || product.variants.length <= 1) {
-                setTimeout(() => {
-                    messageTextarea.focus();
-                }, 300);
-            }
-        } else {
-            messageSection.style.display = 'none';
-        }
-        
-        updateAddToCartButton();
-    };
-
-    const renderVariants = (variants) => {
-        variantOptions.innerHTML = '';
-        variants.forEach(variant => {
-            const variantElement = document.createElement('div');
-            variantElement.className = 'gifting-variant-option';
-            variantElement.dataset.variantId = variant.id;
-            variantElement.textContent = variant.title;
-            variantElement.addEventListener('click', () => selectVariant(variant));
-            variantOptions.appendChild(variantElement);
-        });
-    };
-
-    const selectVariant = (variant) => {
-        selectedVariant = variant;
-        selectedVariantIdInput.value = variant.id;
-
-        // Update selection visual
-        document.querySelectorAll('.gifting-variant-option').forEach(el => {
-            el.classList.remove('selected');
-        });
-        
-        const selectedElement = document.querySelector(`.gifting-variant-option[data-variant-id='${variant.id}']`);
-        selectedElement.classList.add('selected');
-        
-        // Focus message field if customizable
-        if (selectedProduct?.customizable && selectedProduct?.maxCharacters > 0) {
-            setTimeout(() => {
-                messageTextarea.focus();
-            }, 300);
-        }
-        
-        updateAddToCartButton();
-    };
-
-    const updateCharCount = () => {
-        const currentLength = messageTextarea.value.length;
-        const maxLength = selectedProduct?.maxCharacters || 0;
-        charCount.textContent = `${currentLength}/${maxLength}`;
-        
-        // Change color based on length
-        const percentage = currentLength / maxLength;
-        if (percentage > 0.9) {
-            charCount.style.color = '#dc2626';
-        } else if (percentage > 0.7) {
-            charCount.style.color = '#d97706';
-        } else {
-            charCount.style.color = '#6b7280';
-        }
-        
-        updateAddToCartButton();
-    };
-
-    const updateAddToCartButton = () => {
-        const hasRequiredSelections = selectedProduct && 
-                                    (selectedProduct.variants?.length <= 1 || selectedVariant);
-        
-        console.log('Updating add to cart button:', {
-            selectedProduct: selectedProduct?.title,
-            hasVariants: selectedProduct?.variants?.length > 1,
-            selectedVariant: selectedVariant?.title,
-            hasRequiredSelections
-        });
-        
-        addToCartButton.disabled = !hasRequiredSelections;
-        
-        if (hasRequiredSelections) {
-            addToCartButton.classList.remove('disabled');
-            addToCartButtonText.textContent = blockSettings.add_button_text;
-            console.log('Button enabled');
-        } else {
-            addToCartButton.classList.add('disabled');
-            if (selectedProduct && selectedProduct.variants?.length > 1) {
-                addToCartButtonText.textContent = blockSettings.select_variant_text;
-            } else {
-                addToCartButtonText.textContent = blockSettings.select_product_text;
-            }
-            console.log('Button disabled');
-        }
-    };
-
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('nl-NL', {
-            style: 'currency',
-            currency: 'EUR'
-        }).format(amount);
-    };
-
-    const addProductToCart = async () => {
-        if (!selectedProduct || (selectedProduct.variants?.length > 1 && !selectedVariant)) {
-            showErrorMessage('Selecteer eerst een product en variant.');
-            return;
-        }
-
-        // Show loading state
-        addToCartButtonText.style.display = 'none';
-        addToCartButtonLoading.style.display = 'flex';
-        addToCartButton.disabled = true;
-
-        try {
-            // Get the correct variant ID
-            let variantId = selectedVariant?.id || selectedProduct.variants?.[0]?.id;
-            
-            // Extract numeric ID if it's a Shopify GraphQL ID
-            if (variantId && typeof variantId === 'string' && variantId.includes('/')) {
-                variantId = variantId.split('/').pop();
-            }
-            
-            if (!variantId) {
-                throw new Error('Geen geldige variant gevonden');
-            }
-            
-            console.log('Adding product to cart:', {
-                variantId,
-                productTitle: selectedProduct.title,
-                hasMessage: selectedProduct.customizable && messageTextarea.value.trim()
-            });
-            
-            // Get quantity from input
-            const quantity = parseInt(quantityInput.value) || 1;
-            
-            // Create request data in JSON format (more reliable than FormData)
-            const requestData = {
-                items: [{
-                    id: parseInt(variantId),
-                    quantity: quantity,
-                    properties: {}
-                }]
-            };
-            
-            // Add custom message if provided
-            if (selectedProduct.customizable && messageTextarea.value.trim()) {
-                requestData.items[0].properties['Message'] = messageTextarea.value.trim();
-            }
-            
-            // Add product type identifier
-            requestData.items[0].properties['Gifting Product'] = selectedProduct.title;
-            
-            console.log('Request data:', requestData);
-            
-            const response = await fetch('/cart/add.js', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            const responseData = await response.text();
-            console.log('Cart response status:', response.status);
-            console.log('Cart response:', responseData);
-
-            if (response.ok) {
-                // Success animation
-                addToCartButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                addToCartButtonText.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 6L9 17l-5-5"/>
-                    </svg>
-                    ${quantity > 1 ? `${quantity}x ` : ''}Toegevoegd!
-                `;
-                addToCartButtonText.style.display = 'flex';
-                addToCartButtonLoading.style.display = 'none';
-                
-                // Trigger cart update events
-                if (typeof window.cartUpdateCallback === 'function') {
-                    window.cartUpdateCallback();
-                }
-                
-                // Trigger Shopify theme cart refresh events
-                document.dispatchEvent(new CustomEvent('cart:updated'));
-                
-                // Legacy cart update events
-                if (window.Shopify && window.Shopify.theme) {
-                    window.dispatchEvent(new CustomEvent('cart:build'));
-                }
-                
-                // Close modal after short delay
-                setTimeout(() => {
-                    closeModal();
-                    showSuccessMessage(quantity);
-                }, 1000);
-            } else {
-                let errorMessage = 'Failed to add to cart';
-                try {
-                    const errorData = JSON.parse(responseData);
-                    errorMessage = errorData.message || errorData.description || errorMessage;
-                } catch (e) {
-                    // If response is not JSON, use the raw text
-                    errorMessage = responseData || errorMessage;
-                }
-                throw new Error(errorMessage);
-            }
-            
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            
-            let userMessage = 'Er is een fout opgetreden bij het toevoegen aan de winkelwagen.';
-            
-            // Provide more specific error messages
-            if (error.message.includes('variant') || error.message.includes('Variant')) {
-                userMessage = 'Dit product variant is niet beschikbaar.';
-            } else if (error.message.includes('inventory') || error.message.includes('stock')) {
-                userMessage = 'Dit product is niet meer op voorraad.';
-            } else if (error.message.includes('Geen geldige variant')) {
-                userMessage = 'Product informatie is niet compleet.';
-            } else if (error.message.includes('422')) {
-                userMessage = 'Dit product kan momenteel niet worden toegevoegd.';
-            }
-            
-            showErrorMessage(userMessage);
-            
-            // Reset button state
-            addToCartButtonText.style.display = 'flex';
-            addToCartButtonLoading.style.display = 'none';
-            updateAddToCartButton();
-        }
-    };
-
-    const showSuccessMessage = (quantity = 1) => {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed; top: 24px; right: 24px; z-index: 10000;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white; padding: 16px 20px; border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
-            animation: giftingSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-family: inherit; font-weight: 500;
-            display: flex; align-items: center; gap: 12px;
-            max-width: 320px;
-        `;
-        notification.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 6L9 17l-5-5"/>
-            </svg>
-            <div>
-                <div style="font-weight: 600;">Toegevoegd!</div>
-                <div style="font-size: 14px; opacity: 0.9;">${quantity > 1 ? `${quantity}x ` : ''}${selectedProduct.title} is toegevoegd aan je winkelwagen.</div>
-            </div>
-        `;
-        
-        // Add slide in animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes giftingSlideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'giftingSlideIn 0.3s reverse';
-            setTimeout(() => {
-                notification.remove();
-                style.remove();
-            }, 300);
-        }, 2700);
-    };
-
-    const showErrorMessage = (message) => {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed; top: 24px; right: 24px; z-index: 10000;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white; padding: 16px 20px; border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.25);
-            animation: giftingSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-family: inherit; font-weight: 500;
-            display: flex; align-items: center; gap: 12px;
-            max-width: 320px;
-        `;
-        notification.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="15" y1="9" x2="9" y2="15"/>
-                <line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
-            <div>
-                <div style="font-weight: 600;">Fout</div>
-                <div style="font-size: 14px; opacity: 0.9;">${message}</div>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'giftingSlideIn 0.3s reverse';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 3700);
-    };
-
-    const closeModal = () => {
-        const modalContainer = modal.querySelector('.gifting-modal-container');
-
-        // Add closing animation
-        if (window.giftingModalAnimation && window.giftingModalAnimation !== 'none') {
-          modalContainer.style.animation = `gifting-${window.giftingModalAnimation}-out 0.3s forwards`;
-        } else {
-          modal.style.opacity = 0;
-        }
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-            modal.style.opacity = 1; // Reset opacity
-            modalContainer.style.animation = ''; // Clear animation
-            resetModal();
-        }, 300);
-    };
-
-    const resetModal = () => {
-        selectedProduct = null;
-        selectedVariant = null;
-        messageTextarea.value = '';
-        charCount.textContent = '0/0';
-        variantSection.style.display = 'none';
-        messageSection.style.display = 'none';
-        
-        // Reset quantity to 1
-        if (quantityInput) {
-            quantityInput.value = 1;
-        }
-        
-        // Reset carousel position
-        carouselPosition = 0;
-        if (blockSettings.enable_carousel && currentData.products) {
-            updateCarouselPosition();
-        }
-        
-        // Stop auto scroll
-        stopAutoScroll();
-        
-        // Reset button state
-        addToCartButton.style.background = '';
-        addToCartButtonText.innerHTML = `
-            <svg class="gifting-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-6M7 13l-1.5-8"/>
-            </svg>
-            <span class="gifting-btn-text">${blockSettings.add_button_text}</span>
-        `;
-        addToCartButtonText.style.display = 'flex';
-        addToCartButtonLoading.style.display = 'none';
-        
-        document.querySelectorAll('.gifting-product-item.selected').forEach(el => {
-            el.classList.remove('selected');
-        });
-        document.querySelectorAll('.gifting-variant-option.selected').forEach(el => {
-            el.classList.remove('selected');
-        });
-        
-        updateAddToCartButton();
-    };
-
-    // Event listeners
-    triggerButton.addEventListener('click', openModal);
-    closeButton.addEventListener('click', closeModal);
-    addToCartButton.addEventListener('click', addProductToCart);
-    messageTextarea.addEventListener('input', updateCharCount);
-    
-    // Quantity controls event listeners
-    if (quantityDecrease) {
-        quantityDecrease.addEventListener('click', () => {
-            const currentValue = parseInt(quantityInput.value);
-            if (currentValue > 1) {
-                quantityInput.value = currentValue - 1;
-            }
-        });
-    }
-    
-    if (quantityIncrease) {
-        quantityIncrease.addEventListener('click', () => {
-            const currentValue = parseInt(quantityInput.value);
-            if (currentValue < blockSettings.max_quantity) {
-                quantityInput.value = currentValue + 1;
-            }
-        });
-    }
-    
-    if (quantityInput) {
-        quantityInput.addEventListener('change', () => {
-            const value = parseInt(quantityInput.value);
-            if (value < 1) {
-                quantityInput.value = 1;
-            } else if (value > blockSettings.max_quantity) {
-                quantityInput.value = blockSettings.max_quantity;
-            }
-        });
-    }
-    
-    // Carousel event listeners
-    if (carouselPrev) carouselPrev.addEventListener('click', prevSlide);
-    if (carouselNext) carouselNext.addEventListener('click', nextSlide);
-    
-    // Close on backdrop click (if enabled)
-    if (blockSettings.enable_easy_closing) {
-        modalBackdrop.addEventListener('click', closeModal);
-    }
-    
-    // Close with Escape key (if enabled)
-    if (blockSettings.enable_easy_closing) {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.style.display === 'flex') {
-                closeModal();
-            }
-        });
-    }
-    
-    // Handle window resize to ensure proper centering and carousel responsiveness
-    window.addEventListener('resize', () => {
-        if (modal.style.display === 'flex') {
-            initializeModal();
-            
-            // Update carousel if active
-            if (blockSettings.enable_carousel && currentData.products) {
-                // Reset carousel position if needed
-                const totalProducts = currentData.products.length;
-                const totalSlides = Math.ceil(totalProducts / getVisibleProducts());
-                if (carouselPosition >= totalSlides) {
-                    carouselPosition = Math.max(0, totalSlides - 1);
-                }
-                
-                updateCarouselWidth();
-                updateCarouselPosition();
-                setupCarouselDots();
-            }
-        }
-    });
-    
-    // Add closing animation styles
-    const style = document.createElement('style');
-    style.textContent = `
-        .gifting-modal-overlay.closing .gifting-modal-container {
-            animation: giftingSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .gifting-modal-overlay.closing .gifting-modal-backdrop {
-            animation: giftingBackdropFadeOut 0.3s ease;
-        }
-        @keyframes giftingSlideDown {
-            to { 
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-        }
-        @keyframes giftingBackdropFadeOut {
-            to { opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-});
-</script>
-
 {% schema %}
 {
-  "name": "Gifting Producten",
+  "name": "Product Personalisatie",
   "target": "section",
+  "stylesheet": "styles.css",
+  "javascript": "script.js",
   "settings": [
     {
       "type": "header",
-      "content": "Trigger Button"
+      "content": "Algemene Instellingen"
     },
     {
       "type": "text",
-      "id": "button_label",
-      "label": "Tekst op knop",
-      "default": "Voeg personalisatie toe"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_icon",
-      "label": "Toon icoon op knop",
-      "default": true
+      "id": "checkbox_label",
+      "label": "Checkbox Label",
+      "default": "Ja, ik wil een persoonlijk kaartje toevoegen",
+      "info": "Tekst die naast de checkbox wordt getoond."
     },
     {
       "type": "header",
-      "content": "Modal Instellingen"
+      "content": "Modal Venster"
     },
     {
       "type": "text",
@@ -2172,6 +1253,12 @@ document.addEventListener('DOMContentLoaded', () => {
       "id": "add_button_text",
       "label": "Toevoegen knop tekst",
       "default": "Toevoegen"
+    },
+    {
+      "type": "text",
+      "id": "adding_to_cart_text",
+      "label": "Tekst tijdens toevoegen...",
+      "default": "Toevoegen..."
     },
     {
       "type": "text",
@@ -2322,4 +1409,246 @@ document.addEventListener('DOMContentLoaded', () => {
   ]
 }
 {% endschema %}
+
+<script>
+class GiftingModal {
+  constructor(blockId, options = {}) {
+    this.blockId = blockId;
+    this.options = options;
+    this.isOpen = false;
+    this.products = [];
+    this.selectedProduct = null;
+    this.selectedVariant = null;
+    this.currentProductIndex = 0;
+    this.modal = document.getElementById('gifting-modal-template').firstElementChild.cloneNode(true);
+
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleBackdropClick = this.handleBackdropClick.bind(this);
+  }
+
+  initElements() {
+    this.modalContent = this.modal.querySelector('.gifting-modal-content');
+    this.closeBtn = this.modal.querySelector('.gifting-modal-close');
+    this.backdrop = this.modal.querySelector('.gifting-modal-backdrop');
+    this.productList = this.modal.querySelector('#gifting-product-list');
+    this.variantSection = this.modal.querySelector('#gifting-variant-section');
+    this.variantOptions = this.modal.querySelector('#gifting-variant-options');
+    this.messageSection = this.modal.querySelector('#gifting-message-section');
+    this.messageTextarea = this.modal.querySelector('#gifting-message');
+    this.charCount = this.modal.querySelector('#gifting-char-count');
+    this.addToCartBtn = this.modal.querySelector('#gifting-add-to-cart');
+    this.addToCartBtnText = this.addToCartBtn.querySelector('.gifting-btn-text');
+    this.addToCartBtnIcon = this.addToCartBtn.querySelector('.gifting-btn-icon');
+    this.addToCartBtnSpinner = this.addToCartBtn.querySelector('.gifting-btn-loading');
+    this.selectedVariantIdInput = this.modal.querySelector('#selected-variant-id');
+    this.selectedProductTitleInput = this.modal.querySelector('#selected-product-title');
+    this.quantityInput = this.modal.querySelector('#gifting-quantity');
+    this.quantityIncrease = this.modal.querySelector('#quantity-increase');
+    this.quantityDecrease = this.modal.querySelector('#quantity-decrease');
+    this.carouselPrev = this.modal.querySelector('#carousel-prev');
+    this.carouselNext = this.modal.querySelector('#carousel-next');
+    this.carouselDots = this.modal.querySelector('#carousel-dots');
+  }
+
+  initEventListeners() {
+    this.closeBtn.addEventListener('click', () => this.close());
+    this.addToCartBtn.addEventListener('click', () => this.addToCart());
+
+    if (this.options.closeOnBackdropClick) {
+      this.backdrop.addEventListener('click', this.handleBackdropClick);
+    }
+    if (this.options.enableQuantitySelector) {
+      this.quantityIncrease.addEventListener('click', () => this.updateQuantity(1));
+      this.quantityDecrease.addEventListener('click', () => this.updateQuantity(-1));
+    }
+    if (this.messageTextarea) {
+        this.messageTextarea.addEventListener('input', () => this.updateCharCount());
+    }
+
+    this.carouselPrev.addEventListener('click', () => this.navigateCarousel(-1));
+    this.carouselNext.addEventListener('click', () => this.navigateCarousel(1));
+  }
+  
+  open() {
+    if (this.isOpen) return;
+    this.modal.style.display = 'flex';
+    this.isOpen = true;
+    document.body.style.overflow = 'hidden';
+    if (this.options.closeOnEscape) {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  close() {
+    if (!this.isOpen) return;
+    this.modal.style.display = 'none';
+    this.isOpen = false;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.dispatchEvent(new CustomEvent('giftingModalClosed', { detail: { blockId: this.blockId }}));
+  }
+
+  init() {
+    this.initElements();
+    this.initEventListeners();
+    this.fetchProducts();
+    document.body.appendChild(this.modal);
+    document.dispatchEvent(new CustomEvent('giftingModalReady', { detail: { instance: this, blockId: this.blockId }}));
+  }
+  
+  async fetchProducts() {
+    // This is a placeholder for fetching products.
+    // In a real scenario, this would make a request to a Shopify endpoint.
+    // For now, we'll use the handles passed from the block settings.
+    this.products = this.options.productHandles;
+    this.renderProducts();
+    this.initCarousel();
+  }
+
+  renderProducts() {
+      this.productList.innerHTML = '';
+      this.products.forEach((productHandle, index) => {
+          // In a real app, you would fetch product details here.
+          // For now, we'll create placeholder items.
+          const productElement = document.createElement('div');
+          productElement.className = 'gifting-product-item';
+          productElement.dataset.index = index;
+          productElement.innerHTML = `
+              <img src="//via.placeholder.com/150" alt="${productHandle}">
+              <h4>${productHandle.replace(/-/g, ' ')}</h4>
+          `;
+          productElement.addEventListener('click', () => this.selectProduct(index));
+          this.productList.appendChild(productElement);
+      });
+  }
+
+  selectProduct(index) {
+      this.selectedProduct = this.products[index];
+      // Highlight selected product
+      this.productList.querySelectorAll('.gifting-product-item').forEach((el, i) => {
+          el.classList.toggle('selected', i === index);
+      });
+      // In a real app, you'd show variants and message boxes here.
+      this.updateAddToCartButtonState();
+  }
+
+  initCarousel() {
+      if (this.products.length <= 1) {
+          this.carouselPrev.style.display = 'none';
+          this.carouselNext.style.display = 'none';
+      }
+  }
+
+  navigateCarousel(direction) {
+      // Basic carousel logic placeholder
+      let newIndex = this.currentProductIndex + direction;
+      if (newIndex < 0) newIndex = this.products.length - 1;
+      if (newIndex >= this.products.length) newIndex = 0;
+      this.currentProductIndex = newIndex;
+      const offset = -this.currentProductIndex * (100 / this.products.length);
+      this.productList.style.transform = `translateX(${offset}%)`;
+  }
+  
+  updateQuantity(change) {
+      let currentValue = parseInt(this.quantityInput.value, 10);
+      let newValue = currentValue + change;
+      if (newValue >= 1 && newValue <= this.options.maxQuantity) {
+          this.quantityInput.value = newValue;
+      }
+  }
+  
+  updateCharCount() {
+      const maxLength = this.selectedProduct?.maxCharacters || 200; // Example value
+      const currentLength = this.messageTextarea.value.length;
+      this.charCount.textContent = `${currentLength}/${maxLength}`;
+  }
+
+  updateAddToCartButtonState() {
+      if (this.selectedProduct) {
+          this.addToCartBtn.disabled = false;
+          this.addToCartBtnText.textContent = this.options.addToCartText;
+      } else {
+          this.addToCartBtn.disabled = true;
+          this.addToCartBtnText.textContent = this.options.selectProductText;
+      }
+  }
+
+  async addToCart() {
+    if (!this.selectedProduct) return;
+    this.addToCartBtn.disabled = true;
+    this.addToCartBtnSpinner.style.display = 'block';
+    this.addToCartBtnIcon.style.display = 'none';
+    this.addToCartBtnText.textContent = this.options.addingToCartText;
+    
+    // Simulate adding to cart
+    setTimeout(() => {
+        this.addToCartBtnSpinner.style.display = 'none';
+        this.addToCartBtnIcon.style.display = 'block';
+        this.addToCartBtnText.textContent = "Added!";
+        console.log(`Added ${this.selectedProduct} to cart.`);
+        setTimeout(() => this.close(), 1000);
+    }, 1500);
+  }
+
+  handleKeyDown(event) {
+      if (event.key === 'Escape') {
+          this.close();
+      }
+  }
+
+  handleBackdropClick(event) {
+      if (event.target === this.backdrop) {
+          this.close();
+      }
+  }
+  
+  reset() {
+      this.selectedProduct = null;
+      this.selectedVariant = null;
+      if (this.messageTextarea) this.messageTextarea.value = '';
+      if (this.quantityInput) this.quantityInput.value = '1';
+      this.productList.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+      this.updateAddToCartButtonState();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('gifting-app-container-{{ block.id }}');
+  if (!container) return;
+
+  const checkbox = document.getElementById('personalization-checkbox-{{ block.id }}');
+  
+  const modalInstance = new GiftingModal('{{ block.id }}', {
+      shopUrl: '{{ shop.permanent_domain }}',
+      productHandles: ['gepersonaliseerd-kaartje', 'luxe-geschenkverpakking', 'speciale-boodschap'],
+      closeOnBackdropClick: {{ block.settings.close_on_backdrop_click }},
+      closeOnEscape: {{ block.settings.close_on_escape }},
+      enableQuantitySelector: {{ block.settings.enable_quantity_selector }},
+      maxQuantity: {{ block.settings.max_quantity | default: 99 }},
+      selectProductText: '{{ block.settings.select_product_text | escape }}',
+      addToCartText: '{{ block.settings.add_button_text | escape }}',
+      addingToCartText: '{{ block.settings.adding_to_cart_text | escape }}'
+  });
+  
+  modalInstance.init();
+
+  if (checkbox) {
+    checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        modalInstance.open();
+      } else {
+        modalInstance.close();
+        modalInstance.reset();
+      }
+    });
+
+    document.addEventListener('giftingModalClosed', (event) => {
+      if (event.detail.blockId === '{{ block.id }}' && checkbox.checked) {
+        checkbox.checked = false;
+        modalInstance.reset();
+      }
+    });
+  }
+});
+</script>
 

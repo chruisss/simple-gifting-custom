@@ -3,7 +3,7 @@
 client_id = "8dfb08219af561d6761ad2f9b891702f"
 name = "Simple gifting"
 handle = "simple-gifting"
-application_url = "https://efforts-passes-wants-prior.trycloudflare.com"
+application_url = "https://collectors-sister-handling-adjustable.trycloudflare.com"
 embedded = true
 
 [build]
@@ -30,12 +30,12 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://efforts-passes-wants-prior.trycloudflare.com/auth/callback", "https://efforts-passes-wants-prior.trycloudflare.com/auth/shopify/callback", "https://efforts-passes-wants-prior.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://collectors-sister-handling-adjustable.trycloudflare.com/auth/callback", "https://collectors-sister-handling-adjustable.trycloudflare.com/auth/shopify/callback", "https://collectors-sister-handling-adjustable.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
 
 [app_proxy]
-url = "https://efforts-passes-wants-prior.trycloudflare.com/public/proxy"
+url = "https://collectors-sister-handling-adjustable.trycloudflare.com/proxy"
 subpath = "gifting"
 prefix = "apps"
