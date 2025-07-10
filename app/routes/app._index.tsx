@@ -184,7 +184,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  return json({ success: false });
+  return json({ success: false, errors: [] });
 };
 
 const METAFIELD_DEFINITIONS = [
@@ -250,171 +250,203 @@ export default function Dashboard() {
       } else {
         setToastContent("Er is een fout opgetreden bij het configureren.");
         setToastIsError(true);
+        if (actionData.errors) {
+          console.error("Configuration errors:", actionData.errors);
+        }
       }
       setToastActive(true);
     }
   }, [actionData]);
 
   const handleInitialize = () => {
-    const formData = new FormData();
-    formData.append("action", "initialize");
-    submit(formData, { method: "post" });
+    submit({ action: "initialize" }, { method: "post" });
+  };
+  
+  const handleNavigateToSettings = () => {
+    navigate("/app/settings");
   };
 
-  const isConfigured = stats.metafieldsConfigured >= 4;
-  const hasProducts = stats.totalProducts > 0;
+  const configurationStatus = stats.metafieldsConfigured >= 4
+    ? {
+        title: "Configuratie Compleet",
+        status: "success",
+        icon: CheckCircleIcon,
+        description: "Alle benodigde metafields zijn ingesteld.",
+        button: null
+      }
+    : {
+        title: "Configuratie Vereist",
+        status: "critical",
+        icon: AlertCircleIcon,
+        description: `${stats.metafieldsConfigured} van de 4 benodigde metafields zijn gevonden.`,
+        button: (
+          <Button
+            onClick={handleInitialize}
+            loading={isLoading}
+            variant="primary"
+          >
+            Configureer nu
+          </Button>
+        ),
+      };
+
+  const subscriptionStatus = isSubscribed
+    ? {
+        title: "Abonnement Actief",
+        status: "success",
+        icon: CheckCircleIcon,
+        description: "Je hebt een actief abonnement.",
+        button: (
+          <Button onClick={() => navigate('/app/pricing')}>
+            Beheer abonnement
+          </Button>
+        )
+      }
+    : {
+        title: "Geen Actief Abonnement",
+        status: "critical",
+        icon: AlertCircleIcon,
+        description: "Je hebt geen actief abonnement. Activeer een abonnement om de app te gebruiken.",
+        button: (
+          <Button onClick={() => navigate('/app/pricing')} variant="primary">
+            Bekijk abonnementen
+          </Button>
+        )
+      };
+
+  const isReady = stats.metafieldsConfigured >= 4 && isSubscribed;
 
   return (
-    <Page title="Dashboard">
+    <Page>
+      <TitleBar title="Dashboard" />
       {toastMarkup}
-      <TitleBar title="Simple Gifting - Dashboard" />
-      
-      {!isSubscribed && (
-        <Layout.Section>
-          <Banner
-            title="Abonnement vereist"
-            tone="warning"
-            action={{
-              content: "Abonneer je nu",
-              onAction: () => navigate("/app/pricing"),
-            }}
-          >
-            <p>Om de volledige functionaliteit van de app te gebruiken, moet je een abonnement aanvragen.</p>
-          </Banner>
-        </Layout.Section>
-      )}
+      <BlockStack gap="500">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="500">
+                <Text variant="headingXl" as="h2">
+                  Welkom bij Simple Gifting
+                </Text>
+                <Text variant="bodyMd" as="p">
+                  Hier is een overzicht van je huidige configuratie en gebruik.
+                </Text>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
 
-      <Layout>
-        <Layout.Section>
-          <Grid>
-            <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
-              <Card>
-                <BlockStack gap="200">
-                  <InlineStack align="space-between">
-                    <Text as="h3" variant="headingMd">App Status</Text>
-                    <Badge tone={config.appIsEnabled ? "success" : "critical"}>
-                      {config.appIsEnabled ? "Actief" : "Inactief"}
-                    </Badge>
-                  </InlineStack>
-                  <Text as="p" variant="bodyMd" tone="subdued">
-                    {config.appIsEnabled 
-                      ? "De app is actief en klanten kunnen producten personaliseren"
-                      : "De app is uitgeschakeld voor klanten"
-                    }
-                  </Text>
-                  <Button onClick={() => navigate("/app/settings")}>
-                    Instellingen aanpassen
-                  </Button>
-                </BlockStack>
-              </Card>
-            </Grid.Cell>
-            
-            <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
-              <Card>
-                <BlockStack gap="200">
-                  <InlineStack align="space-between">
-                    <Text as="h3" variant="headingMd">Configuratie Status</Text>
-                    <Badge tone={isConfigured ? "success" : "warning"}>
-                      {isConfigured ? "Voltooid" : "Onvolledig"}
-                    </Badge>
-                  </InlineStack>
-                  <Text as="p" variant="bodyMd" tone="subdued">
-                    {isConfigured 
-                      ? "Alle metafields zijn correct geïnstalleerd"
-                      : `${stats.metafieldsConfigured} van de 4 benodigde metafields zijn gevonden`
-                    }
-                  </Text>
-                  {!isConfigured && (
-                    <Button onClick={handleInitialize}>
-                      Start configuratie
-                    </Button>
-                  )}
-                  {isConfigured && (
-                     <Text as="p" tone="subdued">
-                      Alles is up-to-date
-                    </Text>
-                  )}
-                </BlockStack>
-              </Card>
-            </Grid.Cell>
-          </Grid>
-        </Layout.Section>
-        
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="400">
-              <Text as="h2" variant="headingMd">Product Overzicht</Text>
-              
-              <Grid>
-                <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Totaal producten</Text>
-                    <Text as="p" variant="headingLg">{stats.totalProducts}</Text>
-                  </BlockStack>
+          <Layout.Section>
+             <Grid>
+                <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 3, lg: 6, xl: 6}}>
+                  <Card>
+                    <BlockStack gap="400">
+                      <InlineStack align="space-between">
+                         <Text variant="headingMd" as="h3">
+                          {configurationStatus.title}
+                        </Text>
+                        <Badge tone={configurationStatus.status as any}>
+                          {configurationStatus.status === 'success' ? 'Compleet' : 'Actie vereist'}
+                        </Badge>
+                      </InlineStack>
+                       <InlineStack gap="300" blockAlign="center">
+                        <Icon source={configurationStatus.icon} tone={configurationStatus.status as any} />
+                        <Text variant="bodyMd" as="p">{configurationStatus.description}</Text>
+                      </InlineStack>
+                      {configurationStatus.button}
+                    </BlockStack>
+                  </Card>
                 </Grid.Cell>
-                 <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Actieve producten</Text>
-                    <Text as="p" variant="headingLg">{stats.activeProducts}</Text>
-                  </BlockStack>
-                </Grid.Cell>
-                 <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Personaliseerbaar</Text>
-                    <Text as="p" variant="headingLg">{stats.customizableProducts}</Text>
-                  </BlockStack>
-                </Grid.Cell>
-                 <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                  <BlockStack>
-                    <Text as="p" variant="bodyMd" tone="subdued">Totale voorraad</Text>
-                    <Text as="p" variant="headingLg">{stats.totalInventory}</Text>
-                  </BlockStack>
+                 <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 3, lg: 6, xl: 6}}>
+                  <Card>
+                     <BlockStack gap="400">
+                      <InlineStack align="space-between">
+                         <Text variant="headingMd" as="h3">
+                          {subscriptionStatus.title}
+                        </Text>
+                        <Badge tone={subscriptionStatus.status as any}>
+                          {subscriptionStatus.status === 'success' ? 'Actief' : 'Inactief'}
+                        </Badge>
+                      </InlineStack>
+                      <InlineStack gap="300" blockAlign="center">
+                        <Icon source={subscriptionStatus.icon} tone={subscriptionStatus.status as any} />
+                        <Text variant="bodyMd" as="p">{subscriptionStatus.description}</Text>
+                      </InlineStack>
+                      {subscriptionStatus.button}
+                    </BlockStack>
+                  </Card>
                 </Grid.Cell>
               </Grid>
-              
-              <Button 
-                variant="primary" 
-                onClick={() => navigate("/app/cards")}
+          </Layout.Section>
+          
+          {isReady ? (
+            <Layout.Section>
+              <CalloutCard
+                title="Alles is klaar!"
+                illustration="https://cdn.shopify.com/s/assets/admin/checkout/settings-customize-card-background-shape-light-356b96365306d2b311c2522616b5de6321b8f52097745ac9c898df5b3310d48f.svg"
+                primaryAction={{
+                  content: 'Producten configureren',
+                  onAction: () => navigate('/app/cards'),
+                }}
               >
-                Beheer producten
-              </Button>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
+                <p>Je bent helemaal klaar om personalisaties aan je producten toe te voegen. Ga naar de productpagina om te beginnen.</p>
+              </CalloutCard>
+            </Layout.Section>
+          ) : (
+             <Layout.Section>
+              <Banner title="Voltooi de setup" tone="warning">
+                <p>Voltooi de configuratie en activeer een abonnement om de volledige functionaliteit van de app te gebruiken.</p>
+              </Banner>
+            </Layout.Section>
+          )}
 
-        <Layout.Section>
-          <CalloutCard
-            title="Maak je eerste product"
-            illustration="https://cdn.shopify.com/s/files/1/0533/2089/files/empty-state.svg"
-            primaryAction={{
-              content: "Nieuw product aanmaken",
-              onAction: () => {
-                const shopName = shop.replace('.myshopify.com', '');
-                const adminUrl = `https://admin.shopify.com/store/${shopName}/products/new?tags=simple-gifting-product`;
-                window.open(adminUrl, '_blank');
-              }
-            }}
-            secondaryAction={{
-              content: "Bestaand product koppelen",
-              onAction: () => navigate("/app/cards"),
-            }}
-          >
-            <BlockStack gap="200">
-              <Text as="p">
-                Voeg je eerste gifting product toe. Dit kan een wenskaart, een lint, een sticker, of elk ander product zijn dat je klanten willen personaliseren.
-              </Text>
-              <List>
-                <List.Item>
-                  Klik op <strong>"Nieuw product aanmaken"</strong> om direct naar Shopify te gaan.
-                </List.Item>
-                <List.Item>
-                  Of ga naar <strong>"Producten"</strong> om een bestaand product te koppelen.
-                </List.Item>
-              </List>
-            </BlockStack>
-          </CalloutCard>
-        </Layout.Section>
-      </Layout>
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="500">
+                <Text variant="headingLg" as="h3">Statistieken</Text>
+                <Divider />
+                <Grid>
+                  <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
+                     <BlockStack gap="200" align="center">
+                      <Text variant="headingXl" as="h4">{stats.totalProducts}</Text>
+                      <InlineStack gap="100" align="center">
+                        <Icon source={ProductIcon} tone="base" />
+                        <Text variant="bodyMd" as="p">Totaal Producten</Text>
+                      </InlineStack>
+                    </BlockStack>
+                  </Grid.Cell>
+                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
+                     <BlockStack gap="200" align="center">
+                      <Text variant="headingXl" as="h4">{stats.activeProducts}</Text>
+                      <InlineStack gap="100" align="center">
+                        <Icon source={CheckCircleIcon} tone="success" />
+                        <Text variant="bodyMd" as="p">Actieve Producten</Text>
+                      </InlineStack>
+                    </BlockStack>
+                  </Grid.Cell>
+                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
+                     <BlockStack gap="200" align="center">
+                      <Text variant="headingXl" as="h4">{stats.customizableProducts}</Text>
+                       <InlineStack gap="100" align="center">
+                        <Icon source={GiftCardIcon} tone="interactive" />
+                        <Text variant="bodyMd" as="p">Aanpasbaar</Text>
+                      </InlineStack>
+                    </BlockStack>
+                  </Grid.Cell>
+                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
+                     <BlockStack gap="200" align="center">
+                      <Text variant="headingXl" as="h4">{stats.totalInventory}</Text>
+                       <InlineStack gap="100" align="center">
+                        <Icon source={SettingsIcon} tone="base" />
+                        <Text variant="bodyMd" as="p">Totale Voorraad</Text>
+                      </InlineStack>
+                    </BlockStack>
+                  </Grid.Cell>
+                </Grid>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </BlockStack>
     </Page>
   );
 }
