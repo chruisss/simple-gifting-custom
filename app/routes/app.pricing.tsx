@@ -50,7 +50,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return json({
     hasActiveSubscription: !!activeSubscription,
-    subscription: activeSubscription,
+    subscription: activeSubscription || null,
   });
 };
 

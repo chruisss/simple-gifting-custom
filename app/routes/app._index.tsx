@@ -163,14 +163,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const responseJson = await response.json();
       const result = responseJson.data.metafieldDefinitionCreate;
       
-      if (result.userErrors.length > 0) {
+      if (result && result.userErrors.length > 0) {
         console.error(`Metafield definition creation failed for ${definition.key}:`, result.userErrors);
       }
       
       results.push({
         key: definition.key,
-        success: result.createdDefinition !== null,
-        errors: result.userErrors,
+        success: result && result.createdDefinition !== null,
+        errors: result ? result.userErrors : [{ message: "Failed to create metafield definition." }],
       });
     }
 
