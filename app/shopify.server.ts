@@ -10,12 +10,13 @@ import prisma from "./db.server";
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
-  apiSecretKey: process.env.SHOPIFY_API_SECRET!,
+  apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: ApiVersion.July25,
   scopes: ["write_products"],
-  appUrl: "https://simple-gifting.vercel.app/",
+  appUrl: process.env.SHOPIFY_APP_URL || "",
+  authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
-  distribution: AppDistribution.SingleMerchant,
+  distribution: AppDistribution.AppStore,
   billing: {
     "Monthly Subscription": {
       lineItems: [
@@ -23,7 +24,7 @@ const shopify = shopifyApp({
           amount: 24.99,
           currencyCode: "USD",
           interval: BillingInterval.Every30Days,
-        }
+        },
       ],
       trialDays: 14,
     },
