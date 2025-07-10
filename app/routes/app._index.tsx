@@ -129,10 +129,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (action === "initialize") {
     try {
+      // 1. Get existing metafield definitions
+      const existingDefinitionsResponse = await admin.graphql(
+        `#graphql
+          query existingMetafieldDefinitions($namespace: String!) {
+            metafieldDefinitions(first: 10, namespace: $namespace, ownerType: PRODUCT) {
+              edges {
+                node {
+                  key
+                }
+              }
+            }
+          }`,
+        { variables: { namespace: "simple_gifting" } }
+      );
+      const existingDefinitionsJson = await existingDefinitionsResponse.json();
+      const existingKeys = new Set(
+        existingDefinitionsJson.data?.metafieldDefinitions?.edges.map(
+          (edge: { node: { key: string } }) => edge.node.key
+        ) || []
+      );
+      
       const results = [];
       
-      // Create all metafield definitions
+      // 2. Loop through required definitions and create only if they don't exist
       for (const definition of METAFIELD_DEFINITIONS) {
+        if (existingKeys.has(definition.key)) {
+          results.push({
+            key: definition.key,
+            success: true,
+            errors: [],
+          });
+          continue; // Already exists, skip to the next one
+        }
+
         const response = await admin.graphql(
           `#graphql
             mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {
@@ -165,10 +195,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
         const responseJson = await response.json();
         const result = responseJson.data?.metafieldDefinitionCreate;
-        
-        if (result?.userErrors.length > 0) {
-          console.error(`Metafield definition creation failed for ${definition.key}:`, result.userErrors);
-        }
         
         results.push({
           key: definition.key,
