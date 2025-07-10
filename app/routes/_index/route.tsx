@@ -7,6 +7,12 @@ export default function Index() {
       <header className={styles.header}>
         <h1 className={styles.title}>Simple Gifting</h1>
         <p className={styles.tagline}>The easiest way to offer personalized gift options.</p>
+        <a 
+          href="/auth/login" 
+          className={styles.ctaButton}
+        >
+          Install App
+        </a>
       </header>
       <main className={styles.main}>
         <div className={styles.feature}>
@@ -22,15 +28,6 @@ export default function Index() {
           <p>Our app blends perfectly into your product pages. The entire process happens in a sleek pop-up, so customers never have to leave the page.</p>
         </div>
       </main>
-      <footer className={styles.footer}>
-        <p>Ready to get started?</p>
-        <a 
-          href="/auth/login" 
-          className={styles.ctaButton}
-        >
-          Install App
-        </a>
-      </footer>
     </div>
   );
 } 
