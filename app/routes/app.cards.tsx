@@ -242,10 +242,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const productId = formData.get("productId") as string;
     const giftingType = formData.get("giftingType") as string;
     const maxChars = formData.get("maxChars") as string;
-    const ribbonLength = formData.get("ribbonLength") as string;
     const customizable = formData.get("customizable") === "true";
     
-    console.log("Link product data:", { productId, giftingType, maxChars, ribbonLength, customizable });
+    console.log("Link product data:", { productId, giftingType, maxChars, customizable });
     
     try {
       // Determine the tag to add
@@ -316,16 +315,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
       ];
       
-      // Add ribbon length if it's a ribbon
-      if (giftingType === "ribbon" && ribbonLength) {
-        metafields.push({
-          namespace: "simple_gifting",
-          key: "ribbon_length",
-          type: "number_integer",
-          value: ribbonLength,
-        });
-      }
-      
       console.log("Updating product with:", { productId, newTags, metafields });
       
       // Update product with tags and metafields
@@ -390,7 +379,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       
       return json({ 
         success: true, 
-        message: "Product succesvol gekoppeld aan gifting systeem!" 
+        message: "Product successfully linked to gifting system!" 
       });
       
     } catch (error) {
@@ -689,7 +678,6 @@ export default function GiftingProductsIndex() {
   const [linkProductForm, setLinkProductForm] = useState({
     giftingType: 'card',
     maxChars: '150',
-    ribbonLength: '100',
     customizable: true
   });
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -752,7 +740,6 @@ export default function GiftingProductsIndex() {
     setLinkProductForm({
       giftingType: 'card',
       maxChars: '150',
-      ribbonLength: '100',
       customizable: true
     });
   }, []);
@@ -799,10 +786,9 @@ export default function GiftingProductsIndex() {
   const isSubmitting = navigation.state === "submitting";
 
   const rowMarkup = filteredProducts.map((product: ProductNode) => {
-    const productType = product.productType?.value || 'Onbekend';
+    const productType = product.productType?.value || 'Unknown';
     const maxChars = product.maxChars?.value || '-';
-    const ribbonLength = product.ribbonLength?.value || '-';
-    const customizable = product.customizable?.value === 'true' ? 'Ja' : 'Nee';
+    const customizable = product.customizable?.value === 'true' ? 'Yes' : 'No';
     
     // Debug: Check if metafields are missing
     const hasMetafields = (product.productType?.value !== undefined && product.productType?.value !== null) || 
@@ -811,14 +797,14 @@ export default function GiftingProductsIndex() {
     const needsSetup = !hasMetafields;
 
     return [
-      // Product column with better alignment
+      // Product column
       <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '200px' }}>
         <Icon source={productType === 'card' ? GiftCardIcon : ProductIcon} tone="base" />
         <div style={{ flex: 1 }}>
           <Text as="span" variant="bodyMd" fontWeight="medium">{product.title}</Text>
           {needsSetup && (
             <div style={{ marginTop: '4px' }}>
-              <Badge tone="warning" size="small">Vereist setup</Badge>
+              <Badge tone="warning" size="small">Setup required</Badge>
             </div>
           )}
         </div>
@@ -826,13 +812,13 @@ export default function GiftingProductsIndex() {
       // Type column
       <div key={`type-${product.id}`} style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <Badge tone={needsSetup ? 'attention' : (productType === 'card' ? 'info' : 'success')}>
-          {needsSetup ? 'Niet ingesteld' : (productType === 'card' ? 'Kaartje' : 'Lint')}
+          {needsSetup ? 'Not configured' : (productType === 'card' ? 'Card' : 'Ribbon')}
         </Badge>
       </div>,
-      // Status column with proper alignment
+      // Status column
       <div key={`status-${product.id}`} style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <Badge tone={product.status === 'ACTIVE' ? 'success' : 'critical'}>
-          {product.status === 'ACTIVE' ? 'Actief' : 'Inactief'}
+          {product.status === 'ACTIVE' ? 'Active' : 'Inactive'}
         </Badge>
       </div>,
       // Inventory column
@@ -841,22 +827,16 @@ export default function GiftingProductsIndex() {
           {product.totalInventory || 0}
         </Text>
       </div>,
-      // Customizable column with centered alignment
+      // Customizable column
       <div key={`customizable-${product.id}`} style={{ display: 'flex', justifyContent: 'center' }}>
-        <Badge tone={customizable === 'Ja' ? 'success' : 'attention'}>
+        <Badge tone={customizable === 'Yes' ? 'success' : 'attention'}>
           {customizable}
         </Badge>
       </div>,
-      // Max chars column with centered text
+      // Max chars column
       <div key={`chars-${product.id}`} style={{ textAlign: 'center' }}>
         <Text as="span" variant="bodyMd">
           {maxChars}
-        </Text>
-      </div>,
-      // Ribbon length column with centered text
-      <div key={`ribbon-${product.id}`} style={{ textAlign: 'center' }}>
-        <Text as="span" variant="bodyMd">
-          {productType === 'ribbon' ? `${ribbonLength}cm` : '-'}
         </Text>
       </div>,
       // Actions column
@@ -874,14 +854,14 @@ export default function GiftingProductsIndex() {
           ) : (
             <Button
               icon={EditIcon}
-              accessibilityLabel={`Bewerk ${product.title}`}
+              accessibilityLabel={`Edit ${product.title}`}
               url={`/app/cards/${product.id.replace('gid://shopify/Product/', '')}`}
             />
           )}
           <Button
             icon={DeleteIcon}
             tone="critical"
-            accessibilityLabel={`Ontkoppel ${product.title}`}
+            accessibilityLabel={`Unlink ${product.title}`}
             onClick={() => handleUnlinkProduct(product)}
           />
         </ButtonGroup>
@@ -892,14 +872,14 @@ export default function GiftingProductsIndex() {
   const filters = [
     {
       key: 'customizable',
-      label: 'Personaliseerbaar',
+      label: 'Customizable',
       filter: (
         <ChoiceList
-          title="Personaliseerbaar"
+          title="Customizable"
           titleHidden
           choices={[
-            { label: 'Ja', value: 'true' },
-            { label: 'Nee', value: 'false' },
+            { label: 'Yes', value: 'true' },
+            { label: 'No', value: 'false' },
           ]}
           selected={customizableFilter}
           onChange={setCustomizableFilter}
@@ -914,7 +894,7 @@ export default function GiftingProductsIndex() {
   if (customizableFilter.length > 0) {
     appliedFilters.push({
       key: 'customizable',
-      label: `Personaliseerbaar: ${customizableFilter.map(f => f === 'true' ? 'Ja' : 'Nee').join(', ')}`,
+      label: `Customizable: ${customizableFilter.map(f => f === 'true' ? 'Yes' : 'No').join(', ')}`,
       onRemove: () => setCustomizableFilter([]),
     });
   }
@@ -922,15 +902,15 @@ export default function GiftingProductsIndex() {
   return (
     <Frame>
       <Page 
-        title="Gifting Producten"
-        subtitle={`${productStats.total} producten gevonden`}
+        title="Gifting Products"
+        subtitle={`${productStats.total} products found`}
         primaryAction={{
-          content: 'Nieuw gifting product',
+          content: 'New gifting product',
           onAction: createNewProduct
         }}
         secondaryActions={[
           {
-            content: 'Koppel bestaand product',
+            content: 'Link existing product',
             icon: PlusIcon,
             onAction: () => setShowLinkModal(true)
           }
@@ -941,11 +921,11 @@ export default function GiftingProductsIndex() {
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h2" variant="headingMd">Gifting Producten</Text>
+                  <Text as="h2" variant="headingMd">Gifting Products</Text>
                   <InlineStack gap="200">
-                    <Badge tone="info">{`${filteredProducts.length} producten`}</Badge>
+                    <Badge tone="info">{`${filteredProducts.length} products`}</Badge>
                     {filteredProducts.length !== products.length && (
-                      <Badge tone="attention">{`Gefilterd van ${products.length}`}</Badge>
+                      <Badge tone="attention">{`Filtered from ${products.length}`}</Badge>
                     )}
                   </InlineStack>
                 </InlineStack>
@@ -953,8 +933,8 @@ export default function GiftingProductsIndex() {
                 <InlineStack gap="400" align="start">
                   <div style={{ flex: 1 }}>
                     <TextField
-                      label="Zoek in producten"
-                      placeholder="Zoek op productnaam..."
+                      label="Search in products"
+                      placeholder="Search by product name..."
                       value={searchValue}
                       onChange={handleSearchChange}
                       prefix={<Icon source={SearchIcon} tone="base" />}
@@ -967,9 +947,9 @@ export default function GiftingProductsIndex() {
                   <Select
                     label="Status filter"
                     options={[
-                      { label: "Alle statussen", value: "all" },
-                      { label: "Alleen actieve", value: "active" },
-                      { label: "Alleen inactieve", value: "draft" },
+                      { label: "All statuses", value: "all" },
+                      { label: "Only active", value: "active" },
+                      { label: "Only inactive", value: "draft" },
                     ]}
                     value={statusFilter}
                     onChange={handleStatusChange}
@@ -981,7 +961,7 @@ export default function GiftingProductsIndex() {
                       icon={FilterIcon}
                       variant={showFilters ? "primary" : "secondary"}
                     >
-                      {showFilters ? 'Verberg filters' : 'Meer filters'}
+                      {showFilters ? 'Hide filters' : 'More filters'}
                     </Button>
                   </div>
                 </InlineStack>
@@ -989,7 +969,7 @@ export default function GiftingProductsIndex() {
                 {showFilters && (
                   <Card background="bg-surface-secondary">
                     <BlockStack gap="300">
-                      <Text as="h3" variant="headingSm">Geavanceerde filters</Text>
+                      <Text as="h3" variant="headingSm">Advanced filters</Text>
                       <Filters
                         queryValue={searchValue}
                         filters={filters}
@@ -1005,10 +985,10 @@ export default function GiftingProductsIndex() {
                 {(searchValue || statusFilter !== "all" || appliedFilters.length > 0) && (
                   <InlineStack gap="200" align="start">
                     <Text as="p" variant="bodySm" tone="subdued">
-                      {filteredProducts.length} van {products.length} producten gevonden
+                      {filteredProducts.length} of {products.length} products found
                     </Text>
                     <Button variant="plain" onClick={handleClearFilters}>
-                      Alle filters wissen
+                      Clear all filters
                     </Button>
                   </InlineStack>
                 )}
@@ -1018,7 +998,7 @@ export default function GiftingProductsIndex() {
                 {productStats.total === 0 && (
                   <Banner tone="info">
                     <Text as="p">
-                      Je hebt nog geen gifting producten. Klik op "Nieuw gifting product", "Koppel bestaand product" of "Filters wissen" om te beginnen.
+                      You don't have any gifting products yet. Click "New gifting product", "Link existing product", or "Clear filters" to get started.
                     </Text>
                   </Banner>
                 )}
@@ -1059,7 +1039,7 @@ export default function GiftingProductsIndex() {
                   ) : (
                     <DataTable
                       columnContentTypes={['text', 'text', 'text', 'numeric', 'text', 'text', 'text', 'text']}
-                      headings={['Product', 'Type', 'Status', 'Stock', 'Personaliseerbaar', 'Max tekens', 'Lint lengte', 'Acties']}
+                      headings={['Product', 'Type', 'Status', 'Stock', 'Customizable', 'Max chars', 'Actions']}
                       rows={rowMarkup}
                       sortable={[true, true, true, true, false, true, false, false]}
                     />
@@ -1084,7 +1064,6 @@ export default function GiftingProductsIndex() {
                 formData.append("productId", selectedExistingProduct.id);
                 formData.append("giftingType", linkProductForm.giftingType);
                 formData.append("maxChars", linkProductForm.maxChars);
-                formData.append("ribbonLength", linkProductForm.ribbonLength);
                 formData.append("customizable", linkProductForm.customizable.toString());
                 fetcher.submit(formData, { method: "post" });
               }
@@ -1181,7 +1160,6 @@ export default function GiftingProductsIndex() {
                   <input type="hidden" name="productId" value={selectedExistingProduct.id} />
                   <input type="hidden" name="giftingType" value={linkProductForm.giftingType} />
                   <input type="hidden" name="maxChars" value={linkProductForm.maxChars} />
-                  <input type="hidden" name="ribbonLength" value={linkProductForm.ribbonLength} />
                   <input type="hidden" name="customizable" value={linkProductForm.customizable.toString()} />
                 </fetcher.Form>
                 <FormLayout>
@@ -1203,16 +1181,6 @@ export default function GiftingProductsIndex() {
                     helpText="How many characters can customers enter at most?"
                     autoComplete="off"
                   />
-                  {linkProductForm.giftingType === 'ribbon' && (
-                    <TextField
-                      label="Ribbon length (cm)"
-                      type="number"
-                      value={linkProductForm.ribbonLength}
-                      onChange={(value) => setLinkProductForm(prev => ({ ...prev, ribbonLength: value }))}
-                      helpText="How long is this ribbon in centimeters?"
-                      autoComplete="off"
-                    />
-                  )}
                   <Checkbox
                     label="Customers can personalize this product"
                     checked={linkProductForm.customizable}

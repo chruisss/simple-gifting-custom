@@ -275,10 +275,10 @@ export default function Dashboard() {
   useEffect(() => {
     if (actionData) {
       if (actionData.success) {
-        setToastContent("Configuratie succesvol opgeslagen!");
+        setToastContent("Configuration saved successfully!");
         setToastIsError(false);
       } else {
-        setToastContent("Er is een fout opgetreden bij het configureren.");
+        setToastContent("An error occurred while configuring.");
         setToastIsError(true);
         if (actionData.errors) {
           console.error("Configuration errors:", actionData.errors);
@@ -299,48 +299,48 @@ export default function Dashboard() {
   const requiredMetafields = 3;
   const configurationStatus = stats.metafieldsConfigured >= requiredMetafields
     ? {
-        title: "Configuratie Compleet",
+        title: "Configuration Complete",
         status: "success",
         icon: CheckCircleIcon,
-        description: "Alle benodigde metafields zijn ingesteld.",
+        description: "All required metafields are set.",
         button: null
       }
     : {
-        title: "Configuratie Vereist",
+        title: "Configuration Required",
         status: "critical",
         icon: AlertCircleIcon,
-        description: `${stats.metafieldsConfigured} van de ${requiredMetafields} benodigde metafields zijn gevonden.`,
+        description: `${stats.metafieldsConfigured} of the ${requiredMetafields} required metafields found.`,
         button: (
           <Button
             onClick={handleInitialize}
             loading={isLoading}
             variant="primary"
           >
-            Configureer nu
+            Configure now
           </Button>
         )
       };
 
   const subscriptionStatus = isSubscribed
     ? {
-        title: "Abonnement Actief",
+        title: "Subscription Active",
         status: "success",
         icon: CheckCircleIcon,
-        description: "Je hebt een actief abonnement.",
+        description: "You have an active subscription.",
         button: (
           <Button onClick={() => navigate('/app/pricing')}>
-            Beheer abonnement
+            Manage subscription
           </Button>
         )
       }
     : {
-        title: "Geen Actief Abonnement",
+        title: "No Active Subscription",
         status: "critical",
         icon: AlertCircleIcon,
-        description: "Je hebt geen actief abonnement. Activeer een abonnement om de app te gebruiken.",
+        description: "You do not have an active subscription. Activate a subscription to use the app.",
         button: (
           <Button onClick={() => navigate('/app/pricing')} variant="primary">
-            Bekijk abonnementen
+            View subscriptions
           </Button>
         )
       };
@@ -357,10 +357,10 @@ export default function Dashboard() {
             <Card>
               <BlockStack gap="500">
                 <Text variant="headingXl" as="h2">
-                  Welkom bij Simple Gifting
+                  Welcome to Simple Gifting
                 </Text>
                 <Text variant="bodyMd" as="p">
-                  Hier is een overzicht van je huidige configuratie en gebruik.
+                  Here is an overview of your current configuration and usage.
                 </Text>
               </BlockStack>
             </Card>
@@ -373,17 +373,25 @@ export default function Dashboard() {
                     <BlockStack gap="400">
                       <InlineStack align="space-between">
                          <Text variant="headingMd" as="h3">
-                          {configurationStatus.title}
+                          {configurationStatus.title === 'Configuratie Compleet' ? 'Configuration Complete' : 'Configuration Required'}
                         </Text>
                         <Badge tone={configurationStatus.status as any}>
-                          {configurationStatus.status === 'success' ? 'Compleet' : 'Actie vereist'}
+                          {configurationStatus.status === 'success' ? 'Complete' : 'Action required'}
                         </Badge>
                       </InlineStack>
                        <InlineStack gap="300" blockAlign="center">
                         <Icon source={configurationStatus.icon} tone={configurationStatus.status as any} />
-                        <Text variant="bodyMd" as="p">{configurationStatus.description}</Text>
+                        <Text variant="bodyMd" as="p">{configurationStatus.description.replace('Alle benodigde metafields zijn ingesteld.', 'All required metafields are set.').replace('van de', 'of the').replace('benodigde metafields zijn gevonden.', 'required metafields found.')}</Text>
                       </InlineStack>
-                      {configurationStatus.button}
+                      {configurationStatus.button && (
+                        <Button
+                          onClick={handleInitialize}
+                          loading={isLoading}
+                          variant="primary"
+                        >
+                          Configure now
+                        </Button>
+                      )}
                     </BlockStack>
                   </Card>
                 </Grid.Cell>
@@ -392,17 +400,21 @@ export default function Dashboard() {
                      <BlockStack gap="400">
                       <InlineStack align="space-between">
                          <Text variant="headingMd" as="h3">
-                          {subscriptionStatus.title}
+                          {subscriptionStatus.title === 'Abonnement Actief' ? 'Subscription Active' : 'No Active Subscription'}
                         </Text>
                         <Badge tone={subscriptionStatus.status as any}>
-                          {subscriptionStatus.status === 'success' ? 'Actief' : 'Inactief'}
+                          {subscriptionStatus.status === 'success' ? 'Active' : 'Inactive'}
                         </Badge>
                       </InlineStack>
                       <InlineStack gap="300" blockAlign="center">
                         <Icon source={subscriptionStatus.icon} tone={subscriptionStatus.status as any} />
-                        <Text variant="bodyMd" as="p">{subscriptionStatus.description}</Text>
+                        <Text variant="bodyMd" as="p">{subscriptionStatus.description.replace('Je hebt een actief abonnement.', 'You have an active subscription.').replace('Je hebt geen actief abonnement. Activeer een abonnement om de app te gebruiken.', 'You do not have an active subscription. Activate a subscription to use the app.')}</Text>
                       </InlineStack>
-                      {subscriptionStatus.button}
+                      {subscriptionStatus.button && (
+                        <Button onClick={() => navigate('/app/pricing')} variant={subscriptionStatus.status === 'success' ? undefined : 'primary'}>
+                          {subscriptionStatus.status === 'success' ? 'Manage subscription' : 'View subscriptions'}
+                        </Button>
+                      )}
                     </BlockStack>
                   </Card>
                 </Grid.Cell>
@@ -412,20 +424,20 @@ export default function Dashboard() {
           {isReady ? (
             <Layout.Section>
               <CalloutCard
-                title="Alles is klaar!"
+                title="Everything is ready!"
                 illustration="https://cdn.shopify.com/s/assets/admin/checkout/settings-customize-card-background-shape-light-356b96365306d2b311c2522616b5de6321b8f52097745ac9c898df5b3310d48f.svg"
                 primaryAction={{
-                  content: 'Producten configureren',
+                  content: 'Configure products',
                   onAction: () => navigate('/app/cards'),
                 }}
               >
-                <p>Je bent helemaal klaar om personalisaties aan je producten toe te voegen. Ga naar de productpagina om te beginnen.</p>
+                <p>You are all set to add personalizations to your products. Go to the products page to get started.</p>
               </CalloutCard>
             </Layout.Section>
           ) : (
              <Layout.Section>
-              <Banner title="Voltooi de setup" tone="warning">
-                <p>Voltooi de configuratie en activeer een abonnement om de volledige functionaliteit van de app te gebruiken.</p>
+              <Banner title="Complete the setup" tone="warning">
+                <p>Complete the configuration and activate a subscription to use the full functionality of the app.</p>
               </Banner>
             </Layout.Section>
           )}
@@ -433,7 +445,7 @@ export default function Dashboard() {
           <Layout.Section>
             <Card>
               <BlockStack gap="500">
-                <Text variant="headingLg" as="h3">Statistieken</Text>
+                <Text variant="headingLg" as="h3">Statistics</Text>
                 <Divider />
                 <Grid>
                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
@@ -441,7 +453,7 @@ export default function Dashboard() {
                       <Text variant="headingXl" as="h4">{stats.totalProducts}</Text>
                       <InlineStack gap="100" align="center">
                         <Icon source={ProductIcon} tone="base" />
-                        <Text variant="bodyMd" as="p">Totaal Producten</Text>
+                        <Text variant="bodyMd" as="p">Total Products</Text>
                       </InlineStack>
                     </BlockStack>
                   </Grid.Cell>
@@ -450,7 +462,7 @@ export default function Dashboard() {
                       <Text variant="headingXl" as="h4">{stats.activeProducts}</Text>
                       <InlineStack gap="100" align="center">
                         <Icon source={CheckCircleIcon} tone="success" />
-                        <Text variant="bodyMd" as="p">Actieve Producten</Text>
+                        <Text variant="bodyMd" as="p">Active Products</Text>
                       </InlineStack>
                     </BlockStack>
                   </Grid.Cell>
@@ -459,7 +471,7 @@ export default function Dashboard() {
                       <Text variant="headingXl" as="h4">{stats.customizableProducts}</Text>
                        <InlineStack gap="100" align="center">
                         <Icon source={GiftCardIcon} tone="interactive" />
-                        <Text variant="bodyMd" as="p">Aanpasbaar</Text>
+                        <Text variant="bodyMd" as="p">Customizable</Text>
                       </InlineStack>
                     </BlockStack>
                   </Grid.Cell>
@@ -468,7 +480,7 @@ export default function Dashboard() {
                       <Text variant="headingXl" as="h4">{stats.totalInventory}</Text>
                        <InlineStack gap="100" align="center">
                         <Icon source={SettingsIcon} tone="base" />
-                        <Text variant="bodyMd" as="p">Totale Voorraad</Text>
+                        <Text variant="bodyMd" as="p">Total Inventory</Text>
                       </InlineStack>
                     </BlockStack>
                   </Grid.Cell>
