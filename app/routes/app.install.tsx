@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation, useNavigate } from "@remix-run/react";
+import { useLoaderData, useSubmit, useNavigation, useNavigate, useActionData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import {
   Page,
@@ -131,17 +131,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (action === "create_subscription") {
     try {
-      const billingResponse = await billing.require({
+      const billingCheck = await billing.require({
         plans: ["Monthly Subscription"],
-        onFailure: async () =>
-          billing.request({
-            plan: "Monthly Subscription",
-            isTest: true, // Set to false in production
-            returnUrl: `${process.env.SHOPIFY_APP_URL}/app/install`,
-          }),
+        onFailure: async () => billing.request({ 
+          plan: "Monthly Subscription",
+          isTest: true,
+          returnUrl: `${process.env.SHOPIFY_APP_URL}/app/install`
+        }),
       });
 
-      return json({ success: true, billingResponse });
+      return json({ success: true, billingCheck });
     } catch (error) {
       console.error("Error creating subscription:", error);
       return json({ success: false, error: "Failed to create subscription" });
@@ -256,6 +255,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Install() {
   const { isSubscribed, metafieldsConfigured, requiredMetafields, appEnabled } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const navigate = useNavigate();
@@ -306,6 +306,37 @@ export default function Install() {
     setSteps(initialSteps);
   }, [isSubscribed, metafieldsConfigured, appEnabled]);
 
+  // Handle action data responses
+  useEffect(() => {
+    if (actionData) {
+      if (actionData.success) {
+        setToast({
+          active: true,
+          message: "Step completed successfully!",
+          error: false
+        });
+        
+        // Update step status based on action type
+        if (navigation.formData) {
+          const action = navigation.formData.get("action");
+          if (action === "create_subscription") {
+            updateStepStatus("subscription", "completed");
+          } else if (action === "configure_metafields") {
+            updateStepStatus("metafields", "completed");
+          } else if (action === "enable_app") {
+            updateStepStatus("app_settings", "completed");
+          }
+        }
+      } else {
+        setToast({
+          active: true,
+          message: (actionData as any).error || "An error occurred",
+          error: true
+        });
+      }
+    }
+  }, [actionData]);
+
   const updateStepStatus = (stepId: string, status: InstallationStep['status']) => {
     setSteps(prev => prev.map(step => 
       step.id === stepId ? { ...step, status } : step
@@ -315,33 +346,24 @@ export default function Install() {
   const handleStepAction = async (stepId: string) => {
     updateStepStatus(stepId, 'in-progress');
 
-    try {
-      switch (stepId) {
-        case "subscription":
-          submit({ action: "create_subscription" }, { method: "post" });
-          break;
-        case "metafields":
-          submit({ action: "configure_metafields" }, { method: "post" });
-          break;
-        case "app_settings":
-          submit({ action: "enable_app" }, { method: "post" });
-          break;
-        case "theme_setup":
-          // This is a manual step - just mark as completed for now
-          updateStepStatus(stepId, 'completed');
-          setToast({
-            active: true,
-            message: "Remember to activate the theme extension in your theme editor!"
-          });
-          break;
-      }
-    } catch (error) {
-      updateStepStatus(stepId, 'failed');
-      setToast({
-        active: true,
-        message: "An error occurred during installation",
-        error: true
-      });
+    switch (stepId) {
+      case "subscription":
+        submit({ action: "create_subscription" }, { method: "post" });
+        break;
+      case "metafields":
+        submit({ action: "configure_metafields" }, { method: "post" });
+        break;
+      case "app_settings":
+        submit({ action: "enable_app" }, { method: "post" });
+        break;
+      case "theme_setup":
+        // This is a manual step - just mark as completed for now
+        updateStepStatus(stepId, 'completed');
+        setToast({
+          active: true,
+          message: "Remember to activate the theme extension in your theme editor!"
+        });
+        break;
     }
   };
 
