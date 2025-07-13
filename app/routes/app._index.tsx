@@ -347,89 +347,82 @@ export default function Dashboard() {
 
   const isReady = stats.metafieldsConfigured >= requiredMetafields && isSubscribed;
 
+  // --- UI Redesign ---
   return (
     <Page>
       <TitleBar title="Dashboard" />
       {toastMarkup}
-      <BlockStack gap="500">
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <Text variant="headingXl" as="h2">
-                  Welcome to Simple Gifting
-                </Text>
-                <Text variant="bodyMd" as="p">
-                  Here is an overview of your current configuration and usage.
-                </Text>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
+      <BlockStack gap="400">
+        {/* Welcome Card */}
+        <Card padding="400">
+          <BlockStack gap="200">
+            <Text variant="headingLg" as="h2">
+              Welcome to Simple Gifting
+            </Text>
+            <Text variant="bodyMd" as="p">
+              Overview of your configuration and usage.
+            </Text>
+          </BlockStack>
+        </Card>
 
-          <Layout.Section>
-             <Grid>
-                <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 3, lg: 6, xl: 6}}>
-                  <Card>
-                    <BlockStack gap="400">
-                      <InlineStack align="space-between">
-                         <Text variant="headingMd" as="h3">
-                          {configurationStatus.title}
-                        </Text>
-                        <Badge tone={configurationStatus.status as any}>
-                          {configurationStatus.status === 'success' ? 'Complete' : 'Action required'}
-                        </Badge>
-                      </InlineStack>
-                       <InlineStack gap="300" blockAlign="center">
-                        <Icon source={configurationStatus.icon} tone={configurationStatus.status as any} />
-                        <Text variant="bodyMd" as="p">{configurationStatus.description}</Text>
-                      </InlineStack>
-                      {configurationStatus.button}
-                    </BlockStack>
-                  </Card>
-                </Grid.Cell>
-                 <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 3, lg: 6, xl: 6}}>
-                  <Card>
-                     <BlockStack gap="400">
-                      <InlineStack align="space-between">
-                         <Text variant="headingMd" as="h3">
-                          {subscriptionStatus.title}
-                        </Text>
-                        <Badge tone={subscriptionStatus.status as any}>
-                          {subscriptionStatus.status === 'success' ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </InlineStack>
-                      <InlineStack gap="300" blockAlign="center">
-                        <Icon source={subscriptionStatus.icon} tone={subscriptionStatus.status as any} />
-                        <Text variant="bodyMd" as="p">{subscriptionStatus.description}</Text>
-                      </InlineStack>
-                      {subscriptionStatus.button}
-                    </BlockStack>
-                  </Card>
-                </Grid.Cell>
-              </Grid>
-          </Layout.Section>
-          
-          {isReady ? (
-            <Layout.Section>
-              <CalloutCard
-                title="Everything is ready!"
-                illustration="https://cdn.shopify.com/s/assets/admin/checkout/settings-customize-card-background-shape-light-356b96365306d2b311c2522616b5de6321b8f52097745ac9c898df5b3310d48f.svg"
-                primaryAction={{
-                  content: 'Configure products',
-                  onAction: () => navigate('/app/cards'),
-                }}
-              >
-                <p>You are all set to add personalizations to your products. Go to the products page to get started.</p>
-              </CalloutCard>
-            </Layout.Section>
-          ) : (
-             <Layout.Section>
-              <Banner title="Complete the setup" tone="warning">
-                <p>Complete the configuration and activate a subscription to use the full functionality of the app.</p>
-              </Banner>
-            </Layout.Section>
-          )}
-        </Layout>
+        {/* Status Cards Row */}
+        <InlineStack gap="400" align="start">
+          {/* Configuration Status */}
+          <Card padding="400">
+            <BlockStack gap="200">
+              <InlineStack align="space-between">
+                <Text variant="headingMd" as="h3">
+                  {configurationStatus.title}
+                </Text>
+                <Badge tone={configurationStatus.status as any}>
+                  {configurationStatus.status === 'success' ? 'Complete' : 'Action required'}
+                </Badge>
+              </InlineStack>
+              <InlineStack gap="200" blockAlign="center">
+                <Icon source={configurationStatus.icon} tone={configurationStatus.status as any} />
+                <Text variant="bodyMd" as="span">{configurationStatus.description}</Text>
+              </InlineStack>
+              {configurationStatus.button}
+            </BlockStack>
+          </Card>
+
+          {/* Subscription Status */}
+          <Card padding="400">
+            <BlockStack gap="200">
+              <InlineStack align="space-between">
+                <Text variant="headingMd" as="h3">
+                  {subscriptionStatus.title}
+                </Text>
+                <Badge tone={subscriptionStatus.status as any}>
+                  {subscriptionStatus.status === 'success' ? 'Active' : 'Inactive'}
+                </Badge>
+              </InlineStack>
+              <InlineStack gap="200" blockAlign="center">
+                <Icon source={subscriptionStatus.icon} tone={subscriptionStatus.status as any} />
+                <Text variant="bodyMd" as="span">{subscriptionStatus.description}</Text>
+              </InlineStack>
+              {subscriptionStatus.button}
+            </BlockStack>
+          </Card>
+        </InlineStack>
+
+        {/* Call to Action */}
+        {isReady ? (
+          <CalloutCard
+            title="Everything is ready!"
+            illustration="https://cdn.shopify.com/s/assets/admin/checkout/settings-customize-card-background-shape-light-356b96365306d2b311c2522616b5de6321b8f52097745ac9c898df5b3310d48f.svg"
+            primaryAction={{
+              content: 'Configure products',
+              onAction: () => navigate('/app/cards'),
+            }}
+          >
+            <p>You are all set to add personalizations to your products. Go to the products page to get started.</p>
+          </CalloutCard>
+        ) : (
+          <Banner title="Complete the setup" tone="warning">
+            <p>Complete the configuration and activate a subscription to use the full functionality of the app.</p>
+          </Banner>
+        )}
       </BlockStack>
     </Page>
   );
