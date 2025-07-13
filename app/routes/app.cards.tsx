@@ -246,7 +246,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL response is not valid JSON:", errorText);
         return json({ 
           success: false, 
-          message: "GraphQL service not available",
+          message: "GraphQL service niet beschikbaar",
           error: "Invalid JSON response"
         }, { status: 500 });
       }
@@ -256,7 +256,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL errors:", (currentProduct as any).errors);
         return json({ 
           success: false, 
-          message: "Product not found",
+          message: "Product niet gevonden",
           errors: (currentProduct as any).errors 
         }, { status: 404 });
       }
@@ -334,7 +334,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL update response is not valid JSON:", errorText);
         return json({ 
           success: false, 
-          message: "GraphQL service not available during update",
+          message: "GraphQL service niet beschikbaar bij bijwerken",
           error: "Invalid JSON response"
         }, { status: 500 });
       }
@@ -344,7 +344,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL update errors:", (updateResult as any).errors);
         return json({ 
           success: false, 
-          message: "GraphQL error when updating product",
+          message: "GraphQL fout bij bijwerken product",
           errors: (updateResult as any).errors 
         }, { status: 500 });
       }
@@ -353,21 +353,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("Product update user errors:", updateResult.data.productUpdate.userErrors);
         return json({ 
           success: false, 
-          message: "Error updating product: " + updateResult.data.productUpdate.userErrors.map((e: any) => e.message).join(", "),
+          message: "Fout bij bijwerken product: " + updateResult.data.productUpdate.userErrors.map((e: any) => e.message).join(", "),
           errors: updateResult.data.productUpdate.userErrors 
         }, { status: 400 });
       }
       
       return json({ 
         success: true, 
-        message: "Product successfully linked to gifting system!" 
+        message: "Product succesvol gekoppeld aan gifting systeem!" 
       });
       
     } catch (error) {
       console.error("Unexpected error in linkProduct:", error);
       return json({ 
         success: false, 
-        message: "Unexpected error: " + (error instanceof Error ? error.message : String(error))
+        message: "Onverwachte fout: " + (error instanceof Error ? error.message : String(error))
       }, { status: 500 });
     }
   }
@@ -400,7 +400,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL response is not valid JSON:", errorText);
         return json({ 
           success: false, 
-          message: "GraphQL service not available",
+          message: "GraphQL service niet beschikbaar",
           error: "Invalid JSON response"
         }, { status: 500 });
       }
@@ -410,7 +410,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL errors:", (currentProduct as any).errors);
         return json({ 
           success: false, 
-          message: "Product not found",
+          message: "Product niet gevonden",
           errors: (currentProduct as any).errors 
         }, { status: 404 });
       }
@@ -485,7 +485,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL unlink update response is not valid JSON:", errorText);
         return json({ 
           success: false, 
-          message: "GraphQL service not available when unlinking",
+          message: "GraphQL service niet beschikbaar bij ontkoppelen",
           error: "Invalid JSON response"
         }, { status: 500 });
       }
@@ -495,7 +495,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("GraphQL update errors:", (updateResult as any).errors);
         return json({ 
           success: false, 
-          message: "GraphQL error when unlinking product",
+          message: "GraphQL fout bij ontkoppelen product",
           errors: (updateResult as any).errors 
         }, { status: 500 });
       }
@@ -504,26 +504,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         console.error("Product update user errors:", updateResult.data.productUpdate.userErrors);
         return json({ 
           success: false, 
-          message: "Error when unlinking product: " + updateResult.data.productUpdate.userErrors.map((e: any) => e.message).join(", "),
+          message: "Fout bij ontkoppelen product: " + updateResult.data.productUpdate.userErrors.map((e: any) => e.message).join(", "),
           errors: updateResult.data.productUpdate.userErrors 
         }, { status: 400 });
       }
       
       return json({ 
         success: true, 
-        message: "Product successfully unlinked from gifting system!" 
+        message: "Product succesvol ontkoppeld van gifting systeem!" 
       });
       
     } catch (error) {
       console.error("Unexpected error in unlinkProduct:", error);
       return json({ 
         success: false, 
-        message: "Unexpected error: " + (error instanceof Error ? error.message : String(error))
+        message: "Onverwachte fout: " + (error instanceof Error ? error.message : String(error))
       }, { status: 500 });
     }
   }
   
-  return json({ success: false, message: "Unknown action" }, { status: 400 });
+  return json({ success: false, message: "Onbekende actie" }, { status: 400 });
 };
 
 export default function GiftingProductsIndex() {
@@ -565,7 +565,7 @@ export default function GiftingProductsIndex() {
         setSelectedExistingProduct(null);
         setProductToUnlink(null);
       } else {
-        setToastMessage(data.message || "An error occurred.");
+        setToastMessage(data.message || "Er is een fout opgetreden.");
       }
     }
   }, [fetcher.state, fetcher.data]);
@@ -655,10 +655,10 @@ export default function GiftingProductsIndex() {
   const isSubmitting = navigation.state === "submitting";
 
   const rowMarkup = filteredProducts.map((product: ProductNode) => {
-    const productType = product.productType?.value || 'Unknown';
+    const productType = product.productType?.value || 'Onbekend';
     const maxChars = product.maxChars?.value || '-';
     const ribbonLength = product.ribbonLength?.value || '-';
-    const customizable = product.customizable?.value === 'true' ? 'Yes' : 'No';
+    const customizable = product.customizable?.value === 'true' ? 'Ja' : 'Nee';
 
     return [
       // Product column with better alignment
@@ -671,13 +671,13 @@ export default function GiftingProductsIndex() {
       // Type column
       <div key={`type-${product.id}`} style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <Badge tone={productType === 'card' ? 'info' : 'success'}>
-          {productType === 'card' ? 'Card' : 'Ribbon'}
+          {productType === 'card' ? 'Kaartje' : 'Lint'}
         </Badge>
       </div>,
       // Status column with proper alignment
       <div key={`status-${product.id}`} style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <Badge tone={product.status === 'ACTIVE' ? 'success' : 'critical'}>
-          {product.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+          {product.status === 'ACTIVE' ? 'Actief' : 'Inactief'}
         </Badge>
       </div>,
       // Inventory column
@@ -688,7 +688,7 @@ export default function GiftingProductsIndex() {
       </div>,
       // Customizable column with centered alignment
       <div key={`customizable-${product.id}`} style={{ display: 'flex', justifyContent: 'center' }}>
-        <Badge tone={customizable === 'Yes' ? 'success' : 'attention'}>
+        <Badge tone={customizable === 'Ja' ? 'success' : 'attention'}>
           {customizable}
         </Badge>
       </div>,
@@ -707,7 +707,17 @@ export default function GiftingProductsIndex() {
       // Actions column
       <div key={`actions-${product.id}`} style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
         <ButtonGroup variant="segmented">
-          {/* Removed edit and unlink buttons that link to other pages */}
+          <Button
+            icon={EditIcon}
+            accessibilityLabel={`Bewerk ${product.title}`}
+            url={`/app/cards/${product.id.replace('gid://shopify/Product/', '')}`}
+          />
+          <Button
+            icon={DeleteIcon}
+            tone="critical"
+            accessibilityLabel={`Ontkoppel ${product.title}`}
+            onClick={() => handleUnlinkProduct(product)}
+          />
         </ButtonGroup>
       </div>,
     ];
@@ -716,14 +726,14 @@ export default function GiftingProductsIndex() {
   const filters = [
     {
       key: 'customizable',
-      label: 'Customizable',
+      label: 'Personaliseerbaar',
       filter: (
         <ChoiceList
-          title="Customizable"
+          title="Personaliseerbaar"
           titleHidden
           choices={[
-            { label: 'Yes', value: 'true' },
-            { label: 'No', value: 'false' },
+            { label: 'Ja', value: 'true' },
+            { label: 'Nee', value: 'false' },
           ]}
           selected={customizableFilter}
           onChange={setCustomizableFilter}
@@ -738,7 +748,7 @@ export default function GiftingProductsIndex() {
   if (customizableFilter.length > 0) {
     appliedFilters.push({
       key: 'customizable',
-      label: `Customizable: ${customizableFilter.map(f => f === 'true' ? 'Yes' : 'No').join(', ')}`,
+      label: `Personaliseerbaar: ${customizableFilter.map(f => f === 'true' ? 'Ja' : 'Nee').join(', ')}`,
       onRemove: () => setCustomizableFilter([]),
     });
   }
@@ -746,21 +756,27 @@ export default function GiftingProductsIndex() {
   return (
     <Frame>
       <Page 
-        title="Gifting Products"
-        subtitle={`${productStats.total} products found`}
+        title="Gifting Producten"
+        subtitle={`${productStats.total} producten gevonden`}
         primaryAction={{
-          content: 'New gifting product',
+          content: 'Nieuw gifting product',
           onAction: createNewProduct
         }}
-        secondaryActions={[]}
+        secondaryActions={[
+          {
+            content: 'Koppel bestaand product',
+            icon: PlusIcon,
+            onAction: () => setShowLinkModal(true)
+          }
+        ]}
       >
         <Layout>
           <Layout.Section>
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h2" variant="headingMd">Overview</Text>
-                  <Badge tone="info">{`${filteredProducts.length} products`}</Badge>
+                  <Text as="h2" variant="headingMd">Overzicht</Text>
+                  <Badge tone="info">{`${filteredProducts.length} producten`}</Badge>
                 </InlineStack>
                 
                 <Grid>
@@ -769,7 +785,7 @@ export default function GiftingProductsIndex() {
                       <Icon source={ProductIcon} tone="base" />
                       <BlockStack gap="050">
                         <Text as="p" variant="headingMd">{productStats.total}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Total products</Text>
+                        <Text as="p" variant="bodyMd" tone="subdued">Totaal producten</Text>
                       </BlockStack>
                     </InlineStack>
                   </Grid.Cell>
@@ -778,7 +794,7 @@ export default function GiftingProductsIndex() {
                       <Icon source={GiftCardIcon} tone="success" />
                       <BlockStack gap="050">
                         <Text as="p" variant="headingMd">{productStats.active}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Active products</Text>
+                        <Text as="p" variant="bodyMd" tone="subdued">Actieve producten</Text>
                       </BlockStack>
                     </InlineStack>
                   </Grid.Cell>
@@ -787,7 +803,7 @@ export default function GiftingProductsIndex() {
                       <Icon source={SettingsIcon} tone="warning" />
                       <BlockStack gap="050">
                         <Text as="p" variant="headingMd">{productStats.customizable}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Customizable</Text>
+                        <Text as="p" variant="bodyMd" tone="subdued">Personaliseerbaar</Text>
                       </BlockStack>
                     </InlineStack>
                   </Grid.Cell>
@@ -796,7 +812,7 @@ export default function GiftingProductsIndex() {
                       <Icon source={FilterIcon} tone="base" />
                       <BlockStack gap="050">
                         <Text as="p" variant="headingMd">{productStats.cards} / {productStats.ribbons}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Cards / Ribbons</Text>
+                        <Text as="p" variant="bodyMd" tone="subdued">Kaarten / Linten</Text>
                       </BlockStack>
                     </InlineStack>
                   </Grid.Cell>
@@ -805,7 +821,7 @@ export default function GiftingProductsIndex() {
                 {productStats.total === 0 && (
                   <Banner tone="info">
                     <Text as="p">
-                      You don't have any gifting products yet. Click "New gifting product", "Link existing product" or "Clear filters" to get started.
+                      Je hebt nog geen gifting producten. Klik op "Nieuw gifting product", "Koppel bestaand product" of "Filters wissen" om te beginnen.
                     </Text>
                   </Banner>
                 )}
@@ -816,13 +832,13 @@ export default function GiftingProductsIndex() {
           <Layout.Section>
             <Card>
               <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">Search & Filter</Text>
+                <Text as="h2" variant="headingMd">Zoeken & Filteren</Text>
                 
                 <InlineStack gap="400" align="start">
                   <div style={{ flex: 1 }}>
                     <TextField
-                      label="Search products"
-                      placeholder="Search by product name..."
+                      label="Zoek in producten"
+                      placeholder="Zoek op productnaam..."
                       value={searchValue}
                       onChange={handleSearchChange}
                       prefix={<Icon source={SearchIcon} tone="base" />}
@@ -835,9 +851,9 @@ export default function GiftingProductsIndex() {
                   <Select
                     label="Status filter"
                     options={[
-                      { label: "All statuses", value: "all" },
-                      { label: "Only active", value: "active" },
-                      { label: "Only inactive", value: "draft" },
+                      { label: "Alle statussen", value: "all" },
+                      { label: "Alleen actieve", value: "active" },
+                      { label: "Alleen inactieve", value: "draft" },
                     ]}
                     value={statusFilter}
                     onChange={handleStatusChange}
@@ -849,7 +865,7 @@ export default function GiftingProductsIndex() {
                       icon={FilterIcon}
                       variant={showFilters ? "primary" : "secondary"}
                     >
-                      {showFilters ? 'Hide filters' : 'More filters'}
+                      {showFilters ? 'Verberg filters' : 'Meer filters'}
                     </Button>
                   </div>
                 </InlineStack>
@@ -857,7 +873,7 @@ export default function GiftingProductsIndex() {
                 {showFilters && (
                   <Card background="bg-surface-secondary">
                     <BlockStack gap="300">
-                      <Text as="h3" variant="headingSm">Advanced filters</Text>
+                      <Text as="h3" variant="headingSm">Geavanceerde filters</Text>
                       <Filters
                         queryValue={searchValue}
                         filters={filters}
@@ -873,10 +889,10 @@ export default function GiftingProductsIndex() {
                 {(searchValue || statusFilter !== "all" || appliedFilters.length > 0) && (
                   <InlineStack gap="200" align="start">
                     <Text as="p" variant="bodySm" tone="subdued">
-                      {filteredProducts.length} of {products.length} products found
+                      {filteredProducts.length} van {products.length} producten gevonden
                     </Text>
                     <Button variant="plain" onClick={handleClearFilters}>
-                      Clear all filters
+                      Alle filters wissen
                     </Button>
                   </InlineStack>
                 )}
@@ -931,10 +947,10 @@ export default function GiftingProductsIndex() {
                     </EmptyState>
                   ) : (
                     <DataTable
-                      columnContentTypes={['text', 'text', 'text', 'numeric', 'text', 'text', 'text', 'text']}
-                      headings={['Product', 'Type', 'Status', 'Stock', 'Customizable', 'Max Chars', 'Ribbon Length', 'Actions']}
+                      columnContentTypes={['text', 'text', 'text', 'numeric', 'text', 'text', 'text']}
+                      headings={['Product', 'Type', 'Status', 'Stock', 'Specification', 'Customizable', 'Actions']}
                       rows={rowMarkup}
-                      sortable={[true, true, true, true, true, false, false, false]}
+                      sortable={[true, true, true, true, false, true, false]}
                     />
                   )}
                 </div>
@@ -944,10 +960,220 @@ export default function GiftingProductsIndex() {
         </Layout>
         
         {/* Link Existing Product Modal */}
-        {/* Removed modal for linking existing products */}
-        
+        <Modal
+          open={showLinkModal}
+          onClose={handleCloseLinkModal}
+          title="Link Existing Product"
+          primaryAction={{
+            content: fetcher.state === 'submitting' ? 'Linking...' : 'Link Product',
+            onAction: () => {
+              if (selectedExistingProduct) {
+                const formData = new FormData();
+                formData.append("intent", "linkProduct");
+                formData.append("productId", selectedExistingProduct.id);
+                formData.append("giftingType", linkProductForm.giftingType);
+                formData.append("maxChars", linkProductForm.maxChars);
+                formData.append("ribbonLength", linkProductForm.ribbonLength);
+                formData.append("customizable", linkProductForm.customizable.toString());
+                fetcher.submit(formData, { method: "post" });
+              }
+            },
+            loading: fetcher.state === 'submitting',
+            disabled: !selectedExistingProduct
+          }}
+          secondaryActions={[
+            {
+              content: 'Cancel',
+              onAction: handleCloseLinkModal,
+            },
+          ]}
+        >
+          <Modal.Section>
+            {!selectedExistingProduct ? (
+              <BlockStack gap="400">
+                <Text as="p" variant="bodyMd">
+                  Select an existing product from your store to link to the gifting system. The product will automatically receive the correct personalization settings.
+                </Text>
+                {existingProducts.length === 0 ? (
+                  <EmptyState
+                    heading="All products are already linked"
+                    image="https://cdn.shopify.com/s/files/1/0533/2089/files/empty-state.svg"
+                  >
+                    <p>All products in your store are already linked to the gifting system, or you do not have any products yet.</p>
+                  </EmptyState>
+                ) : (
+                  <>
+                    <Text as="p" variant="bodySm" tone="subdued">
+                      {existingProducts.length} available products
+                    </Text>
+                    <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #e1e3e5', borderRadius: '8px', padding: '1rem' }}>
+                      <BlockStack gap="200">
+                        {existingProducts.map((product: ExistingProduct) => (
+                          <Card key={product.id}>
+                            <InlineStack align="space-between">
+                              <InlineStack gap="300">
+                                {product.featuredImage?.url && (
+                                  <img 
+                                    src={product.featuredImage.url} 
+                                    alt={product.title}
+                                    style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }}
+                                  />
+                                )}
+                                <BlockStack gap="100">
+                                  <Text as="p" variant="bodyMd" fontWeight="semibold">
+                                    {product.title}
+                                  </Text>
+                                  <InlineStack gap="200">
+                                    <Badge tone={product.status === 'ACTIVE' ? 'success' : 'critical'}>
+                                      {product.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                                    </Badge>
+                                    <Text as="p" variant="bodySm" tone="subdued">
+                                      Stock: {product.totalInventory || 0}
+                                    </Text>
+                                  </InlineStack>
+                                </BlockStack>
+                              </InlineStack>
+                              <Button onClick={() => handleLinkProduct(product)}>
+                                Select
+                              </Button>
+                            </InlineStack>
+                          </Card>
+                        ))}
+                      </BlockStack>
+                    </div>
+                  </>
+                )}
+              </BlockStack>
+            ) : (
+              <BlockStack gap="400">
+                <Card>
+                  <InlineStack gap="300">
+                    {selectedExistingProduct.featuredImage?.url && (
+                      <img 
+                        src={selectedExistingProduct.featuredImage.url} 
+                        alt={selectedExistingProduct.title}
+                        style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
+                      />
+                    )}
+                    <BlockStack gap="100">
+                      <Text as="p" variant="headingMd">
+                        {selectedExistingProduct.title}
+                      </Text>
+                      <Text as="p" variant="bodyMd" tone="subdued">
+                        Configure how this product works in the gifting system
+                      </Text>
+                    </BlockStack>
+                  </InlineStack>
+                </Card>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="linkProduct" />
+                  <input type="hidden" name="productId" value={selectedExistingProduct.id} />
+                  <input type="hidden" name="giftingType" value={linkProductForm.giftingType} />
+                  <input type="hidden" name="maxChars" value={linkProductForm.maxChars} />
+                  <input type="hidden" name="ribbonLength" value={linkProductForm.ribbonLength} />
+                  <input type="hidden" name="customizable" value={linkProductForm.customizable.toString()} />
+                </fetcher.Form>
+                <FormLayout>
+                  <Select
+                    label="What type of gifting product is this?"
+                    options={[
+                      { label: 'Card (for messages)', value: 'card' },
+                      { label: 'Ribbon (for gifts)', value: 'ribbon' },
+                    ]}
+                    value={linkProductForm.giftingType}
+                    onChange={(value) => setLinkProductForm(prev => ({ ...prev, giftingType: value }))}
+                    helpText="Choose the type that best fits this product"
+                  />
+                  <TextField
+                    label="Maximum number of characters"
+                    type="number"
+                    value={linkProductForm.maxChars}
+                    onChange={(value) => setLinkProductForm(prev => ({ ...prev, maxChars: value }))}
+                    helpText="How many characters can customers enter at most?"
+                    autoComplete="off"
+                  />
+                  {linkProductForm.giftingType === 'ribbon' && (
+                    <TextField
+                      label="Ribbon length (cm)"
+                      type="number"
+                      value={linkProductForm.ribbonLength}
+                      onChange={(value) => setLinkProductForm(prev => ({ ...prev, ribbonLength: value }))}
+                      helpText="How long is this ribbon in centimeters?"
+                      autoComplete="off"
+                    />
+                  )}
+                  <Checkbox
+                    label="Customers can personalize this product"
+                    checked={linkProductForm.customizable}
+                    onChange={(checked) => setLinkProductForm(prev => ({ ...prev, customizable: checked }))}
+                    helpText="Can customers add their own text to this product?"
+                  />
+                </FormLayout>
+                <Button 
+                  variant="plain" 
+                  onClick={() => setSelectedExistingProduct(null)}
+                >
+                  ← Choose another product
+                </Button>
+              </BlockStack>
+            )}
+          </Modal.Section>
+        </Modal>
+
         {/* Unlink Product Confirmation Modal */}
-        {/* Removed modal for unlinking products */}
+        <Modal
+          open={showUnlinkModal}
+          onClose={handleCloseUnlinkModal}
+          title="Unlink Product"
+          primaryAction={{
+            content: fetcher.state === 'submitting' ? 'Unlinking...' : 'Unlink Product',
+            onAction: () => {
+              if (productToUnlink) {
+                const formData = new FormData();
+                formData.append("intent", "unlinkProduct");
+                formData.append("productId", productToUnlink.id);
+                fetcher.submit(formData, { method: "post" });
+              }
+            },
+            loading: fetcher.state === 'submitting',
+            disabled: !productToUnlink,
+            destructive: true
+          }}
+          secondaryActions={[
+            {
+              content: 'Cancel',
+              onAction: handleCloseUnlinkModal,
+            },
+          ]}
+        >
+          <Modal.Section>
+            {productToUnlink && (
+              <BlockStack gap="400">
+                <Text as="p" variant="bodyMd">
+                  Are you sure you want to unlink <strong>{productToUnlink.title}</strong> from the gifting system?
+                </Text>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="unlinkProduct" />
+                  <input type="hidden" name="productId" value={productToUnlink.id} />
+                </fetcher.Form>
+                <Banner tone="warning">
+                  <Text as="p" variant="bodyMd">
+                    This will perform the following actions:
+                  </Text>
+                  <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                    <li>The "simple-gifting-product" tag will be removed</li>
+                    <li>All personalization settings will be cleared</li>
+                    <li>The product will no longer appear in the gifting products list</li>
+                    <li>Customers will no longer be able to personalize this product</li>
+                  </ul>
+                </Banner>
+                <Text as="p" variant="bodyMd" tone="subdued">
+                  This action can be undone by linking the product again.
+                </Text>
+              </BlockStack>
+            )}
+          </Modal.Section>
+        </Modal>
       </Page>
       
       {/* Toast for feedback - now inside Frame */}
