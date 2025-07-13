@@ -27,9 +27,8 @@ export default function App() {
         <Link to="/app" rel="home">
           Dashboard
         </Link>
-        <Link to="/app/cards">Producten</Link>
-        <Link to="/app/analytics">Analytics</Link>
-        <Link to="/app/settings">Instellingen</Link>
+        <Link to="/app/cards">Products</Link>
+        <Link to="/app/settings">Settings</Link>
         <Link to="/app/help">Help & Support</Link>
       </NavMenu>
       <Frame>

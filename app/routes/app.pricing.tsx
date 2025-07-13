@@ -157,7 +157,6 @@ export default function Pricing() {
                 <List.Item>Unlimited gift card and ribbon customization</List.Item>
                 <List.Item>Personal message functionality</List.Item>
                 <List.Item>Seamless product page integration</List.Item>
-                <List.Item>Analytics and insights</List.Item>
                 <List.Item>Priority customer support</List.Item>
                 <List.Item>Automatic updates and new features</List.Item>
               </List>
@@ -194,4 +193,4 @@ export default function Pricing() {
       </Layout>
     </Page>
   );
-} 
+}

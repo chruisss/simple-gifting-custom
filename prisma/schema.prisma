@@ -45,7 +45,6 @@ model ShopConfiguration {
   defaultCharLimit       Int      @default(150)
   autoTagging           Boolean  @default(true)
   debugMode             Boolean  @default(false)
-  analyticsTracking     Boolean  @default(true)
   cacheStrategy         String   @default("browser")
   apiTimeout            Int      @default(30)
   

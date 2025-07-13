@@ -53,7 +53,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     defaultCharLimit: parseInt(formData.get("defaultCharLimit") as string) || 150,
     autoTagging: formData.get("autoTagging") === "true",
     debugMode: formData.get("debugMode") === "true",
-    analyticsTracking: formData.get("analyticsTracking") === "true",
     cacheStrategy: formData.get("cacheStrategy") as string || "browser",
     apiTimeout: parseInt(formData.get("apiTimeout") as string) || 30,
     // Styling fields
@@ -91,7 +90,6 @@ export default function SettingsPage() {
     defaultCharLimit: config.defaultCharLimit || 150,
     autoTagging: config.autoTagging ?? true,
     debugMode: config.debugMode ?? false,
-    analyticsTracking: config.analyticsTracking ?? true,
     cacheStrategy: config.cacheStrategy || "browser",
     apiTimeout: config.apiTimeout || 30,
     // Styling fields with defaults
@@ -150,7 +148,6 @@ export default function SettingsPage() {
     formData.append("defaultCharLimit", formState.defaultCharLimit.toString());
     formData.append("autoTagging", formState.autoTagging.toString());
     formData.append("debugMode", formState.debugMode.toString());
-    formData.append("analyticsTracking", formState.analyticsTracking.toString());
     formData.append("cacheStrategy", formState.cacheStrategy);
     formData.append("apiTimeout", formState.apiTimeout.toString());
     
@@ -669,37 +666,6 @@ export default function SettingsPage() {
                             onChange={(checked) => handleInputChange(checked, "debugMode")}
                             helpText="Show debug information in the browser console"
                           />
-                          
-                          <Checkbox
-                            label="Analytics tracking"
-                            checked={formState.analyticsTracking}
-                            onChange={(checked) => handleInputChange(checked, "analyticsTracking")}
-                            helpText="Track personalization events for analytics"
-                          />
-                          
-                          <Select
-                            label="Cache strategy"
-                            options={[
-                              { label: "No cache", value: "none" },
-                              { label: "Browser cache", value: "browser" },
-                              { label: "Server cache", value: "server" },
-                              { label: "Hybrid cache", value: "hybrid" },
-                            ]}
-                            value={formState.cacheStrategy}
-                            onChange={(value) => handleInputChange(value, "cacheStrategy")}
-                            helpText="How product data is cached"
-                          />
-                          
-                          <TextField
-                            label="API timeout (seconds)"
-                            value={formState.apiTimeout.toString()}
-                            onChange={(value) => handleInputChange(parseInt(value) || 30, "apiTimeout")}
-                            type="number"
-                            min={5}
-                            max={60}
-                            autoComplete="off"
-                            helpText="Timeout for API requests (5-60 seconds)"
-                          />
                         </BlockStack>
                       </Grid.Cell>
                     </Grid>
@@ -725,7 +691,6 @@ export default function SettingsPage() {
                         defaultCharLimit: 150,
                         autoTagging: true,
                         debugMode: false,
-                        analyticsTracking: true,
                         cacheStrategy: "browser",
                         apiTimeout: 30,
                         // Styling fields with defaults

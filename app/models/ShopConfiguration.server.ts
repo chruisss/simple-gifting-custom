@@ -17,7 +17,6 @@ export async function getShopConfiguration(shop: string) {
         defaultCharLimit: 150,
         autoTagging: true,
         debugMode: false,
-        analyticsTracking: true,
         cacheStrategy: "browser",
         apiTimeout: 30,
         // Styling defaults
@@ -47,4 +46,4 @@ export async function updateShopConfiguration(shop: string, data: Partial<ShopCo
     where: { shop },
     data,
   });
-} 
+}

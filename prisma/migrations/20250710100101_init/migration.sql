@@ -23,7 +23,6 @@ CREATE TABLE "ShopConfiguration" (
     "defaultCharLimit" INTEGER NOT NULL DEFAULT 150,
     "autoTagging" BOOLEAN NOT NULL DEFAULT true,
     "debugMode" BOOLEAN NOT NULL DEFAULT false,
-    "analyticsTracking" BOOLEAN NOT NULL DEFAULT true,
     "cacheStrategy" TEXT NOT NULL DEFAULT 'browser',
     "apiTimeout" INTEGER NOT NULL DEFAULT 30,
     "primaryColor" TEXT NOT NULL DEFAULT '#2563eb',

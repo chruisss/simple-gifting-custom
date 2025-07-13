@@ -125,34 +125,11 @@ export default function HelpPage() {
                 >
                   Settings
                 </Button>
-                <Button
-                  variant="plain"
-                  onClick={() => window.open('/app/analytics', '_self')}
-                  icon={BookIcon}
-                >
-                  Analytics
-                </Button>
               </BlockStack>
               
               <Divider />
               
-              <BlockStack gap="200">
-                <Text as="h4" variant="headingSm">Contact & Support</Text>
-                <Button
-                  variant="primary"
-                  onClick={() => window.open('mailto:support@simplegifting.com', '_blank')}
-                  icon={EmailIcon}
-                >
-                  Email Support
-                </Button>
-                <Button
-                  variant="plain"
-                  onClick={() => window.open('https://docs.simplegifting.com', '_blank')}
-                  icon={BookIcon}
-                >
-                  Full Documentation
-                </Button>
-              </BlockStack>
+              
             </BlockStack>
           </Card>
         </Layout.Section>
