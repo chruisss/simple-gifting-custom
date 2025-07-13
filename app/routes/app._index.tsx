@@ -296,7 +296,7 @@ export default function Dashboard() {
     navigate("/app/settings");
   };
 
-  const requiredMetafields = 3;
+  const requiredMetafields = METAFIELD_DEFINITIONS.length;
   const configurationStatus = stats.metafieldsConfigured >= requiredMetafields
     ? {
         title: "Configuration Complete",
@@ -373,7 +373,7 @@ export default function Dashboard() {
                     <BlockStack gap="400">
                       <InlineStack align="space-between">
                          <Text variant="headingMd" as="h3">
-                          {configurationStatus.title === 'Configuratie Compleet' ? 'Configuration Complete' : 'Configuration Required'}
+                          {configurationStatus.title}
                         </Text>
                         <Badge tone={configurationStatus.status as any}>
                           {configurationStatus.status === 'success' ? 'Complete' : 'Action required'}
@@ -381,17 +381,9 @@ export default function Dashboard() {
                       </InlineStack>
                        <InlineStack gap="300" blockAlign="center">
                         <Icon source={configurationStatus.icon} tone={configurationStatus.status as any} />
-                        <Text variant="bodyMd" as="p">{configurationStatus.description.replace('Alle benodigde metafields zijn ingesteld.', 'All required metafields are set.').replace('van de', 'of the').replace('benodigde metafields zijn gevonden.', 'required metafields found.')}</Text>
+                        <Text variant="bodyMd" as="p">{configurationStatus.description}</Text>
                       </InlineStack>
-                      {configurationStatus.button && (
-                        <Button
-                          onClick={handleInitialize}
-                          loading={isLoading}
-                          variant="primary"
-                        >
-                          Configure now
-                        </Button>
-                      )}
+                      {configurationStatus.button}
                     </BlockStack>
                   </Card>
                 </Grid.Cell>
@@ -400,7 +392,7 @@ export default function Dashboard() {
                      <BlockStack gap="400">
                       <InlineStack align="space-between">
                          <Text variant="headingMd" as="h3">
-                          {subscriptionStatus.title === 'Abonnement Actief' ? 'Subscription Active' : 'No Active Subscription'}
+                          {subscriptionStatus.title}
                         </Text>
                         <Badge tone={subscriptionStatus.status as any}>
                           {subscriptionStatus.status === 'success' ? 'Active' : 'Inactive'}
@@ -408,13 +400,9 @@ export default function Dashboard() {
                       </InlineStack>
                       <InlineStack gap="300" blockAlign="center">
                         <Icon source={subscriptionStatus.icon} tone={subscriptionStatus.status as any} />
-                        <Text variant="bodyMd" as="p">{subscriptionStatus.description.replace('Je hebt een actief abonnement.', 'You have an active subscription.').replace('Je hebt geen actief abonnement. Activeer een abonnement om de app te gebruiken.', 'You do not have an active subscription. Activate a subscription to use the app.')}</Text>
+                        <Text variant="bodyMd" as="p">{subscriptionStatus.description}</Text>
                       </InlineStack>
-                      {subscriptionStatus.button && (
-                        <Button onClick={() => navigate('/app/pricing')} variant={subscriptionStatus.status === 'success' ? undefined : 'primary'}>
-                          {subscriptionStatus.status === 'success' ? 'Manage subscription' : 'View subscriptions'}
-                        </Button>
-                      )}
+                      {subscriptionStatus.button}
                     </BlockStack>
                   </Card>
                 </Grid.Cell>
@@ -441,53 +429,6 @@ export default function Dashboard() {
               </Banner>
             </Layout.Section>
           )}
-
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <Text variant="headingLg" as="h3">Statistics</Text>
-                <Divider />
-                <Grid>
-                  <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
-                     <BlockStack gap="200" align="center">
-                      <Text variant="headingXl" as="h4">{stats.totalProducts}</Text>
-                      <InlineStack gap="100" align="center">
-                        <Icon source={ProductIcon} tone="base" />
-                        <Text variant="bodyMd" as="p">Total Products</Text>
-                      </InlineStack>
-                    </BlockStack>
-                  </Grid.Cell>
-                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
-                     <BlockStack gap="200" align="center">
-                      <Text variant="headingXl" as="h4">{stats.activeProducts}</Text>
-                      <InlineStack gap="100" align="center">
-                        <Icon source={CheckCircleIcon} tone="success" />
-                        <Text variant="bodyMd" as="p">Active Products</Text>
-                      </InlineStack>
-                    </BlockStack>
-                  </Grid.Cell>
-                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
-                     <BlockStack gap="200" align="center">
-                      <Text variant="headingXl" as="h4">{stats.customizableProducts}</Text>
-                       <InlineStack gap="100" align="center">
-                        <Icon source={GiftCardIcon} tone="interactive" />
-                        <Text variant="bodyMd" as="p">Customizable</Text>
-                      </InlineStack>
-                    </BlockStack>
-                  </Grid.Cell>
-                   <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 2, lg: 3, xl: 3}}>
-                     <BlockStack gap="200" align="center">
-                      <Text variant="headingXl" as="h4">{stats.totalInventory}</Text>
-                       <InlineStack gap="100" align="center">
-                        <Icon source={SettingsIcon} tone="base" />
-                        <Text variant="bodyMd" as="p">Total Inventory</Text>
-                      </InlineStack>
-                    </BlockStack>
-                  </Grid.Cell>
-                </Grid>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
         </Layout>
       </BlockStack>
     </Page>
