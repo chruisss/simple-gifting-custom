@@ -44,10 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
       productsToShow: {{ block.settings.products_to_show | default: 6 }},
       enableQuantitySelector: {{ block.settings.enable_quantity_selector | default: false }},
       maxQuantity: {{ block.settings.max_quantity | default: 99 }},
-      selectProductText: '{{ block.settings.select_product_text | default: "Selecteer product" }}',
-      selectOptionText: '{{ block.settings.select_option_text | default: "Selecteer een optie" }}',
-      addToCartText: '{{ block.settings.add_to_cart_text | default: "Voeg toe" }}',
-      soldOutText: '{{ block.settings.sold_out_text | default: "Uitverkocht" }}'
+      selectProductText: '{{ block.settings.select_product_text | default: "Select product" }}',
+      selectOptionText: '{{ block.settings.select_option_text | default: "Select an option" }}',
+      addToCartText: '{{ block.settings.add_to_cart_text | default: "Add to cart" }}',
+      soldOutText: '{{ block.settings.sold_out_text | default: "Sold out" }}'
     };
 
     function init() {

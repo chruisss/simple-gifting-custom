@@ -146,7 +146,7 @@ export default function AnalyticsPage() {
 
   const topProductsRows = analytics.usage.topProducts.map((product: any) => [
     product.title,
-    product.type === 'card' ? 'Kaartje' : 'Lint',
+    product.type === 'card' ? 'Card' : 'Ribbon',
     product.personalizations,
     <ProgressBar 
       key={product.id}
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
   ]);
 
   return (
-    <Page title="Analytics" subtitle="Inzichten in je gifting app prestaties">
+    <Page title="Analytics" subtitle="Insights into your gifting app performance">
       <TitleBar title="Simple Gifting - Analytics" />
       
       <Layout>
@@ -164,15 +164,15 @@ export default function AnalyticsPage() {
           <Card>
             <BlockStack gap="400">
               <InlineStack align="space-between">
-                <Text as="h3" variant="headingMd">Overzicht periode</Text>
+                <Text as="h3" variant="headingMd">Overview period</Text>
                 <InlineStack gap="200">
                   <Select
                     label=""
                     options={[
-                      { label: "Laatste 7 dagen", value: "last7days" },
-                      { label: "Laatste 30 dagen", value: "last30days" },
-                      { label: "Laatste 90 dagen", value: "last90days" },
-                      { label: "Dit jaar", value: "thisyear" },
+                      { label: "Last 7 days", value: "last7days" },
+                      { label: "Last 30 days", value: "last30days" },
+                      { label: "Last 90 days", value: "last90days" },
+                      { label: "This year", value: "thisyear" },
                     ]}
                     value={dateRange}
                     onChange={handleDateRangeChange}
@@ -180,9 +180,9 @@ export default function AnalyticsPage() {
                   <Select
                     label=""
                     options={[
-                      { label: "Personalisaties", value: "personalizations" },
-                      { label: "Producten", value: "products" },
-                      { label: "Omzet", value: "revenue" },
+                      { label: "Personalizations", value: "personalizations" },
+                      { label: "Products", value: "products" },
+                      { label: "Revenue", value: "revenue" },
                     ]}
                     value={selectedMetric}
                     onChange={handleMetricChange}
@@ -201,13 +201,13 @@ export default function AnalyticsPage() {
                   <InlineStack align="space-between">
                     <InlineStack gap="200">
                       <Icon source={ViewIcon} tone="base" />
-                      <Text as="h3" variant="headingMd">Personalisaties</Text>
+                      <Text as="h3" variant="headingMd">Personalizations</Text>
                     </InlineStack>
                     <Text as="p" variant="heading2xl">{analytics.usage.totalPersonalizations.toString()}</Text>
                   </InlineStack>
                   <InlineStack align="space-between">
                     <Text as="p" variant="bodyMd" tone="subdued">
-                      Deze maand: {analytics.usage.thisMonth}
+                      This month: {analytics.usage.thisMonth}
                     </Text>
                     <Badge tone={growthRate > 0 ? "success" : "critical"}>
                       {`${growthRate > 0 ? '+' : ''}${growthRate}%`}
@@ -223,16 +223,16 @@ export default function AnalyticsPage() {
                   <InlineStack align="space-between">
                     <InlineStack gap="200">
                       <Icon source={GiftCardIcon} tone="base" />
-                      <Text as="h3" variant="headingMd">Actieve Producten</Text>
+                      <Text as="h3" variant="headingMd">Active Products</Text>
                     </InlineStack>
                     <Text as="p" variant="heading2xl">{analytics.overview.activeProducts.toString()}</Text>
                   </InlineStack>
                   <InlineStack align="space-between">
                     <Text as="p" variant="bodyMd" tone="subdued">
-                      van {analytics.overview.totalProducts} totaal
+                      of {analytics.overview.totalProducts} total
                     </Text>
                     <Badge tone="info">
-                      {`${analytics.overview.activationRate}% actief`}
+                      {`${analytics.overview.activationRate}% active`}
                     </Badge>
                   </InlineStack>
                 </BlockStack>
@@ -245,13 +245,13 @@ export default function AnalyticsPage() {
                   <InlineStack align="space-between">
                     <InlineStack gap="200">
                       <Icon source={ProductIcon} tone="base" />
-                      <Text as="h3" variant="headingMd">Personaliseerbaar</Text>
+                      <Text as="h3" variant="headingMd">Customizable</Text>
                     </InlineStack>
                     <Text as="p" variant="heading2xl">{analytics.overview.customizableProducts}</Text>
                   </InlineStack>
                   <InlineStack align="space-between">
                     <Text as="p" variant="bodyMd" tone="subdued">
-                      Kunnen aangepast worden
+                      Can be customized
                     </Text>
                     <Badge tone="success">
                       {`${analytics.overview.customizationRate}%`}
@@ -267,12 +267,12 @@ export default function AnalyticsPage() {
                   <InlineStack align="space-between">
                     <InlineStack gap="200">
                       <Icon source={ViewIcon} tone="base" />
-                      <Text as="h3" variant="headingMd">Gem. Bericht</Text>
+                      <Text as="h3" variant="headingMd">Avg. Message</Text>
                     </InlineStack>
                     <Text as="p" variant="heading2xl">{analytics.usage.avgMessageLength}</Text>
                   </InlineStack>
                   <Text as="p" variant="bodyMd" tone="subdued">
-                    karakters per bericht
+                    characters per message
                   </Text>
                 </BlockStack>
               </Card>
@@ -285,10 +285,10 @@ export default function AnalyticsPage() {
             <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 8, xl: 8 }}>
               <Card>
                 <BlockStack gap="400">
-                  <Text as="h3" variant="headingMd">Populairste producten</Text>
+                  <Text as="h3" variant="headingMd">Most Popular Products</Text>
                   <DataTable
                     columnContentTypes={['text', 'text', 'numeric', 'text']}
-                    headings={['Product', 'Type', 'Personalisaties', 'Populariteit']}
+                    headings={['Product', 'Type', 'Personalizations', 'Popularity']}
                     rows={topProductsRows}
                   />
                 </BlockStack>
@@ -298,7 +298,7 @@ export default function AnalyticsPage() {
             <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
               <Card>
                 <BlockStack gap="400">
-                  <Text as="h3" variant="headingMd">Piek tijden</Text>
+                  <Text as="h3" variant="headingMd">Peak Times</Text>
                   <BlockStack gap="300">
                     {analytics.usage.popularTimes.map((time: any, index: number) => (
                       <InlineStack key={index} align="space-between">
@@ -323,7 +323,7 @@ export default function AnalyticsPage() {
           <Card>
             <BlockStack gap="400">
               <InlineStack align="space-between">
-                <Text as="h3" variant="headingMd">Prestatie trends</Text>
+                <Text as="h3" variant="headingMd">Performance trends</Text>
                 <Button variant="primary" onClick={() => {
                   const shopName = window.location.href.includes('van-bieren') ? 'van-bieren' : 'your-shop';
                   window.open(`https://admin.shopify.com/store/${shopName}/analytics`, '_blank');
@@ -331,40 +331,37 @@ export default function AnalyticsPage() {
                   Shopify Analytics
                 </Button>
               </InlineStack>
-              
               <Banner
-                title="Uitgebreide analytics binnenkort beschikbaar"
+                title="Advanced analytics coming soon"
                 tone="info"
               >
-                <p>We werken aan uitgebreide analytics met grafieken, conversie tracking en meer gedetailleerde rapporten.</p>
+                <p>We are working on advanced analytics with charts, conversion tracking, and more detailed reports.</p>
               </Banner>
-              
               <Grid>
                 <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                   <BlockStack gap="300">
-                    <Text as="h4" variant="headingSm">Komende features</Text>
+                    <Text as="h4" variant="headingSm">Upcoming features</Text>
                     <BlockStack gap="200">
-                      <Text as="p" variant="bodyMd">• Conversie tracking van personalisaties naar verkopen</Text>
-                      <Text as="p" variant="bodyMd">• Geografische verdeling van personalisaties</Text>
-                      <Text as="p" variant="bodyMd">• Populairste woorden in berichten</Text>
-                      <Text as="p" variant="bodyMd">• Seizoen trends en patronen</Text>
-                      <Text as="p" variant="bodyMd">• A/B testing voor popup varianten</Text>
+                      <Text as="p" variant="bodyMd">• Conversion tracking from personalizations to sales</Text>
+                      <Text as="p" variant="bodyMd">• Geographic distribution of personalizations</Text>
+                      <Text as="p" variant="bodyMd">• Most popular words in messages</Text>
+                      <Text as="p" variant="bodyMd">• Seasonal trends and patterns</Text>
+                      <Text as="p" variant="bodyMd">• A/B testing for popup variants</Text>
                     </BlockStack>
                   </BlockStack>
                 </Grid.Cell>
-                
                 <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                   <BlockStack gap="300">
-                    <Text as="h4" variant="headingSm">Exporteer data</Text>
+                    <Text as="h4" variant="headingSm">Export data</Text>
                     <BlockStack gap="200">
                       <Button size="slim" onClick={() => {}}>
-                        Download CSV rapport
+                        Download CSV report
                       </Button>
                       <Button size="slim" onClick={() => {}}>
-                        Email maandelijks rapport
+                        Email monthly report
                       </Button>
                       <Button size="slim" onClick={() => {}}>
-                        Integreer met Google Analytics
+                        Integrate with Google Analytics
                       </Button>
                     </BlockStack>
                   </BlockStack>
@@ -376,4 +373,4 @@ export default function AnalyticsPage() {
       </Layout>
     </Page>
   );
-} 
+}

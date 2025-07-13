@@ -176,23 +176,23 @@ export default function SettingsPage() {
   };
 
   const sections = [
-    { id: "general", title: "Algemeen", icon: SettingsIcon },
-    { id: "appearance", title: "Uiterlijk", icon: ViewIcon },
-    { id: "text", title: "Teksten", icon: TextIcon },
-    { id: "advanced", title: "Geavanceerd", icon: ColorIcon },
+    { id: "general", title: "General", icon: SettingsIcon },
+    { id: "appearance", title: "Appearance", icon: ViewIcon },
+    { id: "text", title: "Texts", icon: TextIcon },
+    { id: "advanced", title: "Advanced", icon: ColorIcon },
   ];
 
   return (
     <Page 
-      title="Instellingen"
-      subtitle="Configureer je Simple Gifting app"
+      title="Settings"
+      subtitle="Configure your Simple Gifting app"
       backAction={{ content: "Dashboard", onAction: () => window.location.href = "/app" }}
     >
       <Layout>
         <Layout.Section variant="oneThird">
           <Card>
             <BlockStack gap="300">
-              <Text as="h3" variant="headingMd">Configuratie secties</Text>
+              <Text as="h3" variant="headingMd">Configuration sections</Text>
               <ButtonGroup>
                 {sections.map((section) => (
                   <Button
@@ -211,15 +211,15 @@ export default function SettingsPage() {
               <BlockStack gap="200">
                 <Text as="h4" variant="headingSm">App Status</Text>
                 <InlineStack align="space-between">
-                  <Text as="span" variant="bodyMd">Huidige status</Text>
+                  <Text as="span" variant="bodyMd">Current status</Text>
                   <Badge tone={formState.appIsEnabled ? "success" : "critical"}>
-                    {formState.appIsEnabled ? "Actief" : "Inactief"}
+                    {formState.appIsEnabled ? "Active" : "Inactive"}
                   </Badge>
                 </InlineStack>
                 <Text as="p" variant="bodyMd" tone="subdued">
                   {formState.appIsEnabled 
-                    ? "Klanten kunnen producten personaliseren"
-                    : "Personalisatie is uitgeschakeld"
+                    ? "Customers can personalize products"
+                    : "Personalization is disabled"
                   }
                 </Text>
               </BlockStack>
@@ -237,9 +237,9 @@ export default function SettingsPage() {
                   <BlockStack gap="500">
                     <InlineStack align="space-between">
                       <BlockStack gap="200">
-                        <Text as="h3" variant="headingMd">Algemene instellingen</Text>
+                        <Text as="h3" variant="headingMd">General settings</Text>
                         <Text as="p" variant="bodyMd" tone="subdued">
-                          Basis configuratie voor je gifting app
+                          Basic configuration for your gifting app
                         </Text>
                       </BlockStack>
                       <Icon source={SettingsIcon} tone="base" />
@@ -250,22 +250,22 @@ export default function SettingsPage() {
                     <Select
                       label="App Status"
                       options={[
-                        { label: "Actief - Klanten kunnen personaliseren", value: "true" },
-                        { label: "Inactief - Personalisatie uitgeschakeld", value: "false" },
+                        { label: "Active - Customers can personalize", value: "true" },
+                        { label: "Inactive - Personalization disabled", value: "false" },
                       ]}
                       onChange={(value) => handleInputChange(value === "true", "appIsEnabled")}
                       value={formState.appIsEnabled.toString()}
-                      helpText="Schakel de app in of uit voor alle klanten"
+                      helpText="Enable or disable the app for all customers"
                     />
 
                     <Banner
-                      title="Let op"
+                      title="Caution"
                       tone={formState.appIsEnabled ? "success" : "warning"}
                     >
                       <p>
                         {formState.appIsEnabled 
-                          ? "De app is actief. Klanten kunnen nu producten personaliseren in je winkel."
-                          : "De app is inactief. Personalisatie opties zijn verborgen voor klanten."
+                          ? "The app is active. Customers can now personalize products in your store."
+                          : "The app is inactive. Personalization options are hidden from customers."
                         }
                       </p>
                     </Banner>
@@ -279,9 +279,9 @@ export default function SettingsPage() {
                   <BlockStack gap="500">
                     <InlineStack align="space-between">
                       <BlockStack gap="200">
-                        <Text as="h3" variant="headingMd">Uiterlijk & Gedrag</Text>
+                        <Text as="h3" variant="headingMd">Appearance & Behavior</Text>
                         <Text as="p" variant="bodyMd" tone="subdued">
-                          Pas het uiterlijk van de popup aan
+                          Customize the appearance of the popup
                         </Text>
                       </BlockStack>
                       <Icon source={ViewIcon} tone="base" />
@@ -291,34 +291,34 @@ export default function SettingsPage() {
                     
                     {/* Color Settings */}
                     <BlockStack gap="400">
-                      <Text as="h4" variant="headingSm">Kleuren</Text>
+                      <Text as="h4" variant="headingSm">Colors</Text>
                       <Grid>
                         <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                           <BlockStack gap="400">
                                                          <TextField
-                               label="Primaire kleur"
+                               label="Primary color"
                                value={formState.primaryColor}
                                onChange={(value) => handleInputChange(value, "primaryColor")}
                                autoComplete="off"
-                               helpText="Hoofdkleur voor knoppen en accenten (hex format: #2563eb)"
+                               helpText="Primary color for buttons and accents (hex format: #2563eb)"
                                placeholder="#2563eb"
                              />
                              
                              <TextField
-                               label="Secundaire kleur"
+                               label="Secondary color"
                                value={formState.secondaryColor}
                                onChange={(value) => handleInputChange(value, "secondaryColor")}
                                autoComplete="off"
-                               helpText="Secundaire kleur voor gradiënten (hex format: #1d4ed8)"
+                               helpText="Secondary color for gradients (hex format: #1d4ed8)"
                                placeholder="#1d4ed8"
                              />
                              
                              <TextField
-                               label="Accent kleur"
+                               label="Accent color"
                                value={formState.accentColor}
                                onChange={(value) => handleInputChange(value, "accentColor")}
                                autoComplete="off"
-                               helpText="Accent kleur voor highlights (hex format: #059669)"
+                               helpText="Accent color for highlights (hex format: #059669)"
                                placeholder="#059669"
                              />
                           </BlockStack>
@@ -327,20 +327,20 @@ export default function SettingsPage() {
                         <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                           <BlockStack gap="400">
                                                          <TextField
-                               label="Achtergrond kleur"
+                               label="Background color"
                                value={formState.backgroundColor}
                                onChange={(value) => handleInputChange(value, "backgroundColor")}
                                autoComplete="off"
-                               helpText="Achtergrondkleur van de modal (hex format: #ffffff)"
+                               helpText="Background color of the modal (hex format: #ffffff)"
                                placeholder="#ffffff"
                              />
                              
                              <TextField
-                               label="Tekst kleur"
+                               label="Text color"
                                value={formState.textColor}
                                onChange={(value) => handleInputChange(value, "textColor")}
                                autoComplete="off"
-                               helpText="Hoofdtekstkleur (hex format: #1e293b)"
+                               helpText="Main text color (hex format: #1e293b)"
                                placeholder="#1e293b"
                              />
                           </BlockStack>
@@ -352,14 +352,14 @@ export default function SettingsPage() {
                     
                     {/* Font Settings */}
                     <BlockStack gap="400">
-                      <Text as="h4" variant="headingSm">Lettertype</Text>
+                      <Text as="h4" variant="headingSm">Font</Text>
                       <Grid>
                         <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                           <BlockStack gap="400">
                             <Select
-                              label="Lettertype"
+                              label="Font"
                               options={[
-                                { label: "Inter (Shopify standaard)", value: "Inter" },
+                                { label: "Inter (Shopify default)", value: "Inter" },
                                 { label: "Arial", value: "Arial" },
                                 { label: "Helvetica", value: "Helvetica" },
                                 { label: "Roboto", value: "Roboto" },
@@ -369,16 +369,16 @@ export default function SettingsPage() {
                               ]}
                               value={formState.fontFamily}
                               onChange={(value) => handleInputChange(value, "fontFamily")}
-                              helpText="Kies een lettertype voor de popup"
+                              helpText="Choose a font for the popup"
                             />
                             
                             {formState.fontFamily === "Custom" && (
                               <TextField
-                                label="Custom lettertype URL"
+                                label="Custom font URL"
                                 value={formState.customFontUrl}
                                 onChange={(value) => handleInputChange(value, "customFontUrl")}
                                 autoComplete="off"
-                                helpText="Google Fonts URL of andere lettertype URL"
+                                helpText="Google Fonts URL or other font URL"
                                 placeholder="https://fonts.googleapis.com/css2?family=..."
                               />
                             )}
@@ -388,29 +388,29 @@ export default function SettingsPage() {
                         <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                           <BlockStack gap="400">
                             <Select
-                              label="Lettergrootte"
+                              label="Font size"
                               options={[
-                                { label: "Klein (14px)", value: "14" },
-                                { label: "Normaal (16px)", value: "16" },
-                                { label: "Groot (18px)", value: "18" },
-                                { label: "Extra groot (20px)", value: "20" },
+                                { label: "Small (14px)", value: "14" },
+                                { label: "Normal (16px)", value: "16" },
+                                { label: "Large (18px)", value: "18" },
+                                { label: "Extra large (20px)", value: "20" },
                               ]}
                               value={formState.fontSize}
                               onChange={(value) => handleInputChange(value, "fontSize")}
-                              helpText="Basislettergrootte voor tekst"
+                              helpText="Base font size for text"
                             />
                             
                             <Select
-                              label="Lettergewicht"
+                              label="Font weight"
                               options={[
-                                { label: "Normaal (400)", value: "400" },
+                                { label: "Normal (400)", value: "400" },
                                 { label: "Medium (500)", value: "500" },
                                 { label: "Semi-bold (600)", value: "600" },
                                 { label: "Bold (700)", value: "700" },
                               ]}
                               value={formState.fontWeight}
                               onChange={(value) => handleInputChange(value, "fontWeight")}
-                              helpText="Dikte van het lettertype"
+                              helpText="Thickness of the font"
                             />
                           </BlockStack>
                         </Grid.Cell>
@@ -422,75 +422,75 @@ export default function SettingsPage() {
                     <Grid>
                       <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                         <BlockStack gap="400">
-                          <Text as="h4" variant="headingSm">Popup Gedrag</Text>
+                          <Text as="h4" variant="headingSm">Popup Behavior</Text>
                           
                           <Checkbox
-                            label="Popup automatisch openen"
+                            label="Automatically open popup"
                             checked={formState.autoOpenPopup}
                             onChange={(checked) => handleInputChange(checked, "autoOpenPopup")}
-                            helpText="Open de popup automatisch wanneer klanten de productpagina bezoeken"
+                            helpText="Automatically open the popup when customers visit the product page"
                           />
                           
                           <Checkbox
-                            label="Blur achtergrond"
+                            label="Blur background"
                             checked={formState.blurBackground}
                             onChange={(checked) => handleInputChange(checked, "blurBackground")}
-                            helpText="Blur de achtergrond wanneer de popup open is"
+                            helpText="Blur the background when the popup is open"
                           />
                           
                           <Select
-                            label="Popup animatie"
+                            label="Popup animation"
                             options={[
                               { label: "Fade in", value: "fade" },
                               { label: "Slide up", value: "slide" },
                               { label: "Zoom in", value: "zoom" },
-                              { label: "Geen animatie", value: "none" },
+                              { label: "No animation", value: "none" },
                             ]}
                             value={formState.modalAnimation}
                             onChange={(value) => handleInputChange(value, "modalAnimation")}
-                            helpText="Kies hoe de popup verschijnt"
+                            helpText="Choose how the popup appears"
                           />
                         </BlockStack>
                       </Grid.Cell>
                       
                       <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                         <BlockStack gap="400">
-                          <Text as="h4" variant="headingSm">Knop Styling</Text>
+                          <Text as="h4" variant="headingSm">Button Styling</Text>
                           
                           <Select
-                            label="Knop stijl"
+                            label="Button style"
                             options={[
-                              { label: "Primair (gebruik primaire kleur)", value: "primary" },
-                              { label: "Secundair (gebruik secundaire kleur)", value: "secondary" },
-                              { label: "Accent (gebruik accent kleur)", value: "accent" },
+                              { label: "Primary (use primary color)", value: "primary" },
+                              { label: "Secondary (use secondary color)", value: "secondary" },
+                              { label: "Accent (use accent color)", value: "accent" },
                               { label: "Custom", value: "custom" },
                             ]}
                             value={formState.buttonStyle}
                             onChange={(value) => handleInputChange(value, "buttonStyle")}
-                            helpText="Kies de kleurstijl voor knoppen"
+                            helpText="Choose the color style for buttons"
                           />
                           
                           <Select
-                            label="Knop grootte"
+                            label="Button size"
                             options={[
-                              { label: "Klein", value: "small" },
-                              { label: "Gemiddeld", value: "medium" },
-                              { label: "Groot", value: "large" },
+                              { label: "Small", value: "small" },
+                              { label: "Medium", value: "medium" },
+                              { label: "Large", value: "large" },
                             ]}
                             value={formState.buttonSize}
                             onChange={(value) => handleInputChange(value, "buttonSize")}
-                            helpText="Grootte van de personalisatie knop"
+                            helpText="Size of the personalization button"
                           />
                           
                           <RangeSlider
-                            label="Knop border radius"
+                            label="Button border radius"
                             value={formState.buttonBorderRadius}
                             min={0}
                             max={20}
                             onChange={(value) => handleRangeSliderChange(value, "buttonBorderRadius")}
                             output
                             suffix="px"
-                            helpText="Afronding van de knop hoeken"
+                            helpText="Roundness of the button corners"
                           />
                         </BlockStack>
                       </Grid.Cell>
@@ -500,14 +500,14 @@ export default function SettingsPage() {
                     
                     {/* Custom CSS */}
                     <BlockStack gap="400">
-                      <Text as="h4" variant="headingSm">Geavanceerde Styling</Text>
+                      <Text as="h4" variant="headingSm">Advanced Styling</Text>
                       <TextField
                         label="Custom CSS"
                         value={formState.customCss}
                         onChange={(value) => handleInputChange(value, "customCss")}
                         multiline={6}
                         autoComplete="off"
-                        helpText="Voeg custom CSS toe voor geavanceerde styling. Deze CSS wordt direct in de popup toegepast."
+                        helpText="Add custom CSS for advanced styling. This CSS is applied directly in the popup."
                         placeholder=".gifting-modal-content { border: 2px solid #000; }"
                       />
                     </BlockStack>
@@ -521,9 +521,9 @@ export default function SettingsPage() {
                   <BlockStack gap="500">
                     <InlineStack align="space-between">
                       <BlockStack gap="200">
-                        <Text as="h3" variant="headingMd">Teksten & Labels</Text>
+                        <Text as="h3" variant="headingMd">Texts & Labels</Text>
                         <Text as="p" variant="bodyMd" tone="subdued">
-                          Pas alle teksten in de popup aan
+                          Adjust all texts in the popup
                         </Text>
                       </BlockStack>
                       <Icon source={TextIcon} tone="base" />
@@ -534,68 +534,68 @@ export default function SettingsPage() {
                     <Grid>
                       <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                         <BlockStack gap="400">
-                          <Text as="h4" variant="headingSm">Popup Teksten</Text>
+                          <Text as="h4" variant="headingSm">Popup Texts</Text>
                           
                           <TextField
-                            label="Popup titel"
+                            label="Popup title"
                             value={formState.popupTitle}
                             onChange={(value) => handleInputChange(value, "popupTitle")}
                             autoComplete="off"
-                            helpText="Titel die bovenaan de popup wordt getoond"
+                            helpText="Title displayed at the top of the popup"
                           />
                           
                           <TextField
-                            label="Toevoegen knop tekst"
+                            label="Add button text"
                             value={formState.popupAddButtonText}
                             onChange={(value) => handleInputChange(value, "popupAddButtonText")}
                             autoComplete="off"
-                            helpText="Tekst op de knop om product toe te voegen"
+                            helpText="Text on the button to add the product"
                           />
                           
                           <TextField
-                            label="Annuleren knop tekst"
+                            label="Cancel button text"
                             value={formState.popupCancelButtonText}
                             onChange={(value) => handleInputChange(value, "popupCancelButtonText")}
                             autoComplete="off"
-                            helpText="Tekst op de annuleren knop"
+                            helpText="Text on the cancel button"
                           />
                         </BlockStack>
                       </Grid.Cell>
                       
                       <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                         <BlockStack gap="400">
-                          <Text as="h4" variant="headingSm">Aanvullende Labels</Text>
+                          <Text as="h4" variant="headingSm">Additional Labels</Text>
                           
                           <TextField
-                            label="Bericht label"
-                            value="Jouw bericht:"
+                            label="Message label"
+                            value="Your message:"
                             onChange={() => {}}
                             autoComplete="off"
-                            helpText="Label boven het tekstgebied"
+                            helpText="Label above the text area"
                           />
                           
                           <TextField
-                            label="Karakter teller tekst"
-                            value="{current}/{max} karakters"
+                            label="Character counter text"
+                            value="{current}/{max} characters"
                             onChange={() => {}}
                             autoComplete="off"
-                            helpText="Format voor de karakter teller"
+                            helpText="Format for the character counter"
                           />
                           
                           <TextField
-                            label="Foutmelding te lang"
-                            value="Het bericht is te lang"
+                            label="Error message too long"
+                            value="The message is too long"
                             onChange={() => {}}
                             autoComplete="off"
-                            helpText="Melding wanneer bericht te lang is"
+                            helpText="Message when the message is too long"
                           />
                           
                           <TextField
-                            label="Succes melding"
-                            value="Product toegevoegd aan winkelwagen!"
+                            label="Success message"
+                            value="Product added to cart!"
                             onChange={() => {}}
                             autoComplete="off"
-                            helpText="Melding na succesvol toevoegen"
+                            helpText="Message after successful addition"
                           />
                         </BlockStack>
                       </Grid.Cell>
@@ -610,9 +610,9 @@ export default function SettingsPage() {
                   <BlockStack gap="500">
                     <InlineStack align="space-between">
                       <BlockStack gap="200">
-                        <Text as="h3" variant="headingMd">Geavanceerde instellingen</Text>
+                        <Text as="h3" variant="headingMd">Advanced settings</Text>
                         <Text as="p" variant="bodyMd" tone="subdued">
-                          Technische configuratie en integraties
+                          Technical configuration and integrations
                         </Text>
                       </BlockStack>
                       <Icon source={ColorIcon} tone="base" />
@@ -621,24 +621,24 @@ export default function SettingsPage() {
                     <Divider />
                     
                     <Banner
-                      title="Voorzichtig"
+                      title="Caution"
                       tone="warning"
                     >
-                      <p>Deze instellingen zijn voor gevorderde gebruikers. Verkeerde configuratie kan de app functionaliteit beïnvloeden.</p>
+                      <p>These settings are for advanced users. Incorrect configuration may affect app functionality.</p>
                     </Banner>
                     
                     <Grid>
                       <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                         <BlockStack gap="400">
-                          <Text as="h4" variant="headingSm">Product Instellingen</Text>
+                          <Text as="h4" variant="headingSm">Product Settings</Text>
                           
                           <TextField
-                            label="Standaard karakter limiet"
+                            label="Default character limit"
                             value={formState.defaultCharLimit.toString()}
                             onChange={(value) => handleInputChange(parseInt(value) || 150, "defaultCharLimit")}
                             type="number"
                             autoComplete="off"
-                            helpText="Standaard maximum karakters voor nieuwe producten"
+                            helpText="Default maximum characters for new products"
                           />
                           
                           <TextField
@@ -646,59 +646,59 @@ export default function SettingsPage() {
                             value="simple-gifting-product"
                             onChange={() => {}}
                             autoComplete="off"
-                            helpText="De product tag die wordt gebruikt om gifting producten te identificeren."
+                            helpText="The product tag used to identify gifting products."
                             disabled
                           />
                           
                                                       <Checkbox
-                              label="Automatisch taggen"
+                              label="Automatic tagging"
                               checked={formState.autoTagging}
                               onChange={(checked) => handleInputChange(checked, "autoTagging")}
-                              helpText="Automatisch de juiste tag toevoegen aan nieuwe producten die via de app worden gemaakt."
+                              helpText="Automatically add the correct tag to new products created via the app."
                           />
                         </BlockStack>
                       </Grid.Cell>
                       
                       <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                         <BlockStack gap="400">
-                          <Text as="h4" variant="headingSm">Integratie Instellingen</Text>
+                          <Text as="h4" variant="headingSm">Integration Settings</Text>
                           
                           <Checkbox
-                            label="Debug modus"
+                            label="Debug mode"
                             checked={formState.debugMode}
                             onChange={(checked) => handleInputChange(checked, "debugMode")}
-                            helpText="Toon debug informatie in de browser console"
+                            helpText="Show debug information in the browser console"
                           />
                           
                           <Checkbox
                             label="Analytics tracking"
                             checked={formState.analyticsTracking}
                             onChange={(checked) => handleInputChange(checked, "analyticsTracking")}
-                            helpText="Track personalisatie events voor analytics"
+                            helpText="Track personalization events for analytics"
                           />
                           
                           <Select
-                            label="Cache strategie"
+                            label="Cache strategy"
                             options={[
-                              { label: "Geen cache", value: "none" },
+                              { label: "No cache", value: "none" },
                               { label: "Browser cache", value: "browser" },
                               { label: "Server cache", value: "server" },
                               { label: "Hybrid cache", value: "hybrid" },
                             ]}
                             value={formState.cacheStrategy}
                             onChange={(value) => handleInputChange(value, "cacheStrategy")}
-                            helpText="Hoe product data wordt gecached"
+                            helpText="How product data is cached"
                           />
                           
                           <TextField
-                            label="API timeout (seconden)"
+                            label="API timeout (seconds)"
                             value={formState.apiTimeout.toString()}
                             onChange={(value) => handleInputChange(parseInt(value) || 30, "apiTimeout")}
                             type="number"
                             min={5}
                             max={60}
                             autoComplete="off"
-                            helpText="Timeout voor API verzoeken (5-60 seconden)"
+                            helpText="Timeout for API requests (5-60 seconds)"
                           />
                         </BlockStack>
                       </Grid.Cell>
@@ -709,19 +709,19 @@ export default function SettingsPage() {
 
               <PageActions
                 primaryAction={{
-                  content: "Instellingen opslaan",
+                  content: "Save settings",
                   loading: isSaving,
                   onAction: handleSave,
                 }}
                 secondaryActions={[
                   {
-                    content: "Standaard waarden",
+                    content: "Default values",
                     onAction: () => {
                       setFormState({
                         ...config,
-                        popupTitle: "Voeg een persoonlijk bericht toe",
-                        popupAddButtonText: "Kaart toevoegen",
-                        popupCancelButtonText: "Annuleren",
+                        popupTitle: "Add a personal message",
+                        popupAddButtonText: "Add card",
+                        popupCancelButtonText: "Cancel",
                         defaultCharLimit: 150,
                         autoTagging: true,
                         debugMode: false,
@@ -756,4 +756,4 @@ export default function SettingsPage() {
       </Layout>
     </Page>
   );
-} 
+}

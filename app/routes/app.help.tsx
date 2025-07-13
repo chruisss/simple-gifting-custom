@@ -41,68 +41,68 @@ export default function HelpPage() {
   const faqItems = [
     {
       id: 'setup',
-      question: 'Hoe stel ik de app in voor het eerst?',
-      answer: 'Ga naar het Dashboard en klik op "Initialiseer Metafields" om de benodigde product metafields aan te maken. Daarna kun je producten taggen met "gifting-card" of "gifting-ribbon" om ze geschikt te maken voor personalisatie.'
+      question: 'How do I set up the app for the first time?',
+      answer: 'Go to the Dashboard and click "Initialize Metafields" to create the required product metafields. Then you can tag products with "gifting-card" or "gifting-ribbon" to make them available for personalization.'
     },
     {
       id: 'products',
-      question: 'Welke producten kan ik personaliseerbaar maken?',
-      answer: 'Elk product in je Shopify winkel kan personaliseerbaar gemaakt worden. Voeg simpelweg de tag "gifting-card" voor kaartjes of "gifting-ribbon" voor linten toe, en configureer de metafields voor karakter limieten.'
+      question: 'Which products can I make customizable?',
+      answer: 'Any product in your Shopify store can be made customizable. Simply add the tag "gifting-card" for cards or "gifting-ribbon" for ribbons, and configure the metafields for character limits.'
     },
     {
       id: 'limits',
-      question: 'Kan ik de karakter limiet per product instellen?',
-      answer: 'Ja! Ga naar Producten > selecteer een product > bewerk de "Maximum Characters" metafield. De standaard limiet is 150 karakters, maar dit kan per product aangepast worden.'
+      question: 'Can I set the character limit per product?',
+      answer: 'Yes! Go to Products > select a product > edit the "Maximum Characters" metafield. The default limit is 150 characters, but this can be adjusted per product.'
     },
     {
       id: 'ribbons',
-      question: 'Hoe werk ik met verschillende lint lengtes?',
-      answer: 'Maak varianten van je lint product voor verschillende lengtes (bijv. 50cm, 100cm, 150cm). Stel de "Ribbon Length" metafield in voor elke variant.'
+      question: 'How do I work with different ribbon lengths?',
+      answer: 'Create variants of your ribbon product for different lengths (e.g. 50cm, 100cm, 150cm). Set the "Ribbon Length" metafield for each variant.'
     },
     {
       id: 'styling',
-      question: 'Kan ik het uiterlijk van de popup aanpassen?',
-      answer: 'Ja, ga naar Instellingen > Uiterlijk om de popup stijl, animaties, knop kleuren en andere visuele elementen aan te passen.'
+      question: 'Can I customize the appearance of the popup?',
+      answer: 'Yes, go to Settings > Appearance to customize the popup style, animations, button colors, and other visual elements.'
     },
     {
       id: 'disable',
-      question: 'Hoe schakel ik de app tijdelijk uit?',
-      answer: 'Ga naar Instellingen > Algemeen en zet de "App Status" op "Inactief". Dit verbergt alle personalisatie opties voor klanten zonder de configuratie te verliezen.'
+      question: 'How do I temporarily disable the app?',
+      answer: 'Go to Settings > General and set the "App Status" to "Inactive". This hides all personalization options from customers without losing the configuration.'
     }
   ];
 
   const troubleshootingItems = [
     {
       id: 'no-popup',
-      problem: 'Popup verschijnt niet op productpagina',
-      solution: 'Controleer of: 1) De app is ingeschakeld in Instellingen, 2) Het product de juiste tag heeft (gifting-card/gifting-ribbon), 3) De theme extensie is geactiveerd in je theme editor.'
+      problem: 'Popup does not appear on product page',
+      solution: 'Check if: 1) The app is enabled in Settings, 2) The product has the correct tag (gifting-card/gifting-ribbon), 3) The theme extension is activated in your theme editor.'
     },
     {
       id: 'metafields',
-      problem: 'Metafields worden niet opgeslagen',
-      solution: 'Zorg ervoor dat je de metafield definities hebt geïnitialiseerd via het Dashboard. Als het probleem aanhoudt, probeer de initialisatie opnieuw.'
+      problem: 'Metafields are not being saved',
+      solution: 'Make sure you have initialized the metafield definitions via the Dashboard. If the problem persists, try initializing again.'
     },
     {
       id: 'character-limit',
-      problem: 'Karakter limiet werkt niet correct',
-      solution: 'Controleer of de "max_chars" metafield is ingesteld voor het product. De standaard waarde is 150 karakters als geen waarde is ingesteld.'
+      problem: 'Character limit is not working correctly',
+      solution: 'Check if the "max_chars" metafield is set for the product. The default value is 150 characters if no value is set.'
     },
     {
       id: 'cart-not-adding',
-      problem: 'Product wordt niet toegevoegd aan winkelwagen',
-      solution: 'Dit kan gebeuren als het product niet beschikbaar is of geen voorraad heeft. Controleer de product status en voorraad in je Shopify admin.'
+      problem: 'Product is not being added to cart',
+      solution: 'This can happen if the product is unavailable or out of stock. Check the product status and inventory in your Shopify admin.'
     }
   ];
 
   return (
-    <Page title="Help & Support" subtitle="Documentatie en ondersteuning voor Simple Gifting">
+    <Page title="Help & Support" subtitle="Documentation and support for Simple Gifting">
       <TitleBar title="Simple Gifting - Help" />
       
       <Layout>
         <Layout.Section variant="oneThird">
           <Card>
             <BlockStack gap="400">
-              <Text as="h3" variant="headingMd">Snelle links</Text>
+              <Text as="h3" variant="headingMd">Quick links</Text>
               <BlockStack gap="200">
                 <Button
                   variant="plain"
@@ -116,14 +116,14 @@ export default function HelpPage() {
                   onClick={() => window.open('/app/cards', '_self')}
                   icon={ProductIcon}
                 >
-                  Producten beheren
+                  Manage Products
                 </Button>
                 <Button
                   variant="plain"
                   onClick={() => window.open('/app/settings', '_self')}
                   icon={SettingsIcon}
                 >
-                  Instellingen
+                  Settings
                 </Button>
                 <Button
                   variant="plain"
@@ -150,7 +150,7 @@ export default function HelpPage() {
                   onClick={() => window.open('https://docs.simplegifting.com', '_blank')}
                   icon={BookIcon}
                 >
-                  Volledige Documentatie
+                  Full Documentation
                 </Button>
               </BlockStack>
             </BlockStack>
@@ -165,9 +165,9 @@ export default function HelpPage() {
               <BlockStack gap="400">
                 <InlineStack align="space-between">
                   <BlockStack gap="200">
-                    <Text as="h3" variant="headingMd">Aan de slag</Text>
+                    <Text as="h3" variant="headingMd">Getting Started</Text>
                     <Text as="p" variant="bodyMd" tone="subdued">
-                      Volg deze stappen om je gifting app in te stellen
+                      Follow these steps to set up your gifting app
                     </Text>
                   </BlockStack>
                   <Icon source={BookIcon} tone="base" />
@@ -176,37 +176,37 @@ export default function HelpPage() {
                 <Grid>
                   <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                     <BlockStack gap="300">
-                      <Text as="h4" variant="headingSm">Stap 1: Initialisatie</Text>
+                      <Text as="h4" variant="headingSm">Step 1: Initialization</Text>
                       <List type="number">
-                        <List.Item>Ga naar het Dashboard</List.Item>
-                        <List.Item>Klik op "Initialiseer Metafields"</List.Item>
-                        <List.Item>Wacht tot alle metafields zijn aangemaakt</List.Item>
+                        <List.Item>Go to the Dashboard</List.Item>
+                        <List.Item>Click "Initialize Metafields"</List.Item>
+                        <List.Item>Wait for all metafields to be created</List.Item>
                       </List>
                       
-                      <Text as="h4" variant="headingSm">Stap 2: Producten instellen</Text>
+                      <Text as="h4" variant="headingSm">Step 2: Set up Products</Text>
                       <List type="number">
-                        <List.Item>Ga naar Producten in je Shopify admin</List.Item>
-                        <List.Item>Voeg tag "gifting-card" of "gifting-ribbon" toe</List.Item>
-                        <List.Item>Stel karakter limiet in via metafields</List.Item>
+                        <List.Item>Go to Products in your Shopify admin</List.Item>
+                        <List.Item>Add tag "gifting-card" or "gifting-ribbon"</List.Item>
+                        <List.Item>Set character limit via metafields</List.Item>
                       </List>
                     </BlockStack>
                   </Grid.Cell>
                   
                   <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                     <BlockStack gap="300">
-                      <Text as="h4" variant="headingSm">Stap 3: Theme extensie</Text>
+                      <Text as="h4" variant="headingSm">Step 3: Theme extension</Text>
                       <List type="number">
-                        <List.Item>Ga naar je Theme Editor</List.Item>
-                        <List.Item>Zoek naar "Product Personalisatie" block</List.Item>
-                        <List.Item>Voeg het toe aan je product template</List.Item>
-                        <List.Item>Configureer de instellingen</List.Item>
+                        <List.Item>Go to your Theme Editor</List.Item>
+                        <List.Item>Look for "Product Personalization" block</List.Item>
+                        <List.Item>Add it to your product template</List.Item>
+                        <List.Item>Configure the settings</List.Item>
                       </List>
                       
-                      <Text as="h4" variant="headingSm">Stap 4: Testen</Text>
+                      <Text as="h4" variant="headingSm">Step 4: Testing</Text>
                       <List type="number">
-                        <List.Item>Ga naar een product met gifting tag</List.Item>
-                        <List.Item>Test de personalisatie popup</List.Item>
-                        <List.Item>Controleer winkelwagen toevoeging</List.Item>
+                        <List.Item>Go to a product with gifting tag</List.Item>
+                        <List.Item>Test the personalization popup</List.Item>
+                        <List.Item>Check cart addition</List.Item>
                       </List>
                     </BlockStack>
                   </Grid.Cell>
@@ -218,7 +218,7 @@ export default function HelpPage() {
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h3" variant="headingMd">Veelgestelde vragen</Text>
+                  <Text as="h3" variant="headingMd">Frequently Asked Questions</Text>
                   <Icon source={QuestionCircleIcon} tone="base" />
                 </InlineStack>
                 
@@ -261,7 +261,7 @@ export default function HelpPage() {
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h3" variant="headingMd">Probleemoplossing</Text>
+                  <Text as="h3" variant="headingMd">Troubleshooting</Text>
                   <Icon source={BugIcon} tone="base" />
                 </InlineStack>
                 
@@ -284,33 +284,33 @@ export default function HelpPage() {
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h3" variant="headingMd">Geavanceerde configuratie</Text>
+                  <Text as="h3" variant="headingMd">Advanced Configuration</Text>
                   <Icon source={CodeIcon} tone="base" />
                 </InlineStack>
                 
                 <Grid>
                   <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}>
                     <BlockStack gap="300">
-                      <Text as="h4" variant="headingSm">Metafield referentie</Text>
+                      <Text as="h4" variant="headingSm">Metafield reference</Text>
                       <List type="bullet">
                         <List.Item>
-                          <strong>simple_gifting.max_chars</strong> - Maximum karakters (integer)
+                          <strong>simple_gifting.max_chars</strong> - Maximum characters (integer)
                         </List.Item>
                         <List.Item>
-                          <strong>simple_gifting.product_type</strong> - "card" of "ribbon" (text)
+                          <strong>simple_gifting.product_type</strong> - "card" or "ribbon" (text)
                         </List.Item>
                         <List.Item>
-                          <strong>simple_gifting.customizable</strong> - Personaliseerbaar (boolean)
+                          <strong>simple_gifting.customizable</strong> - Customizable (boolean)
                         </List.Item>
                         <List.Item>
-                          <strong>simple_gifting.ribbon_length</strong> - Lint lengte in cm (integer)
+                          <strong>simple_gifting.ribbon_length</strong> - Ribbon length in cm (integer)
                         </List.Item>
                       </List>
                       
                       <Text as="h4" variant="headingSm">Product tags</Text>
                       <List type="bullet">
-                        <List.Item><Badge>gifting-card</Badge> - Voor kaartjes</List.Item>
-                        <List.Item><Badge>gifting-ribbon</Badge> - Voor linten</List.Item>
+                        <List.Item><Badge>gifting-card</Badge> - For cards</List.Item>
+                        <List.Item><Badge>gifting-ribbon</Badge> - For ribbons</List.Item>
                       </List>
                     </BlockStack>
                   </Grid.Cell>
@@ -320,26 +320,26 @@ export default function HelpPage() {
                       <Text as="h4" variant="headingSm">API endpoints</Text>
                       <List type="bullet">
                         <List.Item>
-                          <strong>/apps/gifting/cards</strong> - Alleen kaartjes
+                          <strong>/apps/gifting/cards</strong> - Cards only
                         </List.Item>
                         <List.Item>
-                          <strong>/apps/gifting/ribbons</strong> - Alleen linten
+                          <strong>/apps/gifting/ribbons</strong> - Ribbons only
                         </List.Item>
                         <List.Item>
-                          <strong>/apps/gifting/products</strong> - Alle producten
+                          <strong>/apps/gifting/products</strong> - All products
                         </List.Item>
                         <List.Item>
-                          <strong>/apps/gifting/config</strong> - App configuratie
+                          <strong>/apps/gifting/config</strong> - App configuration
                         </List.Item>
                       </List>
                       
                       <Text as="h4" variant="headingSm">Theme blocks</Text>
                       <List type="bullet">
                         <List.Item>
-                          <strong>product-personalisatie</strong> - Universele block
+                          <strong>product-personalisatie</strong> - Universal block
                         </List.Item>
                         <List.Item>
-                          <strong>ribbon-personalisatie</strong> - Lint specifiek
+                          <strong>ribbon-personalisatie</strong> - Ribbon specific
                         </List.Item>
                       </List>
                     </BlockStack>
@@ -351,33 +351,33 @@ export default function HelpPage() {
             {/* Support */}
             <Card>
               <BlockStack gap="400">
-                <Text as="h3" variant="headingMd">Nog steeds hulp nodig?</Text>
+                <Text as="h3" variant="headingMd">Still need help?</Text>
                 <Grid>
                   <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
                     <BlockStack gap="200">
                       <Text as="h4" variant="headingSm">Email Support</Text>
                       <Text as="p" variant="bodyMd" tone="subdued">
-                        Stuur ons een email met je vraag en we helpen je binnen 24 uur.
+                        Send us an email with your question and we will assist you within 24 hours.
                       </Text>
                       <Button
                         variant="primary"
                         onClick={() => window.open('mailto:support@simplegifting.com', '_blank')}
                       >
-                        Email versturen
+                        Send Email
                       </Button>
                     </BlockStack>
                   </Grid.Cell>
                   
                   <Grid.Cell columnSpan={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
                     <BlockStack gap="200">
-                      <Text as="h4" variant="headingSm">Documentatie</Text>
+                      <Text as="h4" variant="headingSm">Documentation</Text>
                       <Text as="p" variant="bodyMd" tone="subdued">
-                        Uitgebreide handleidingen en tutorials voor alle functies.
+                        Comprehensive guides and tutorials for all features.
                       </Text>
                       <Button
                         onClick={() => window.open('https://docs.simplegifting.com', '_blank')}
                       >
-                        Documentatie bekijken
+                        View Documentation
                       </Button>
                     </BlockStack>
                   </Grid.Cell>
@@ -386,12 +386,12 @@ export default function HelpPage() {
                     <BlockStack gap="200">
                       <Text as="h4" variant="headingSm">Feature Request</Text>
                       <Text as="p" variant="bodyMd" tone="subdued">
-                        Heb je een idee voor een nieuwe functie? Laat het ons weten!
+                        Do you have an idea for a new feature? Let us know!
                       </Text>
                       <Button
                         onClick={() => window.open('https://feedback.simplegifting.com', '_blank')}
                       >
-                        Feedback geven
+                        Give Feedback
                       </Button>
                     </BlockStack>
                   </Grid.Cell>
@@ -403,4 +403,4 @@ export default function HelpPage() {
       </Layout>
     </Page>
   );
-} 
+}

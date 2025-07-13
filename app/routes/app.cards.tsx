@@ -904,27 +904,26 @@ export default function GiftingProductsIndex() {
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h2" variant="headingMd">Producten</Text>
+                  <Text as="h2" variant="headingMd">Products</Text>
                   <InlineStack gap="200">
-                    <Badge tone="info">{`${filteredProducts.length} producten`}</Badge>
+                    <Badge tone="info">{`${filteredProducts.length} products`}</Badge>
                     {filteredProducts.length !== products.length && (
-                      <Badge tone="attention">{`Gefilterd van ${products.length}`}</Badge>
+                      <Badge tone="attention">{`Filtered from ${products.length}`}</Badge>
                     )}
                   </InlineStack>
                 </InlineStack>
-                
                 <div style={{ padding: '1rem 0' }}>
                   {filteredProducts.length === 0 ? (
                     <EmptyState
                       heading={
                         search || statusFilter !== "all" || appliedFilters.length > 0
-                          ? "Geen producten gevonden"
-                          : "Nog geen gifting producten"
+                          ? "No products found"
+                          : "No gifting products yet"
                       }
                       action={{
                         content: search || statusFilter !== "all" || appliedFilters.length > 0
-                          ? 'Filters wissen'
-                          : 'Maak je eerste product',
+                          ? 'Clear filters'
+                          : 'Create your first product',
                         onAction: search || statusFilter !== "all" || appliedFilters.length > 0
                           ? handleClearFilters 
                           : createNewProduct
@@ -932,7 +931,7 @@ export default function GiftingProductsIndex() {
                       secondaryAction={
                         !(search || statusFilter !== "all" || appliedFilters.length > 0) && existingProducts.length > 0
                           ? {
-                              content: 'Of koppel bestaand product',
+                              content: 'Or link existing product',
                               onAction: () => setShowLinkModal(true)
                             }
                           : undefined
@@ -941,15 +940,15 @@ export default function GiftingProductsIndex() {
                     >
                       <p>
                         {search || statusFilter !== "all" || appliedFilters.length > 0
-                          ? "Probeer een andere zoekterm of pas je filters aan."
-                          : "Maak kaartjes en linten die klanten kunnen personaliseren."
+                          ? "Try another search term or adjust your filters."
+                          : "Create cards and ribbons that customers can personalize."
                         }
                       </p>
                     </EmptyState>
                   ) : (
                     <DataTable
                       columnContentTypes={['text', 'text', 'text', 'numeric', 'text', 'text', 'text']}
-                      headings={['Product', 'Type', 'Status', 'Voorraad', 'Specificatie', 'Personaliseerbaar', 'Acties']}
+                      headings={['Product', 'Type', 'Status', 'Stock', 'Specification', 'Customizable', 'Actions']}
                       rows={rowMarkup}
                       sortable={[true, true, true, true, false, true, false]}
                     />
@@ -964,9 +963,9 @@ export default function GiftingProductsIndex() {
         <Modal
           open={showLinkModal}
           onClose={handleCloseLinkModal}
-          title="Bestaand product koppelen"
+          title="Link Existing Product"
           primaryAction={{
-            content: fetcher.state === 'submitting' ? 'Bezig met koppelen...' : 'Product koppelen',
+            content: fetcher.state === 'submitting' ? 'Linking...' : 'Link Product',
             onAction: () => {
               if (selectedExistingProduct) {
                 const formData = new FormData();
@@ -984,7 +983,7 @@ export default function GiftingProductsIndex() {
           }}
           secondaryActions={[
             {
-              content: 'Annuleren',
+              content: 'Cancel',
               onAction: handleCloseLinkModal,
             },
           ]}
@@ -993,23 +992,20 @@ export default function GiftingProductsIndex() {
             {!selectedExistingProduct ? (
               <BlockStack gap="400">
                 <Text as="p" variant="bodyMd">
-                  Selecteer een bestaand product uit je winkel om te koppelen aan het gifting systeem. 
-                  Het product krijgt automatisch de juiste instellingen voor personalisatie.
+                  Select an existing product from your store to link to the gifting system. The product will automatically receive the correct personalization settings.
                 </Text>
-                
                 {existingProducts.length === 0 ? (
                   <EmptyState
-                    heading="Alle producten zijn al gekoppeld"
+                    heading="All products are already linked"
                     image="https://cdn.shopify.com/s/files/1/0533/2089/files/empty-state.svg"
                   >
-                    <p>Alle producten in je winkel zijn al gekoppeld aan het gifting systeem, of je hebt nog geen producten.</p>
+                    <p>All products in your store are already linked to the gifting system, or you do not have any products yet.</p>
                   </EmptyState>
                 ) : (
                   <>
                     <Text as="p" variant="bodySm" tone="subdued">
-                      {existingProducts.length} beschikbare producten
+                      {existingProducts.length} available products
                     </Text>
-                    
                     <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #e1e3e5', borderRadius: '8px', padding: '1rem' }}>
                       <BlockStack gap="200">
                         {existingProducts.map((product: ExistingProduct) => (
@@ -1029,16 +1025,16 @@ export default function GiftingProductsIndex() {
                                   </Text>
                                   <InlineStack gap="200">
                                     <Badge tone={product.status === 'ACTIVE' ? 'success' : 'critical'}>
-                                      {product.status === 'ACTIVE' ? 'Actief' : 'Inactief'}
+                                      {product.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                                     </Badge>
                                     <Text as="p" variant="bodySm" tone="subdued">
-                                      Voorraad: {product.totalInventory || 0}
+                                      Stock: {product.totalInventory || 0}
                                     </Text>
                                   </InlineStack>
                                 </BlockStack>
                               </InlineStack>
                               <Button onClick={() => handleLinkProduct(product)}>
-                                Selecteer
+                                Select
                               </Button>
                             </InlineStack>
                           </Card>
@@ -1064,12 +1060,11 @@ export default function GiftingProductsIndex() {
                         {selectedExistingProduct.title}
                       </Text>
                       <Text as="p" variant="bodyMd" tone="subdued">
-                        Configureer hoe dit product werkt in het gifting systeem
+                        Configure how this product works in the gifting system
                       </Text>
                     </BlockStack>
                   </InlineStack>
                 </Card>
-                
                 <fetcher.Form method="post">
                   <input type="hidden" name="intent" value="linkProduct" />
                   <input type="hidden" name="productId" value={selectedExistingProduct.id} />
@@ -1078,52 +1073,47 @@ export default function GiftingProductsIndex() {
                   <input type="hidden" name="ribbonLength" value={linkProductForm.ribbonLength} />
                   <input type="hidden" name="customizable" value={linkProductForm.customizable.toString()} />
                 </fetcher.Form>
-                
                 <FormLayout>
                   <Select
-                    label="Wat voor type gifting product is dit?"
+                    label="What type of gifting product is this?"
                     options={[
-                      { label: 'Kaartje (voor berichten)', value: 'card' },
-                      { label: 'Lint (voor cadeaus)', value: 'ribbon' },
+                      { label: 'Card (for messages)', value: 'card' },
+                      { label: 'Ribbon (for gifts)', value: 'ribbon' },
                     ]}
                     value={linkProductForm.giftingType}
                     onChange={(value) => setLinkProductForm(prev => ({ ...prev, giftingType: value }))}
-                    helpText="Kies het type dat het beste bij dit product past"
+                    helpText="Choose the type that best fits this product"
                   />
-                  
                   <TextField
-                    label="Maximum aantal karakters"
+                    label="Maximum number of characters"
                     type="number"
                     value={linkProductForm.maxChars}
                     onChange={(value) => setLinkProductForm(prev => ({ ...prev, maxChars: value }))}
-                    helpText="Hoeveel karakters mogen klanten maximaal invoeren?"
+                    helpText="How many characters can customers enter at most?"
                     autoComplete="off"
                   />
-                  
                   {linkProductForm.giftingType === 'ribbon' && (
                     <TextField
-                      label="Lint lengte (cm)"
+                      label="Ribbon length (cm)"
                       type="number"
                       value={linkProductForm.ribbonLength}
                       onChange={(value) => setLinkProductForm(prev => ({ ...prev, ribbonLength: value }))}
-                      helpText="Hoe lang is dit lint in centimeters?"
+                      helpText="How long is this ribbon in centimeters?"
                       autoComplete="off"
                     />
                   )}
-                  
                   <Checkbox
-                    label="Klanten kunnen dit product personaliseren"
+                    label="Customers can personalize this product"
                     checked={linkProductForm.customizable}
                     onChange={(checked) => setLinkProductForm(prev => ({ ...prev, customizable: checked }))}
-                    helpText="Kunnen klanten hun eigen tekst toevoegen aan dit product?"
+                    helpText="Can customers add their own text to this product?"
                   />
                 </FormLayout>
-                
                 <Button 
                   variant="plain" 
                   onClick={() => setSelectedExistingProduct(null)}
                 >
-                  ← Kies een ander product
+                  ← Choose another product
                 </Button>
               </BlockStack>
             )}
@@ -1134,9 +1124,9 @@ export default function GiftingProductsIndex() {
         <Modal
           open={showUnlinkModal}
           onClose={handleCloseUnlinkModal}
-          title="Product ontkoppelen"
+          title="Unlink Product"
           primaryAction={{
-            content: fetcher.state === 'submitting' ? 'Bezig met ontkoppelen...' : 'Product ontkoppelen',
+            content: fetcher.state === 'submitting' ? 'Unlinking...' : 'Unlink Product',
             onAction: () => {
               if (productToUnlink) {
                 const formData = new FormData();
@@ -1151,7 +1141,7 @@ export default function GiftingProductsIndex() {
           }}
           secondaryActions={[
             {
-              content: 'Annuleren',
+              content: 'Cancel',
               onAction: handleCloseUnlinkModal,
             },
           ]}
@@ -1160,28 +1150,25 @@ export default function GiftingProductsIndex() {
             {productToUnlink && (
               <BlockStack gap="400">
                 <Text as="p" variant="bodyMd">
-                  Weet je zeker dat je <strong>{productToUnlink.title}</strong> wilt ontkoppelen van het gifting systeem?
+                  Are you sure you want to unlink <strong>{productToUnlink.title}</strong> from the gifting system?
                 </Text>
-                
                 <fetcher.Form method="post">
                   <input type="hidden" name="intent" value="unlinkProduct" />
                   <input type="hidden" name="productId" value={productToUnlink.id} />
                 </fetcher.Form>
-                
                 <Banner tone="warning">
                   <Text as="p" variant="bodyMd">
-                    Dit zal de volgende acties uitvoeren:
+                    This will perform the following actions:
                   </Text>
                   <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                    <li>De "simple-gifting-product" tag wordt verwijderd</li>
-                    <li>Alle personalisatie instellingen worden gewist</li>
-                    <li>Het product verschijnt niet meer in de gifting producten lijst</li>
-                    <li>Klanten kunnen dit product niet meer personaliseren</li>
+                    <li>The "simple-gifting-product" tag will be removed</li>
+                    <li>All personalization settings will be cleared</li>
+                    <li>The product will no longer appear in the gifting products list</li>
+                    <li>Customers will no longer be able to personalize this product</li>
                   </ul>
                 </Banner>
-                
                 <Text as="p" variant="bodyMd" tone="subdued">
-                  Deze actie kan ongedaan gemaakt worden door het product opnieuw te koppelen.
+                  This action can be undone by linking the product again.
                 </Text>
               </BlockStack>
             )}
@@ -1198,4 +1185,4 @@ export default function GiftingProductsIndex() {
       )}
     </Frame>
   );
-} 
+}

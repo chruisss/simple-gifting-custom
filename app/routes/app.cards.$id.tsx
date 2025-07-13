@@ -185,15 +185,15 @@ export default function ProductMetafieldForm() {
   if (isNew) {
     return (
       <Page
-        backAction={{ content: "Cadeaukaarten", onAction: () => navigate("/app/cards") }}
-        title="Nieuw product aanmaken"
+        backAction={{ content: "Gift Cards", onAction: () => navigate("/app/cards") }}
+        title="Create New Product"
       >
         <Layout>
           <Layout.Section>
             <Card>
               <BlockStack gap="500">
                 <Text as="p" variant="bodyMd">
-                  Je wordt doorgestuurd naar de Shopify product editor om een nieuw product aan te maken.
+                  You will be redirected to the Shopify product editor to create a new product.
                 </Text>
                 <Button
                   variant="primary"
@@ -214,10 +214,10 @@ export default function ProductMetafieldForm() {
 
   return (
     <Page
-      backAction={{ content: "Cadeaukaarten", onAction: () => navigate("/app/cards") }}
-      title={`Instellingen voor: ${product.title}`}
+      backAction={{ content: "Gift Cards", onAction: () => navigate("/app/cards") }}
+      title={`Settings for: ${product.title}`}
       primaryAction={{
-        content: "Bewerk in Shopify",
+        content: "Edit in Shopify",
         onAction: () => {
           const shopName = shop.replace('.myshopify.com', '');
           window.open(`https://admin.shopify.com/store/${shopName}/products/${params.id}`, "_blank");
@@ -232,44 +232,44 @@ export default function ProductMetafieldForm() {
                 <Select
                   label="Product Type"
                   options={[
-                    { label: "Kaartje", value: "card" },
-                    { label: "Lint", value: "ribbon" }
+                    { label: "Card", value: "card" },
+                    { label: "Ribbon", value: "ribbon" }
                   ]}
                   value={formState.productType}
                   onChange={(value) => handleInputChange(value, "productType")}
                 />
                 
                 <TextField
-                  label="Maximaal aantal tekens voor bericht"
+                  label="Maximum number of characters for message"
                   type="number"
                   value={formState.maxChars}
                   onChange={(value) => handleInputChange(value, "maxChars")}
-                  helpText="Stel het maximale aantal tekens in dat een klant mag invoeren."
+                  helpText="Set the maximum number of characters a customer can enter."
                   autoComplete="off"
                   requiredIndicator
                 />
 
                 {formState.productType === "ribbon" && (
                   <TextField
-                    label="Lint lengte (cm)"
+                    label="Ribbon length (cm)"
                     type="number"
                     value={formState.ribbonLength}
                     onChange={(value) => handleInputChange(value, "ribbonLength")}
-                    helpText="Lengte van het lint in centimeters."
+                    helpText="Length of the ribbon in centimeters."
                     autoComplete="off"
                     requiredIndicator
                   />
                 )}
 
                 <Select
-                  label="Personaliseerbaar"
+                  label="Customizable"
                   options={[
-                    { label: "Ja", value: "true" },
-                    { label: "Nee", value: "false" }
+                    { label: "Yes", value: "true" },
+                    { label: "No", value: "false" }
                   ]}
                   value={formState.customizable}
                   onChange={(value) => handleInputChange(value, "customizable")}
-                  helpText="Kan dit product gepersonaliseerd worden door klanten?"
+                  helpText="Can this product be personalized by customers?"
                 />
               </BlockStack>
             </Card>
@@ -277,7 +277,7 @@ export default function ProductMetafieldForm() {
           <Layout.Section>
             <PageActions
               primaryAction={{
-                content: "Opslaan",
+                content: "Save",
                 loading: isSaving,
                 onAction: handleSave,
               }}
@@ -287,4 +287,4 @@ export default function ProductMetafieldForm() {
       </Form>
     </Page>
   );
-} 
+}
