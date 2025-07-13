@@ -10,9 +10,9 @@ export async function getShopConfiguration(shop: string) {
     config = await db.shopConfiguration.create({
       data: {
         shop,
-        popupTitle: "Voeg een persoonlijk bericht toe",
-        popupAddButtonText: "Kaart toevoegen",
-        popupCancelButtonText: "Annuleren",
+        popupTitle: "Add a personalized message",
+        popupAddButtonText: "Add Card",
+        popupCancelButtonText: "Cancel",
         appIsEnabled: true,
         defaultCharLimit: 150,
         autoTagging: true,

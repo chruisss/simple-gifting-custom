@@ -3,7 +3,7 @@
 client_id = "8dfb08219af561d6761ad2f9b891702f"
 name = "Simple gifting"
 handle = "simple-gifting"
-application_url = "https://simple-gifting.vercel.app"
+application_url = "https://loading-desktops-slide-entertaining.trycloudflare.com"
 embedded = true
 
 [access]
@@ -35,12 +35,12 @@ scopes = "write_products"
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = []
+redirect_urls = ["https://loading-desktops-slide-entertaining.trycloudflare.com/auth/callback", "https://loading-desktops-slide-entertaining.trycloudflare.com/auth/shopify/callback", "https://loading-desktops-slide-entertaining.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
 
 [app_proxy]
-url = "https://simple-gifting.vercel.app/proxy"
+url = "https://loading-desktops-slide-entertaining.trycloudflare.com/proxy"
 subpath = "gifting"
 prefix = "apps"

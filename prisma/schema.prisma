@@ -65,6 +65,7 @@ model ShopConfiguration {
   blurBackground        Boolean  @default(true)
   customCss             String?                       // For advanced custom CSS
   customFontUrl         String?                       // URL for custom font
+  installationCompleted Boolean  @default(false)       // Track if initial setup is complete
   
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt

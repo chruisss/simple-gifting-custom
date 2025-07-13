@@ -58,6 +58,35 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get shop configuration
   const config = await getShopConfiguration(shop);
   
+  // Check metafields for installation status
+  const metafieldsResponse = await admin.graphql(
+    `#graphql
+      query metafieldDefinitions {
+        metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
+          edges {
+            node {
+              key
+            }
+          }
+        }
+      }
+    `
+  );
+
+  const metafieldsData = await metafieldsResponse.json();
+  const existingMetafields = metafieldsData.data?.metafieldDefinitions?.edges.map((edge: any) => edge.node.key) || [];
+  const requiredMetafieldKeys = new Set(METAFIELD_DEFINITIONS.map(def => def.key));
+  const metafieldsConfigured = existingMetafields.filter((key: string) => requiredMetafieldKeys.has(key)).length;
+  
+  // Check if installation is complete
+  // @ts-ignore - installationCompleted will be available after prisma generate
+  const installationComplete = config.installationCompleted && isSubscribed && 
+    metafieldsConfigured >= METAFIELD_DEFINITIONS.length;
+  
+  if (!installationComplete) {
+    return redirect("/app/install");
+  }
+  
   // Get basic stats even without subscription
   let stats = {
     totalProducts: 0,
@@ -86,26 +115,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                 }
               }
             }
-            metafieldDefinitions(first: 10, ownerType: PRODUCT, namespace: "simple_gifting") {
-              edges {
-                node {
-                  id
-                  key
-                  name
-                }
-              }
-            }
           }
         `
       );
 
       const responseJson = await productsResponse.json();
       const data = responseJson.data;
-      
-      const existingMetafields = data?.metafieldDefinitions?.edges.map((edge: any) => edge.node.key) || [];
-      const requiredMetafieldKeys = new Set(METAFIELD_DEFINITIONS.map(def => def.key));
-      
-      const configuredCount = existingMetafields.filter((key: string) => requiredMetafieldKeys.has(key)).length;
 
       const products = data?.products?.edges.map((edge: any) => edge.node) || [];
       
@@ -114,13 +129,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         activeProducts: products.filter((p: any) => p.status === 'ACTIVE').length,
         customizableProducts: products.filter((p: any) => p.customizable?.value === 'true').length,
         totalInventory: products.reduce((sum: number, p: any) => sum + (p.totalInventory || 0), 0),
-        metafieldsConfigured: configuredCount,
+        metafieldsConfigured: metafieldsConfigured,
         appEnabled: config.appIsEnabled
       };
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
       // Don't crash the page, just return stats as 0
+      stats.metafieldsConfigured = metafieldsConfigured;
     }
+  } else {
+    stats.metafieldsConfigured = metafieldsConfigured;
   }
 
   return json({ config, stats, shop, isSubscribed });
@@ -415,12 +433,23 @@ export default function Dashboard() {
               content: 'Configure products',
               onAction: () => navigate('/app/cards'),
             }}
+            secondaryAction={{
+              content: 'Reconfigure setup',
+              onAction: () => navigate('/app/install'),
+            }}
           >
             <p>You are all set to add personalizations to your products. Go to the products page to get started.</p>
           </CalloutCard>
         ) : (
           <Banner title="Complete the setup" tone="warning">
-            <p>Complete the configuration and activate a subscription to use the full functionality of the app.</p>
+            <BlockStack gap="200">
+              <Text as="p">Complete the configuration and activate a subscription to use the full functionality of the app.</Text>
+              <InlineStack align="start">
+                <Button onClick={() => navigate('/app/install')} variant="primary">
+                  Start Installation
+                </Button>
+              </InlineStack>
+            </BlockStack>
           </Banner>
         )}
       </BlockStack>
