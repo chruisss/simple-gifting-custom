@@ -111,15 +111,34 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
               updatedAt
               productType: metafield(namespace: "simple_gifting", key: "product_type") {
                 value
+                type
+                id
               }
               maxChars: metafield(namespace: "simple_gifting", key: "max_chars") {
                 value
+                type
+                id
               }
               ribbonLength: metafield(namespace: "simple_gifting", key: "ribbon_length") {
                 value
+                type
+                id
               }
               customizable: metafield(namespace: "simple_gifting", key: "customizable") {
                 value
+                type
+                id
+              }
+              # Let's also fetch all metafields to see what's available
+              metafields(first: 20, namespace: "simple_gifting") {
+                edges {
+                  node {
+                    id
+                    key
+                    value
+                    type
+                  }
+                }
               }
             }
           }
@@ -187,6 +206,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   
   const products = responseJson.data?.products?.edges?.map((edge: any) => edge.node) || [];
   const existingProducts = existingResponseJson.data?.products?.edges?.map((edge: any) => edge.node) || [];
+
+  // Debug: Log metafield information
+  console.log("Products with metafield debug info:");
+  products.forEach((product: any) => {
+    console.log(`Product: ${product.title}`);
+    console.log(`- productType:`, product.productType);
+    console.log(`- maxChars:`, product.maxChars);
+    console.log(`- ribbonLength:`, product.ribbonLength);
+    console.log(`- customizable:`, product.customizable);
+    console.log(`- All metafields:`, product.metafields?.edges?.map((e: any) => ({ key: e.node.key, value: e.node.value, type: e.node.type })));
+  });
 
   return json({ 
     products, 
@@ -372,6 +402,121 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
   
+  if (intent === "repairMetafields") {
+    const productId = formData.get("productId") as string;
+    
+    console.log("Repairing metafields for product:", productId);
+    
+    try {
+      // Get current product
+      const currentProductResponse = await admin.graphql(
+        `#graphql
+          query getProduct($id: ID!) {
+            product(id: $id) {
+              id
+              title
+              tags
+            }
+          }
+        `,
+        { variables: { id: productId } }
+      );
+      
+      const currentProduct = await currentProductResponse.json();
+      
+      if ((currentProduct as any).errors) {
+        console.error("GraphQL errors:", (currentProduct as any).errors);
+        return json({ 
+          success: false, 
+          message: "Product niet gevonden",
+          errors: (currentProduct as any).errors 
+        }, { status: 404 });
+      }
+      
+      // Set default metafields for repair
+      const metafields = [
+        {
+          namespace: "simple_gifting",
+          key: "product_type",
+          type: "single_line_text_field",
+          value: "card",
+        },
+        {
+          namespace: "simple_gifting",
+          key: "max_chars",
+          type: "number_integer",
+          value: "150",
+        },
+        {
+          namespace: "simple_gifting",
+          key: "customizable",
+          type: "boolean",
+          value: "true",
+        }
+      ];
+      
+      console.log("Setting repair metafields:", metafields);
+      
+      // Update product with metafields
+      const updateResponse = await admin.graphql(
+        `#graphql
+          mutation updateProduct($input: ProductInput!) {
+            productUpdate(input: $input) {
+              product {
+                id
+                title
+              }
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `,
+        {
+          variables: {
+            input: {
+              id: productId,
+              metafields,
+            },
+          },
+        }
+      );
+      
+      const updateResult = await updateResponse.json();
+      console.log("Repair update result:", updateResult);
+      
+      if ((updateResult as any).errors) {
+        console.error("GraphQL update errors:", (updateResult as any).errors);
+        return json({ 
+          success: false, 
+          message: "GraphQL fout bij herstel metafields",
+          errors: (updateResult as any).errors 
+        }, { status: 500 });
+      }
+      
+      if (updateResult.data?.productUpdate?.userErrors?.length > 0) {
+        console.error("Product update user errors:", updateResult.data.productUpdate.userErrors);
+        return json({ 
+          success: false, 
+          message: "Fout bij herstel metafields: " + updateResult.data.productUpdate.userErrors.map((e: any) => e.message).join(", "),
+          errors: updateResult.data.productUpdate.userErrors 
+        }, { status: 400 });
+      }
+      
+      return json({ 
+        success: true, 
+        message: "Metafields succesvol hersteld!" 
+      });
+      
+    } catch (error) {
+      console.error("Unexpected error in repairMetafields:", error);
+      return json({ 
+        success: false, 
+        message: "Onverwachte fout bij herstel: " + (error instanceof Error ? error.message : String(error))
+      }, { status: 500 });
+    }
+  }
   if (intent === "unlinkProduct") {
     const productId = formData.get("productId") as string;
     
@@ -522,7 +667,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }, { status: 500 });
     }
   }
-  
   return json({ success: false, message: "Onbekende actie" }, { status: 400 });
 };
 
@@ -659,6 +803,12 @@ export default function GiftingProductsIndex() {
     const maxChars = product.maxChars?.value || '-';
     const ribbonLength = product.ribbonLength?.value || '-';
     const customizable = product.customizable?.value === 'true' ? 'Ja' : 'Nee';
+    
+    // Debug: Check if metafields are missing
+    const hasMetafields = (product.productType?.value !== undefined && product.productType?.value !== null) || 
+                         (product.maxChars?.value !== undefined && product.maxChars?.value !== null) || 
+                         (product.customizable?.value !== undefined && product.customizable?.value !== null);
+    const needsSetup = !hasMetafields;
 
     return [
       // Product column with better alignment
@@ -666,12 +816,17 @@ export default function GiftingProductsIndex() {
         <Icon source={productType === 'card' ? GiftCardIcon : ProductIcon} tone="base" />
         <div style={{ flex: 1 }}>
           <Text as="span" variant="bodyMd" fontWeight="medium">{product.title}</Text>
+          {needsSetup && (
+            <div style={{ marginTop: '4px' }}>
+              <Badge tone="warning" size="small">Vereist setup</Badge>
+            </div>
+          )}
         </div>
       </div>,
       // Type column
       <div key={`type-${product.id}`} style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <Badge tone={productType === 'card' ? 'info' : 'success'}>
-          {productType === 'card' ? 'Kaartje' : 'Lint'}
+        <Badge tone={needsSetup ? 'attention' : (productType === 'card' ? 'info' : 'success')}>
+          {needsSetup ? 'Niet ingesteld' : (productType === 'card' ? 'Kaartje' : 'Lint')}
         </Badge>
       </div>,
       // Status column with proper alignment
@@ -707,11 +862,22 @@ export default function GiftingProductsIndex() {
       // Actions column
       <div key={`actions-${product.id}`} style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
         <ButtonGroup variant="segmented">
-          <Button
-            icon={EditIcon}
-            accessibilityLabel={`Bewerk ${product.title}`}
-            url={`/app/cards/${product.id.replace('gid://shopify/Product/', '')}`}
-          />
+          {needsSetup ? (
+            <Button
+              icon={SettingsIcon}
+              tone="critical"
+              accessibilityLabel={`Setup ${product.title}`}
+              url={`/app/cards/${product.id.replace('gid://shopify/Product/', '')}`}
+            >
+              Setup
+            </Button>
+          ) : (
+            <Button
+              icon={EditIcon}
+              accessibilityLabel={`Bewerk ${product.title}`}
+              url={`/app/cards/${product.id.replace('gid://shopify/Product/', '')}`}
+            />
+          )}
           <Button
             icon={DeleteIcon}
             tone="critical"
@@ -775,64 +941,14 @@ export default function GiftingProductsIndex() {
             <Card>
               <BlockStack gap="400">
                 <InlineStack align="space-between">
-                  <Text as="h2" variant="headingMd">Overzicht</Text>
-                  <Badge tone="info">{`${filteredProducts.length} producten`}</Badge>
+                  <Text as="h2" variant="headingMd">Gifting Producten</Text>
+                  <InlineStack gap="200">
+                    <Badge tone="info">{`${filteredProducts.length} producten`}</Badge>
+                    {filteredProducts.length !== products.length && (
+                      <Badge tone="attention">{`Gefilterd van ${products.length}`}</Badge>
+                    )}
+                  </InlineStack>
                 </InlineStack>
-                
-                <Grid>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                    <InlineStack align="center" gap="200">
-                      <Icon source={ProductIcon} tone="base" />
-                      <BlockStack gap="050">
-                        <Text as="p" variant="headingMd">{productStats.total}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Totaal producten</Text>
-                      </BlockStack>
-                    </InlineStack>
-                  </Grid.Cell>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                    <InlineStack align="center" gap="200">
-                      <Icon source={GiftCardIcon} tone="success" />
-                      <BlockStack gap="050">
-                        <Text as="p" variant="headingMd">{productStats.active}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Actieve producten</Text>
-                      </BlockStack>
-                    </InlineStack>
-                  </Grid.Cell>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                    <InlineStack align="center" gap="200">
-                      <Icon source={SettingsIcon} tone="warning" />
-                      <BlockStack gap="050">
-                        <Text as="p" variant="headingMd">{productStats.customizable}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Personaliseerbaar</Text>
-                      </BlockStack>
-                    </InlineStack>
-                  </Grid.Cell>
-                  <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 3, xl: 3 }}>
-                    <InlineStack align="center" gap="200">
-                      <Icon source={FilterIcon} tone="base" />
-                      <BlockStack gap="050">
-                        <Text as="p" variant="headingMd">{productStats.cards} / {productStats.ribbons}</Text>
-                        <Text as="p" variant="bodyMd" tone="subdued">Kaarten / Linten</Text>
-                      </BlockStack>
-                    </InlineStack>
-                  </Grid.Cell>
-                </Grid>
-                
-                {productStats.total === 0 && (
-                  <Banner tone="info">
-                    <Text as="p">
-                      Je hebt nog geen gifting producten. Klik op "Nieuw gifting product", "Koppel bestaand product" of "Filters wissen" om te beginnen.
-                    </Text>
-                  </Banner>
-                )}
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="400">
-                <Text as="h2" variant="headingMd">Zoeken & Filteren</Text>
                 
                 <InlineStack gap="400" align="start">
                   <div style={{ flex: 1 }}>
@@ -896,22 +1012,17 @@ export default function GiftingProductsIndex() {
                     </Button>
                   </InlineStack>
                 )}
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="400">
-                <InlineStack align="space-between">
-                  <Text as="h2" variant="headingMd">Products</Text>
-                  <InlineStack gap="200">
-                    <Badge tone="info">{`${filteredProducts.length} products`}</Badge>
-                    {filteredProducts.length !== products.length && (
-                      <Badge tone="attention">{`Filtered from ${products.length}`}</Badge>
-                    )}
-                  </InlineStack>
-                </InlineStack>
+                
+                <Divider />
+                
+                {productStats.total === 0 && (
+                  <Banner tone="info">
+                    <Text as="p">
+                      Je hebt nog geen gifting producten. Klik op "Nieuw gifting product", "Koppel bestaand product" of "Filters wissen" om te beginnen.
+                    </Text>
+                  </Banner>
+                )}
+                
                 <div style={{ padding: '1rem 0' }}>
                   {filteredProducts.length === 0 ? (
                     <EmptyState
@@ -947,10 +1058,10 @@ export default function GiftingProductsIndex() {
                     </EmptyState>
                   ) : (
                     <DataTable
-                      columnContentTypes={['text', 'text', 'text', 'numeric', 'text', 'text', 'text']}
-                      headings={['Product', 'Type', 'Status', 'Stock', 'Specification', 'Customizable', 'Actions']}
+                      columnContentTypes={['text', 'text', 'text', 'numeric', 'text', 'text', 'text', 'text']}
+                      headings={['Product', 'Type', 'Status', 'Stock', 'Personaliseerbaar', 'Max tekens', 'Lint lengte', 'Acties']}
                       rows={rowMarkup}
-                      sortable={[true, true, true, true, false, true, false]}
+                      sortable={[true, true, true, true, false, true, false, false]}
                     />
                   )}
                 </div>

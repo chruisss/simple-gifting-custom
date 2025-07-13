@@ -63,6 +63,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     ];
     
+    console.log(`Setting metafields for product ${productId}:`, metafields);
+    
     // Update product with new tags and metafields
     const updateResponse = await admin.graphql(
       `#graphql
@@ -99,6 +101,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
     
     console.log(`Successfully tagged product ${productId} with gifting tag and default metafields`);
+    console.log(`Product update result:`, updateResult.data?.productUpdate?.product);
     return new Response("Product tagged successfully", { status: 200 });
     
   } catch (error) {
