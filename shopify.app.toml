@@ -3,7 +3,7 @@
 client_id = "8dfb08219af561d6761ad2f9b891702f"
 name = "Simple gifting"
 handle = "simple-gifting"
-application_url = "https://drug-cleveland-franklin-answering.trycloudflare.com"
+application_url = "https://focused-candles-telling-establish.trycloudflare.com"
 embedded = true
 
 [access]
@@ -35,12 +35,12 @@ scopes = "write_products,read_themes,write_themes,read_orders,write_orders"
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = ["https://drug-cleveland-franklin-answering.trycloudflare.com/auth/callback", "https://drug-cleveland-franklin-answering.trycloudflare.com/auth/shopify/callback", "https://drug-cleveland-franklin-answering.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://focused-candles-telling-establish.trycloudflare.com/auth/callback", "https://focused-candles-telling-establish.trycloudflare.com/auth/shopify/callback", "https://focused-candles-telling-establish.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
 
 [app_proxy]
-url = "https://drug-cleveland-franklin-answering.trycloudflare.com/proxy"
+url = "https://focused-candles-telling-establish.trycloudflare.com/proxy"
 subpath = "gifting"
 prefix = "apps"
