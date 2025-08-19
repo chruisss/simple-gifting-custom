@@ -1,3 +1,13 @@
 name = "product-personalisatie"
 type = "theme"
 
+[extension_points]
+
+[[extension_points.app_blocks]]
+name = "Simple Gifting"
+target = "section"
+
+[[extension_points.app_embeds]]
+name = "Simple Gifting"
+target = "body"
+

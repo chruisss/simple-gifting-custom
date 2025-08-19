@@ -1,22 +1,37 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 
 import { login } from "../../shopify.server";
 import styles from "./styles.module.css";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
+  
+  console.log("INDEX ROUTE - URL:", url.toString());
+  console.log("INDEX ROUTE - Shop param:", url.searchParams.get("shop"));
+  console.log("INDEX ROUTE - Host param:", url.searchParams.get("host"));
 
+  // For embedded apps, we should only handle URLs with shop parameter
+  // If shop is present, redirect to the app
   if (url.searchParams.get("shop")) {
-    throw redirect(`/app?${url.searchParams.toString()}`);
+    const redirectUrl = `/app?${url.searchParams.toString()}`;
+    console.log("INDEX ROUTE - Redirecting to:", redirectUrl);
+    throw redirect(redirectUrl);
   }
 
-  return json({ showForm: Boolean(login) });
+  // For embedded apps, we should not show a form to enter shop domain
+  // This route should only be hit during development or incorrect configuration
+  console.log("INDEX ROUTE - Showing embedded app notice");
+  return json({ 
+    showForm: false, // Never show form for embedded apps
+    isEmbeddedApp: true,
+    login: Boolean(login)
+  });
 };
 
 export default function Index() {
-  const { showForm } = useLoaderData<typeof loader>();
+  const { showForm, isEmbeddedApp } = useLoaderData<typeof loader>();
 
   return (
     <div className={styles.container}>
@@ -25,25 +40,17 @@ export default function Index() {
         <p className={styles.tagline}>
           The easiest way to offer personalized gift options.
         </p>
-        {showForm && (
-          <Form className={styles.installForm} method="post" action="/auth/login">
-            <div className={styles.formGroup}>
-              <label htmlFor="shop" className={styles.label}>
-                Shop domain
-              </label>
-              <input
-                type="text"
-                id="shop"
-                name="shop"
-                placeholder="my-shop-domain.myshopify.com"
-                className={styles.input}
-                required
-              />
-            </div>
-            <button type="submit" className={styles.ctaButton}>
-              Install App
-            </button>
-          </Form>
+        {isEmbeddedApp && (
+          <div className={styles.embeddedAppNotice}>
+            <p>This app is designed to run embedded within the Shopify admin.</p>
+            <p>
+              To install this app, please visit the{" "}
+              <a href="https://apps.shopify.com/" target="_blank" rel="noopener noreferrer">
+                Shopify App Store
+              </a>{" "}
+              or install it directly from your Partner Dashboard.
+            </p>
+          </div>
         )}
       </header>
 

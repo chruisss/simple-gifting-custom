@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
-import { useState } from "react";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import {
   Page,
   Layout,
@@ -20,35 +20,25 @@ import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, billing } = await authenticate.admin(request);
 
   try {
-    // Check current subscription status
-    const response = await admin.graphql(
-      `#graphql
-        query appSubscription {
-          currentAppInstallation {
-            activeSubscriptions {
-              name
-              status
-              test
-              createdAt
-            }
-          }
-        }
-      }`
+    // Use Shopify's billing helper to check subscription status
+    const { hasActivePayment, appSubscriptions } = await billing.check({
+      plans: ["Monthly Subscription"],
+    });
+    
+    // If we have active payment, check if it's our subscription
+    const hasActiveSubscription = hasActivePayment && appSubscriptions.some(
+      (sub: any) => sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
     );
-
-    const subData = await response.json();
-    const subscriptions = subData.data?.currentAppInstallation?.activeSubscriptions || [];
-
-    const activeSubscription = subscriptions.find(
-      (sub: { name: string; status: string }) =>
-        sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
+    
+    const activeSubscription = appSubscriptions.find(
+      (sub: any) => sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
     );
 
     return json({
-      hasActiveSubscription: !!activeSubscription,
+      hasActiveSubscription,
       subscription: activeSubscription || null,
     });
   } catch (error) {
@@ -59,23 +49,57 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { billing } = await authenticate.admin(request);
+  const { billing, session } = await authenticate.admin(request);
+  const { shop } = session;
 
-  const billingResponse = await billing.require({
-    plans: ["Monthly Subscription"],
-    onFailure: async () =>
-      billing.request({
-        plan: "Monthly Subscription",
-        isTest: true, // Set to false in production
-        returnUrl: `${process.env.SHOPIFY_APP_URL}/app`,
-      }),
-  });
-
-  return json({ success: true, billingResponse });
+  try {
+    // For Managed Pricing apps, check if subscription exists
+    const billingCheck = await billing.check({
+      plans: ["Monthly Subscription"],
+      isTest: true,
+    });
+    
+    if (billingCheck.hasActivePayment) {
+      // Subscription already exists, return success
+      return json({ 
+        success: true, 
+        billingCheck,
+        message: "Subscription is already active" 
+      });
+    } else {
+      // No active subscription, return the redirect URL to be handled client-side
+      const returnUrl = encodeURIComponent(`${process.env.SHOPIFY_APP_URL}/app/pricing`);
+      
+      // Extract store handle from shop domain (e.g., "cool-shop" from "cool-shop.myshopify.com")
+      const storeHandle = shop.replace('.myshopify.com', '');
+      
+      // Return the plan selection URL for client-side redirect
+      const planSelectionUrl = `https://admin.shopify.com/store/${storeHandle}/charges/simple-gifting/pricing_plans?return_url=${returnUrl}`;
+      
+      return json({ 
+        success: false, 
+        redirect: planSelectionUrl,
+        message: "Redirecting to plan selection..." 
+      });
+    }
+  } catch (error) {
+    // If it's a redirect, re-throw it
+    if (error instanceof Response && error.status >= 300 && error.status < 400) {
+      throw error;
+    }
+    
+    console.error("Error processing billing:", error);
+    return json({ 
+      success: false, 
+      error: "Failed to process subscription",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
 };
 
 export default function Pricing() {
   const { hasActiveSubscription, subscription } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const isLoading = navigation.state === "submitting";
@@ -83,6 +107,22 @@ export default function Pricing() {
   const handleSubscribe = () => {
     submit({}, { method: "post" });
   };
+
+  // Handle redirect for embedded apps
+  useEffect(() => {
+    if (actionData && (actionData as any).redirect) {
+      const redirectUrl = (actionData as any).redirect;
+      console.log("Redirecting to plan selection:", redirectUrl);
+      
+      // Use window.top to break out of the iframe
+      if (window.top) {
+        window.top.location.href = redirectUrl;
+      } else {
+        // Fallback for non-iframe environments
+        window.location.href = redirectUrl;
+      }
+    }
+  }, [actionData]);
 
   if (hasActiveSubscription) {
     return (
@@ -102,7 +142,7 @@ export default function Pricing() {
                   Current Plan: Monthly Subscription
                 </Text>
                 <Text as="p">
-                  Price: $24.99/month
+                  Price: $24.99/month with 14-day free trial (free for development stores)
                 </Text>
                 <Text as="p">
                   Status: <Badge tone="success">Active</Badge>
@@ -168,7 +208,7 @@ export default function Pricing() {
                   onClick={handleSubscribe}
                   loading={isLoading}
                 >
-                  Start Free Trial
+                  {isLoading ? "Redirecting..." : "Abonnement afsluiten"}
                 </Button>
               </InlineStack>
             </BlockStack>

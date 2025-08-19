@@ -1,3 +1,40 @@
+# Simple Gifting App - Changelog
+
+All notable changes to the Simple Gifting app will be documented in this file.
+
+## [2.0.0] - 2024-08-18
+
+### 🎉 Major Improvements & Bug Fixes
+
+#### Added
+- **Complete CSS Framework**: Added comprehensive styling with responsive design, accessibility features, and customizable CSS variables
+- **JavaScript Utilities Library**: Added utility functions for error handling, performance monitoring, and accessibility
+- **Modal Template System**: Implemented dynamic modal generation with proper HTML structure
+- **Accessibility Features**: Added ARIA labels, keyboard navigation, focus management, and screen reader support
+- **Error Handling**: Comprehensive error handling throughout the application
+- **Loading States**: Added loading indicators and user feedback
+- **Security Improvements**: HTML sanitization to prevent XSS attacks
+- **Performance Optimizations**: Debounced API calls, lazy loading, and performance monitoring
+
+#### Fixed
+- **Empty Asset Files**: Fixed empty `gifting-styles.css` and `gifting-app.js` files
+- **TypeScript Errors**: Removed `@ts-ignore` comments and fixed type issues
+- **Inconsistent Variables**: Fixed variable naming and referencing throughout the app
+- **Missing Modal Template**: Implemented proper modal HTML generation
+- **Cart Integration**: Fixed cart add functionality with proper error handling
+- **Theme Setup**: Improved deep link generation with error handling
+- **Database Operations**: Added proper error handling for shop configuration
+
+#### Changed
+- **Liquid Template**: Complete rewrite with better structure and error handling
+- **App Embed**: Improved asset loading with proper error handling and prevention of duplicate loads
+- **Shop Configuration**: Added error handling and better default values
+- **Theme Compatibility**: Enhanced checking with better error handling
+
+---
+
+## Previous Template Changelog
+
 # @shopify/shopify-app-template-remix
 
 ## 2025.06.12

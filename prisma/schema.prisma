@@ -37,34 +37,12 @@ model Session {
 model ShopConfiguration {
   id                     Int      @id @default(autoincrement())
   shop                   String   @unique
-  popupTitle             String   @default("Add a personal message")
-  popupAddButtonText     String   @default("Add card")
-  popupCancelButtonText  String   @default("Cancel")
   appIsEnabled           Boolean  @default(true)
-  // Add new fields for enhanced settings
-  defaultCharLimit       Int      @default(150)
   autoTagging           Boolean  @default(true)
   debugMode             Boolean  @default(false)
   cacheStrategy         String   @default("browser")
   apiTimeout            Int      @default(30)
-  
-  // Styling and appearance settings
-  primaryColor          String   @default("#2563eb")
-  secondaryColor        String   @default("#1d4ed8")
-  accentColor           String   @default("#059669")
-  backgroundColor       String   @default("#ffffff")
-  textColor             String   @default("#1e293b")
-  buttonStyle           String   @default("primary")  // primary, secondary, accent, custom
-  buttonSize            String   @default("medium")   // small, medium, large
-  buttonBorderRadius    Int      @default(12)
-  fontFamily            String   @default("Inter")    // Inter, Arial, Roboto, Custom
-  fontSize              String   @default("16")       // Font size in px
-  fontWeight            String   @default("500")      // 400, 500, 600, 700
-  modalAnimation        String   @default("fade")     // fade, slide, zoom, none
-  autoOpenPopup         Boolean  @default(false)
-  blurBackground        Boolean  @default(true)
   customCss             String?                       // For advanced custom CSS
-  customFontUrl         String?                       // URL for custom font
   installationCompleted Boolean  @default(false)       // Track if initial setup is complete
   
   createdAt              DateTime @default(now())

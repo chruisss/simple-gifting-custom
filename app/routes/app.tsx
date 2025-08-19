@@ -11,7 +11,11 @@ import { authenticate } from "../shopify.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  console.log("APP LOADER - Authenticating request:", request.url);
+  
   await authenticate.admin(request);
+  
+  console.log("APP LOADER - Authentication successful");
 
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",

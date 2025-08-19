@@ -1,0 +1,792 @@
+/* Simple Gifting Styles */
+
+/* Block Container */
+.gifting-block {
+  margin: 16px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Trigger Styles */
+.gifting-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.gifting-trigger-btn:hover {
+  background: #1d4ed8;
+}
+
+.gifting-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.gifting-checkbox {
+  margin: 0;
+}
+
+.gifting-trigger-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.gifting-trigger-link:hover {
+  background: #2563eb;
+  color: white;
+}
+
+/* Modal Styles */
+.gifting-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.gifting-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.gifting-modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.gifting-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  padding-right: 40px;
+}
+
+.gifting-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.gifting-modal-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.gifting-modal-body {
+  padding: 24px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.gifting-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.gifting-products h4,
+.gifting-message-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.gifting-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.gifting-product-item {
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.gifting-product-item:hover {
+  border-color: #2563eb;
+}
+
+.gifting-product-item.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.gifting-product-title {
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.gifting-product-price {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.gifting-message-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.gifting-message-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.gifting-char-counter {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: right;
+}
+
+.gifting-modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.gifting-btn {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.gifting-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.gifting-btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.gifting-btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.gifting-btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .gifting-modal {
+    margin: 20px;
+    max-height: 90vh;
+  }
+  
+  .gifting-product-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gifting-modal-footer {
+    flex-direction: column;
+  }
+  
+  .gifting-btn {
+    width: 100%;
+  }
+}
+
+/* Container Styles */
+.gifting-app-container {
+  margin: 16px 0;
+  font-family: var(--gifting-font-family);
+}
+
+/* Trigger Button */
+.gifting-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--gifting-primary);
+  color: white;
+  border: none;
+  border-radius: var(--gifting-radius);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: var(--gifting-transition);
+  text-decoration: none;
+  width: 100%;
+  justify-content: center;
+}
+
+.gifting-trigger:hover {
+  background: var(--gifting-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--gifting-shadow);
+}
+
+.gifting-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gifting-trigger-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Checkbox Trigger (Alternative) */
+.gifting-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+  cursor: pointer;
+}
+
+.gifting-checkbox-container input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gifting-primary);
+  cursor: pointer;
+}
+
+.gifting-checkbox-label {
+  font-size: 16px;
+  color: var(--gifting-text);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Modal Backdrop */
+.gifting-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gifting-overlay-bg);
+  backdrop-filter: blur(var(--gifting-overlay-blur));
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Container */
+.gifting-modal {
+  background: var(--gifting-background);
+  border-radius: var(--gifting-radius);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: var(--gifting-modal-width);
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 9999;
+  margin: auto;
+}
+
+/* Modal Header */
+.gifting-modal-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--gifting-border);
+  position: relative;
+}
+
+.gifting-modal-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gifting-text);
+  margin: 0 40px 8px 0;
+}
+
+.gifting-modal-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
+}
+
+.gifting-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: var(--gifting-transition);
+}
+
+.gifting-modal-close:hover {
+  background: #f1f5f9;
+  color: var(--gifting-text);
+}
+
+/* Modal Body */
+.gifting-modal-body {
+  padding: 24px;
+  min-height: 300px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Loading State */
+#gifting-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gifting-text);
+  font-size: 16px;
+}
+
+/* Product List */
+.gifting-product-list {
+  margin-bottom: 24px;
+}
+
+.gifting-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.gifting-product-carousel {
+  display: flex;
+  transition: transform 0.3s ease;
+}
+
+.gifting-carousel-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--gifting-radius);
+}
+
+.gifting-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.gifting-carousel-button {
+  background: var(--gifting-primary);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--gifting-transition);
+}
+
+.gifting-carousel-button:hover:not(:disabled) {
+  background: var(--gifting-secondary);
+  transform: scale(1.05);
+}
+
+.gifting-carousel-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gifting-carousel-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.gifting-carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  border: none;
+  cursor: pointer;
+  transition: var(--gifting-transition);
+}
+
+.gifting-carousel-dot.active {
+  background: var(--gifting-primary);
+  transform: scale(1.25);
+}
+
+/* Product Items */
+.gifting-product-item {
+  border: 2px solid var(--gifting-border);
+  border-radius: var(--gifting-radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: var(--gifting-transition);
+  background: var(--gifting-background);
+  min-width: 200px;
+  flex: 0 0 auto;
+}
+
+.gifting-product-item:hover {
+  border-color: var(--gifting-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--gifting-shadow);
+}
+
+.gifting-product-item.selected {
+  border-color: var(--gifting-primary);
+  background: #eff6ff;
+}
+
+.gifting-product-item img {
+  width: 100%;
+  height: var(--gifting-product-image-height);
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.gifting-product-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gifting-text);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.gifting-product-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gifting-primary);
+  margin: 0 0 8px 0;
+}
+
+.gifting-product-description {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Variant Options */
+.gifting-variant-section {
+  margin-bottom: 24px;
+}
+
+.gifting-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gifting-text);
+  margin: 0 0 16px 0;
+}
+
+.gifting-variant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gifting-variant-option {
+  padding: 12px 16px;
+  border: 2px solid var(--gifting-border);
+  border-radius: var(--gifting-radius);
+  cursor: pointer;
+  transition: var(--gifting-transition);
+  background: var(--gifting-background);
+  font-size: 14px;
+  color: var(--gifting-text);
+}
+
+.gifting-variant-option:hover {
+  border-color: var(--gifting-primary);
+}
+
+.gifting-variant-option.selected {
+  border-color: var(--gifting-primary);
+  background: var(--gifting-primary);
+  color: white;
+}
+
+/* Message Section */
+.gifting-message-section {
+  margin-bottom: 24px;
+}
+
+.gifting-message-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  border: 2px solid var(--gifting-border);
+  border-radius: var(--gifting-radius);
+  font-size: 16px;
+  font-family: inherit;
+  resize: vertical;
+  transition: var(--gifting-transition);
+}
+
+.gifting-message-textarea:focus {
+  outline: none;
+  border-color: var(--gifting-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.gifting-message-textarea.error {
+  border-color: #ef4444;
+}
+
+.gifting-char-count {
+  text-align: right;
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+/* Quantity Section */
+.gifting-quantity-section {
+  margin-bottom: 24px;
+}
+
+.gifting-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 150px;
+}
+
+.gifting-quantity-button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--gifting-border);
+  background: var(--gifting-background);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gifting-text);
+  transition: var(--gifting-transition);
+}
+
+.gifting-quantity-button:hover {
+  border-color: var(--gifting-primary);
+  color: var(--gifting-primary);
+}
+
+.gifting-quantity-input {
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  border: 2px solid var(--gifting-border);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Add to Cart Button */
+.gifting-add-to-cart {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--gifting-primary);
+  color: white;
+  border: none;
+  border-radius: var(--gifting-radius);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--gifting-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.gifting-add-to-cart:hover:not(:disabled) {
+  background: var(--gifting-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--gifting-shadow);
+}
+
+.gifting-add-to-cart:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gifting-btn-loading {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Toast Notifications */
+.gifting-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: var(--gifting-radius);
+  color: white;
+  font-weight: 500;
+  z-index: 10000;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  max-width: 400px;
+  box-shadow: var(--gifting-shadow);
+}
+
+.gifting-toast.success {
+  background: var(--gifting-accent);
+}
+
+.gifting-toast.error {
+  background: #ef4444;
+}
+
+.gifting-toast.show {
+  transform: translateX(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .gifting-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .gifting-modal-header {
+    padding: 16px;
+  }
+  
+  .gifting-modal-body {
+    padding: 16px;
+  }
+  
+  .gifting-product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  
+  .gifting-product-item {
+    padding: 12px;
+  }
+  
+  .gifting-product-item img {
+    height: 100px;
+  }
+  
+  .gifting-variant-options {
+    gap: 8px;
+  }
+  
+  .gifting-variant-option {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.gifting-trigger:focus,
+.gifting-product-item:focus,
+.gifting-variant-option:focus,
+.gifting-add-to-cart:focus,
+.gifting-message-textarea:focus {
+  outline: 2px solid var(--gifting-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --gifting-border: #000000;
+    --gifting-text: #000000;
+  }
+}

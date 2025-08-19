@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation, useNavigate, useActionData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import {
@@ -29,6 +29,8 @@ import {
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { getShopConfiguration, updateShopConfiguration } from "../models/ShopConfiguration.server";
+import { checkThemeCompatibility } from "../utils/themeCompatibility.server";
+import { ThemeSetup } from "../components/ThemeSetup";
 
 interface InstallationStep {
   id: string;
@@ -66,30 +68,30 @@ const METAFIELD_DEFINITIONS = [
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin, session } = await authenticate.admin(request);
+  console.log("APP INSTALL LOADER - Starting authentication for:", request.url);
+  
+  const { admin, billing, session } = await authenticate.admin(request);
   const { shop } = session;
+  
+  console.log("APP INSTALL LOADER - Authentication successful for shop:", shop);
 
-  // Check current subscription status
-  const activeSubscriptions = await admin.graphql(
-    `#graphql
-      query appSubscription {
-        currentAppInstallation {
-          activeSubscriptions {
-            name
-            status
-            test
-          }
-        }
-      }`
-  );
-
-  const subData = await activeSubscriptions.json();
-  const subscriptions = subData.data?.currentAppInstallation?.activeSubscriptions || [];
-
-  const isSubscribed = subscriptions.some(
-    (sub: { name: string; status: string }) =>
-      sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
-  );
+  // Check current subscription status using the billing helper
+  let isSubscribed = false;
+  try {
+    const { hasActivePayment, appSubscriptions } = await billing.check({
+      plans: ["Monthly Subscription"],
+    });
+    
+    // If we have active payment, check if it's our subscription
+    isSubscribed = hasActivePayment && appSubscriptions.some(
+      (sub: any) => sub.name === "Monthly Subscription" && sub.status === "ACTIVE"
+    );
+    
+    console.log("APP INSTALL LOADER - Subscription status:", isSubscribed);
+  } catch (error) {
+    console.error("Error checking subscription:", error);
+    isSubscribed = false;
+  }
 
   // Check metafields
   const metafieldsResponse = await admin.graphql(
@@ -114,12 +116,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // Get shop configuration
   const config = await getShopConfiguration(shop);
 
+  // Check theme compatibility
+  const themeCompatibility = await checkThemeCompatibility(admin, "product-personalisatie");
+  
+  // Get app configuration
+  const appConfig = {
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    shop: shop,
+    extensionHandle: "product-personalisatie",
+  };
+
   return json({
     isSubscribed,
     metafieldsConfigured,
     requiredMetafields: METAFIELD_DEFINITIONS.length,
     appEnabled: config.appIsEnabled,
-    shop
+    shop,
+    themeCompatibility,
+    appConfig
   });
 };
 
@@ -131,19 +145,48 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (action === "create_subscription") {
     try {
-      const billingCheck = await billing.require({
+      // For Managed Pricing apps, check if subscription exists
+      const billingCheck = await billing.check({
         plans: ["Monthly Subscription"],
-        onFailure: async () => billing.request({ 
-          plan: "Monthly Subscription",
-          isTest: true,
-          returnUrl: `${process.env.SHOPIFY_APP_URL}/app/install`
-        }),
+        isTest: true,
       });
-
-      return json({ success: true, billingCheck });
+      
+      if (billingCheck.hasActivePayment) {
+        // Subscription already exists, return success
+        return json({ 
+          success: true, 
+          billingCheck,
+          message: "Subscription is already active" 
+        });
+      } else {
+        // No active subscription, return the redirect URL to be handled client-side
+        const returnUrl = encodeURIComponent(`${process.env.SHOPIFY_APP_URL}/app/install`);
+        
+        // Extract store handle from shop domain (e.g., "cool-shop" from "cool-shop.myshopify.com")
+        const storeHandle = shop.replace('.myshopify.com', '');
+        
+        // Return the plan selection URL for client-side redirect
+        const planSelectionUrl = `https://admin.shopify.com/store/${storeHandle}/charges/simple-gifting/pricing_plans?return_url=${returnUrl}`;
+        
+        return json({ 
+          success: false, 
+          redirect: planSelectionUrl,
+          message: "Redirecting to plan selection..." 
+        });
+      }
     } catch (error) {
-      console.error("Error creating subscription:", error);
-      return json({ success: false, error: "Failed to create subscription" });
+      // If it's a redirect, re-throw it
+      if (error instanceof Response && error.status >= 300 && error.status < 400) {
+        throw error;
+      }
+      
+      console.error("Error checking subscription:", error);
+      
+      return json({ 
+        success: false, 
+        error: "Failed to check subscription", 
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   }
 
@@ -254,7 +297,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Install() {
-  const { isSubscribed, metafieldsConfigured, requiredMetafields, appEnabled } = useLoaderData<typeof loader>();
+  const { isSubscribed, metafieldsConfigured, requiredMetafields, appEnabled, themeCompatibility, appConfig } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -273,7 +316,7 @@ export default function Install() {
     {
       id: "subscription",
       title: "Activate Subscription",
-      description: "Set up your monthly subscription to access all features",
+      description: "Activate your subscription to access all features (free for development stores)",
       status: isSubscribed ? 'completed' : 'pending',
       icon: GiftCardIcon
     },
@@ -294,7 +337,7 @@ export default function Install() {
     {
       id: "theme_setup",
       title: "Theme Setup",
-      description: "Manual step: Activate the theme extension in your theme editor",
+      description: "Add the Simple Gifting app block to your theme with one click",
       status: 'pending',
       icon: ColorIcon
     }
@@ -312,7 +355,7 @@ export default function Install() {
       if (actionData.success) {
         setToast({
           active: true,
-          message: "Step completed successfully!",
+          message: (actionData as any).message || "Step completed successfully!",
           error: false
         });
         
@@ -328,9 +371,25 @@ export default function Install() {
           }
         }
       } else {
+        // Check if we need to redirect for subscription
+        if ((actionData as any).redirect) {
+          const redirectUrl = (actionData as any).redirect;
+          console.log("Redirecting to plan selection:", redirectUrl);
+          
+          // Use window.top to break out of the iframe
+          if (window.top) {
+            window.top.location.href = redirectUrl;
+          } else {
+            // Fallback for non-iframe environments
+            window.location.href = redirectUrl;
+          }
+          return;
+        }
+        
+        const errorMessage = (actionData as any).error || "An error occurred";
         setToast({
           active: true,
-          message: (actionData as any).error || "An error occurred",
+          message: errorMessage,
           error: true
         });
       }
@@ -449,8 +508,9 @@ export default function Install() {
                           onClick={() => handleStepAction(step.id)}
                           loading={isLoading}
                           variant="primary"
-                        >                    {step.id === "subscription" ? "Start Free Trial" : 
-                     step.id === "theme_setup" ? "Mark as Complete" : "Configure"}
+                        >
+                          {step.id === "subscription" ? (isLoading ? "Redirecting..." : "Abonnement afsluiten") : 
+                           step.id === "theme_setup" ? "Mark as Complete" : "Configure"}
                         </Button>
                       </InlineStack>
                     )}
@@ -462,20 +522,13 @@ export default function Install() {
                       </InlineStack>
                     )}
 
-                    {step.id === "theme_setup" && step.status === 'pending' && (
-                      <Banner tone="warning">
-                        <BlockStack gap="200">
-                          <Text variant="bodyMd" as="p">
-                            <strong>Manual step required:</strong>
-                          </Text>
-                          <List>
-                            <List.Item>Go to your Shopify admin → Online Store → Themes</List.Item>
-                            <List.Item>Click "Customize" on your active theme</List.Item>
-                            <List.Item>Add the "Simple Gifting" app block to your product pages</List.Item>
-                            <List.Item>Save your theme</List.Item>
-                          </List>
-                        </BlockStack>
-                      </Banner>
+                    {step.id === "theme_setup" && step.status === 'pending' && themeCompatibility && appConfig && (
+                      <ThemeSetup
+                        shop={appConfig.shop}
+                        apiKey={appConfig.apiKey}
+                        extensionHandle={appConfig.extensionHandle}
+                        themeSupport={themeCompatibility}
+                      />
                     )}
                   </BlockStack>
                 </Card>

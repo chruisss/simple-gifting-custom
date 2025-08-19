@@ -1,394 +1,732 @@
-{%- liquid
-  assign gifting_products = block.settings.gifting_products
--%}
+<!-- Simple Gifting Block -->
+<div class="gifting-block" data-block-id="{{ block.id }}">
+  {% case block.settings.trigger_type %}
+    {% when 'button' %}
+      <button type="button" class="gifting-trigger-btn" data-gifting-trigger>
+        {{ block.settings.button_label | default: 'Voeg personalisatie toe' }}
+      </button>
+    {% when 'checkbox' %}
+      <label class="gifting-checkbox-label">
+        <input type="checkbox" class="gifting-checkbox" data-gifting-trigger>
+        {{ block.settings.button_label | default: 'Voeg personalisatie toe' }}
+      </label>
+    {% else %}
+      <a href="#" class="gifting-trigger-link" data-gifting-trigger>
+        {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primaire kleur",
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "Secundaire kleur", 
+      "default": "#6b7280"
+    },
+    {
+      "type": "color",
+      "id": "primary_text_color",
+      "label": "Primaire tekst kleur",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "secondary_text_color", 
+      "label": "Secundaire tekst kleur",
+      "default": "#6b7280"
+    },
+    {
+      "type": "color",
+      "id": "button_primary_bg",
+      "label": "Primaire knop achtergrond",
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_bg",
+      "label": "Secundaire knop achtergrond", 
+      "default": "#f3f4f6"
+    }, block.settings.button_label | default: 'Voeg personalisatie toe' }}
+      </a>
+  {% endcase %}
+</div>
+
+<!-- Modal Structure -->
+<div class="gifting-modal-overlay" data-gifting-modal style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,{{ block.settings.overlay_opacity | default: 0.5 }}); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px;">
+  <div class="gifting-modal" style="background: {{ block.settings.background_color | default: '#ffffff' }}; border-radius: {{ block.settings.border_radius | default: 12 }}px; max-width: {{ block.settings.modal_width | default: 80 }}%; width: 100%; max-height: 80vh; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+    
+    <div class="gifting-modal-header" style="padding: 24px; border-bottom: 1px solid #e5e7eb; position: relative;">
+      <h3 class="gifting-modal-title" style="margin: 0; font-size: 20px; font-weight: 600; color: {{ block.settings.text_color | default: '#111827' }}; padding-right: 40px;">{{ block.settings.modal_title | default: 'Voeg personalisatie toe' }}</h3>
+            <button type="button" class="gifting-modal-close" data-gifting-close aria-label="Sluiten" style="position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; color: #6b7280; font-size: 24px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s ease; z-index: 10;">
+        ×
+      </button>
+    </div>
+    
+    <div class="gifting-modal-body" style="padding: 24px; max-height: 50vh; overflow-y: auto;">
+      <div class="gifting-loading" data-gifting-loading style="text-align: center; padding: 40px 20px; color: #6b7280;">
+        <p>Producten laden...</p>
+      </div>
+      
+      <div class="gifting-products" data-gifting-products style="display: none;">
+        <h4 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: #111827;">Selecteer een product:</h4>
+        
+        <div class="gifting-carousel-container" style="position: relative; margin-bottom: 24px; padding: 0 0px;">
+          <div class="gifting-carousel-wrapper" style="overflow: visible; border-radius: 8px;">
+            <div class="gifting-product-carousel" data-gifting-product-list style="display: flex; transition: transform 0.3s ease; gap: 16px; padding-left: 0px;"></div>
+          </div>
+          
+          <!-- Carousel Navigation - Absolute but smart positioning -->
+          <button type="button" class="gifting-carousel-prev" data-carousel-prev style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); background: {{ block.settings.button_primary_bg | default: '#2563eb' }}; border: none; border-radius: 50%; width: 40px; height: 40px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 15; box-shadow: 0 2px 8px rgba(0,0,0,0.15); color: white;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+          </button>
+          
+          <button type="button" class="gifting-carousel-next" data-carousel-next style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: {{ block.settings.button_primary_bg | default: '#2563eb' }}; border: none; border-radius: 50%; width: 40px; height: 40px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 15; box-shadow: 0 2px 8px rgba(0,0,0,0.15); color: white;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="gifting-message-section" data-gifting-message-section style="display: none;">
+        <h4 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: {{ block.settings.primary_text_color | default: '#111827' }};">Persoonlijk bericht:</h4>
+        <textarea 
+          class="gifting-message-input" 
+          data-gifting-message
+          placeholder="{{ block.settings.message_placeholder | default: 'Voeg je persoonlijke bericht toe...' }}"
+          style="width: 100%; min-height: 80px; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 16px; font-family: inherit; resize: vertical; margin-bottom: 8px; box-sizing: border-box; color: {{ block.settings.primary_text_color | default: '#111827' }};"
+        ></textarea>
+        <div class="gifting-char-counter" data-gifting-counter style="display: none; font-size: 14px; color: {{ block.settings.secondary_text_color | default: '#6b7280' }}; text-align: right;">
+          <span data-gifting-count>0</span> / <span data-gifting-max>0</span> karakters
+        </div>
+      </div>
+    </div>
+    
+    <div class="gifting-modal-footer" style="padding: 20px 24px; border-top: 1px solid #e5e7eb;">
+      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+        {% if block.settings.enable_quantity_selector %}
+        <!-- Quantity selector naast add to cart -->
+        <div style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: {{ block.settings.border_radius | default: 6 }}px; background: white; overflow: hidden; transition: border-color 0.2s ease; height: 44px;">
+          <button type="button" onclick="changeQuantity('global', -1)" 
+            style="width: 44px; height: 44px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: {{ block.settings.secondary_text_color | default: '#6b7280' }}; font-size: 16px; font-weight: 600; line-height: 1; transition: all 0.2s ease;">−</button>
+          <input type="number" id="gifting-quantity-global" value="1" min="1" max="99" readonly
+            style="width: 40px; height: 44px; text-align: center; border: none; background: transparent; color: {{ block.settings.primary_text_color | default: '#111827' }}; font-size: 16px; font-weight: 500; padding: 0 4px;">
+          <button type="button" onclick="changeQuantity('global', 1)" 
+            style="width: 44px; height: 44px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: {{ block.settings.secondary_text_color | default: '#6b7280' }}; font-size: 16px; font-weight: 400; line-height: 1; transition: all 0.2s ease;">+</button>
+        </div>
+        {% endif %}
+        
+        <!-- Add to cart button - altijd zichtbaar -->
+        <button type="button" class="gifting-btn gifting-btn-primary" data-gifting-add 
+          style="padding: 12px 24px; border-radius: {{ block.settings.border_radius | default: 6 }}px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; border: none; background: {{ block.settings.button_primary_bg | default: '#2563eb' }}; color: white; opacity: 0.5; position: relative; z-index: 10; pointer-events: auto;" 
+          disabled>
+          Selecteer een product
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const GiftingApp = (blockId, currentProduct) => {
-    const mainProduct = currentProduct;
-    let giftingProducts = [];
-    const state = {
-      isModalOpen: false,
-      selectedProduct: null,
-      selectedVariant: null,
-      currentStep: 'product', // 'product', 'variant', 'message'
-      carouselIndex: 0,
-      carouselItemsPerPage: 3
-    };
+(function() {
+  'use strict';
+  
+  const blockId = '{{ block.id }}';
+  const block = document.querySelector(`[data-block-id="${blockId}"]`);
+  const modal = document.querySelector('[data-gifting-modal]');
+  const trigger = block?.querySelector('[data-gifting-trigger]');
+  
+  if (!block || !modal || !trigger) return;
+  
+  const settings = {
+    triggerType: '{{ block.settings.trigger_type | default: "checkbox" }}',
+    productImageHeight: {{ block.settings.product_image_height | default: 120 }},
+    primaryColor: '{{ block.settings.primary_color | default: "#2563eb" }}',
+    borderRadius: {{ block.settings.border_radius | default: 6 }},
+    itemsPerSlide: {{ block.settings.items_per_slide | default: 3 }}
+  };
+  
+  let selectedProduct = null;
+  let currentSlide = 0;
+  let totalSlides = 0;
+  
+  // Event listeners
+  if (settings.triggerType === 'checkbox') {
+    trigger.addEventListener('change', function() {
+      if (this.checked) {
+        openModal();
+      } else {
+        closeModal();
+      }
+    });
+  } else {
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      openModal();
+    });
+  }
+  
+  // Close modal events
+  modal.addEventListener('click', function(e) {
+    if (e.target === this || e.target.hasAttribute('data-gifting-close')) {
+      closeModal();
+    }
+  });
 
-    const DOM = {
-      container: document.getElementById(`gifting-app-container-${blockId}`),
-      modalTemplate: document.getElementById('gifting-modal-template'),
-      modalInstance: null,
-      get modal() { return DOM.modalInstance; },
-      get trigger() { return document.getElementById(`gifting-modal-trigger-checkbox-${blockId}`); },
-      get productList() { return DOM.modal?.querySelector('#gifting-product-list'); },
-      get variantOptions() { return DOM.modal?.querySelector('#gifting-variant-options'); },
-      get addToCartButton() { return DOM.modal?.querySelector('#gifting-add-to-cart'); },
-      get messageTextarea() { return DOM.modal?.querySelector('#gifting-message'); },
-      get charCount() { return DOM.modal?.querySelector('#gifting-char-count'); },
-      get variantSection() { return DOM.modal?.querySelector('#gifting-variant-section'); },
-      get messageSection() { return DOM.modal?.querySelector('#gifting-message-section'); },
-      get quantityInput() { return DOM.modal?.querySelector('#gifting-quantity'); },
-      get quantityIncrease() { return DOM.modal?.querySelector('#quantity-increase'); },
-      get quantityDecrease() { return DOM.modal?.querySelector('#quantity-decrease'); },
-      get carouselContainer() { return DOM.modal?.querySelector('.gifting-carousel-container'); },
-      get carousel() { return DOM.modal?.querySelector('.gifting-product-carousel'); },
-      get carouselPrev() { return DOM.modal?.querySelector('#carousel-prev'); },
-      get carouselNext() { return DOM.modal?.querySelector('#carousel-next'); },
-      get carouselDots() { return DOM.modal?.querySelector('#carousel-dots'); }
-    };
+  // Add hover effect to close button
+  const closeBtn = modal.querySelector('[data-gifting-close]');
+  if (closeBtn) {
+    closeBtn.addEventListener('mouseenter', () => {
+      closeBtn.style.backgroundColor = '#f3f4f6';
+      closeBtn.style.color = '#374151';
+    });
+    closeBtn.addEventListener('mouseleave', () => {
+      closeBtn.style.backgroundColor = 'transparent';
+      closeBtn.style.color = '#6b7280';
+    });
+  }
+  
+  // Add to cart
+  const addButton = modal.querySelector('[data-gifting-add]');
+  if (addButton) {
+    addButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!this.disabled) {
+        addToCart();
+      }
+    });
+  }
+  
+  function openModal() {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadProducts();
+  }
+  
+  function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
     
-    const settings = {
-      useCarousel: {{ block.settings.use_carousel | default: true }},
-      productsToShow: {{ block.settings.products_to_show | default: 6 }},
-      enableQuantitySelector: {{ block.settings.enable_quantity_selector | default: false }},
-      maxQuantity: {{ block.settings.max_quantity | default: 99 }},
-      selectProductText: '{{ block.settings.select_product_text | default: "Select product" }}',
-      selectOptionText: '{{ block.settings.select_option_text | default: "Select an option" }}',
-      addToCartText: '{{ block.settings.add_to_cart_text | default: "Add to cart" }}',
-      soldOutText: '{{ block.settings.sold_out_text | default: "Sold out" }}'
-    };
-
-    function init() {
-      if (!DOM.container || !DOM.trigger) {
-        console.error('Gifting App: Essential elements not found for block ' + blockId);
+    if (settings.triggerType === 'checkbox') {
+      trigger.checked = false;
+    }
+    
+    selectedProduct = null;
+    hideAllSections();
+  }
+  
+  function hideAllSections() {
+    modal.querySelector('[data-gifting-loading]').style.display = 'none';
+    modal.querySelector('[data-gifting-products]').style.display = 'none';
+    modal.querySelector('[data-gifting-message-section]').style.display = 'none';
+    
+    // Reset add button to disabled state
+    const addBtn = modal.querySelector('[data-gifting-add]');
+    addBtn.disabled = true;
+    addBtn.style.opacity = '0.5';
+    addBtn.style.pointerEvents = 'none';
+    addBtn.textContent = 'Selecteer een product';
+  }
+  
+  async function loadProducts() {
+    hideAllSections();
+    modal.querySelector('[data-gifting-loading]').style.display = 'block';
+    
+    try {
+      const shopDomain = '{{ shop.permanent_domain }}';
+      const proxyUrl = `/apps/gifting/products?shop=${encodeURIComponent(shopDomain)}`;
+      
+      const response = await fetch(proxyUrl);
+      
+      const contentType = response.headers.get('content-type');
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        throw new Error(`Expected JSON but got ${contentType}. Response: ${responseText.substring(0, 200)}...`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error + (data.debug ? ': ' + JSON.stringify(data.debug) : ''));
+      }
+      
+      if (!data.products || !Array.isArray(data.products)) {
+        throw new Error('Invalid response format');
+      }
+      
+      if (data.products.length === 0) {
+        modal.querySelector('[data-gifting-loading]').innerHTML = `
+          <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
+            <h4 style="margin: 0 0 12px 0; color: #374151;">Geen personalisatie producten gevonden</h4>
+            <p style="margin: 0 0 16px 0;">Configureer eerst producten in de app:</p>
+            <ol style="text-align: left; margin: 0; padding-left: 20px;">
+              <li>Ga naar de app admin</li>
+              <li>Klik op "Producten" tabblad</li>
+              <li>Voeg producten toe met de tag "simple-gifting-product"</li>
+              <li>Stel metafields in voor personalisatie</li>
+            </ol>
+          </div>
+        `;
         return;
       }
-      setupEventListeners();
-      fetchGiftingProducts();
+      
+      showProducts(data.products); // Show all products
+    } catch (error) {
+      console.error('Error loading products:', error);
+      modal.querySelector('[data-gifting-loading]').innerHTML = `
+        <div style="text-align: center; padding: 40px 20px; color: #dc2626;">
+          <h4 style="margin: 0 0 12px 0;">Fout bij laden van producten</h4>
+          <p style="margin: 0; font-size: 14px;">${error.message}</p>
+        </div>
+      `;
     }
-
-    function setupEventListeners() {
-      DOM.trigger.addEventListener('change', (e) => {
-        if (e.target.checked) openModal();
-        else closeModal();
-      });
-    }
-
-    function setupModalEventListeners() {
-      if (!DOM.modal) return;
-      DOM.modal.querySelector('.gifting-modal-close').addEventListener('click', () => DOM.trigger.click());
-      DOM.modal.querySelector('.gifting-modal-backdrop').addEventListener('click', () => DOM.trigger.click());
-      DOM.addToCartButton.addEventListener('click', addProductToCart);
-
-      if (settings.enableQuantitySelector) {
-        DOM.quantityIncrease.addEventListener('click', () => updateQuantity(1));
-        DOM.quantityDecrease.addEventListener('click', () => updateQuantity(-1));
-      }
-
-      if (settings.useCarousel) {
-        DOM.carouselPrev.addEventListener('click', () => moveCarousel(-1));
-        DOM.carouselNext.addEventListener('click', () => moveCarousel(1));
-      }
-    }
+  }
+  
+  function showProducts(products) {
+    const productList = modal.querySelector('[data-gifting-product-list]');
+    const prevBtn = modal.querySelector('[data-carousel-prev]');
+    const nextBtn = modal.querySelector('[data-carousel-next]');
     
-    function moveCarousel(direction) {
-      const totalPages = Math.ceil(giftingProducts.length / state.carouselItemsPerPage);
-      state.carouselIndex = (state.carouselIndex + direction + totalPages) % totalPages;
-      updateCarousel();
-    }
-
-    function updateCarousel() {
-      const offset = -state.carouselIndex * 100;
-      DOM.carousel.style.transform = `translateX(${offset}%)`;
-      updateCarouselControls();
-      updateCarouselDots();
-    }
-
-    function updateCarouselControls() {
-      const totalPages = Math.ceil(giftingProducts.length / state.carouselItemsPerPage);
-      DOM.carouselPrev.disabled = state.carouselIndex === 0;
-      DOM.carouselNext.disabled = state.carouselIndex >= totalPages - 1;
-    }
+    productList.innerHTML = '';
     
-    function createCarouselDots() {
-      DOM.carouselDots.innerHTML = '';
-      const totalPages = Math.ceil(giftingProducts.length / state.carouselItemsPerPage);
-      if (totalPages <= 1) {
-        DOM.carouselDots.style.display = 'none';
+    if (!products.length) {
+      modal.querySelector('[data-gifting-loading]').innerHTML = `
+        <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
+          <h4 style="margin: 0 0 12px 0; color: #374151;">Geen personalisatie producten beschikbaar</h4>
+          <p style="margin: 0;">Configureer eerst producten in de app beheer.</p>
+        </div>
+      `;
       return;
     }
-      DOM.carouselDots.style.display = 'flex';
-      for (let i = 0; i < totalPages; i++) {
-        const dot = document.createElement('button');
-        dot.classList.add('gifting-carousel-dot');
-        dot.dataset.index = i;
-        dot.addEventListener('click', () => {
-          state.carouselIndex = i;
-          updateCarousel();
-        });
-        DOM.carouselDots.appendChild(dot);
-      }
-      updateCarouselDots();
+    
+    // Calculate slides
+    totalSlides = Math.max(0, Math.ceil(products.length - settings.itemsPerSlide));
+    currentSlide = 0;
+    
+    // Create product items
+    products.forEach((product, index) => {
+      const productEl = document.createElement('div');
+      productEl.className = 'gifting-product-item';
+      productEl.style.cssText = `
+        min-width: calc((100% - ${(settings.itemsPerSlide - 1) * 16}px) / ${settings.itemsPerSlide}); 
+        border: 2px solid #e5e7eb; 
+        border-radius: ${settings.borderRadius}px; 
+        padding: 20px 16px 16px 16px; 
+        cursor: pointer; 
+        transition: all 0.2s ease; 
+        text-align: center;
+        box-sizing: border-box;
+        background: white;
+        position: relative;
+        margin-top: 8px;
+      `;
+      
+      const price = product.price ? `€${Number(product.price).toFixed(2)}` : '';
+      productEl.innerHTML = `
+        ${product.imageUrl ? `<img src="${product.imageUrl}" alt="${product.title}" style="width: 100%; height: ${settings.productImageHeight}px; object-fit: cover; border-radius: ${settings.borderRadius}px; margin-bottom: 12px;">` : ''}
+        <div style="font-weight: 500; color: {{ block.settings.primary_text_color | default: '#111827' }}; margin-bottom: 8px; font-size: 14px;">${product.title}</div>
+        ${price ? `<div style="font-weight: 600; color: {{ block.settings.primary_color | default: '#2563eb' }}; font-size: 16px;">${price}</div>` : ''}
+        ${product.customizable ? `<div style="font-size: 12px; color: #10b981; margin-top: 4px;">✓ Personaliseerbaar</div>` : ''}
+      `;
+      
+      productEl.addEventListener('click', () => selectProduct(product, productEl));
+      productEl.addEventListener('mouseenter', () => {
+        productEl.style.borderColor = '{{ block.settings.primary_color | default: "#2563eb" }}';
+        productEl.style.transform = 'translateY(-2px)';
+        productEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+      });
+      productEl.addEventListener('mouseleave', () => {
+        if (!productEl.classList.contains('selected')) {
+          productEl.style.borderColor = '#e5e7eb';
+          productEl.style.boxShadow = 'none';
+        }
+        productEl.style.transform = 'translateY(0)';
+      });
+      
+      productList.appendChild(productEl);
+    });
+    
+    // Show/hide navigation buttons
+    if (totalSlides > 0) {
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+      updateCarouselButtons();
+    } else {
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
     }
     
-    function updateCarouselDots() {
-      const dots = DOM.carouselDots.querySelectorAll('.gifting-carousel-dot');
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === state.carouselIndex);
-      });
-    }
-
-    function updateQuantity(change) {
-      let currentQuantity = parseInt(DOM.quantityInput.value, 10);
-      let newQuantity = currentQuantity + change;
-      if (newQuantity < 1) newQuantity = 1;
-      if (newQuantity > settings.maxQuantity) newQuantity = settings.maxQuantity;
-      DOM.quantityInput.value = newQuantity;
-    }
-
-    async function fetchGiftingProducts() {
-      let productHandles = {{ gifting_products | map: 'handle' | json }};
-      if (productHandles.length === 0) return;
-      
-      const limitedHandles = productHandles.slice(0, settings.productsToShow);
-
-      try {
-        const productPromises = limitedHandles.map(handle =>
-          fetch(`/products/${handle}.js`).then(res => res.json())
-        );
-        const productsData = await Promise.all(productPromises);
-        giftingProducts = productsData.filter(Boolean);
-        } catch (error) {
-        console.error('Error fetching gifting products:', error);
-      }
-    }
-
-    function renderProducts() {
-      if (!DOM.productList) return;
-      DOM.productList.innerHTML = '';
-      const displayClass = settings.useCarousel ? 'gifting-product-carousel' : 'gifting-product-grid';
-      DOM.productList.className = displayClass;
-      
-      giftingProducts.forEach(product => {
-        const productEl = document.createElement('div');
-        productEl.className = 'gifting-product-item';
-        productEl.dataset.productId = product.id;
-        productEl.innerHTML = `
-          <img src="${product.featured_image || '{{ 'product-1' | placeholder_svg_tag }}'}" alt="${product.title}" loading="lazy">
-                <h4 class="gifting-product-title">${product.title}</h4>
-          <p class="gifting-product-price">${formatMoney(product.price)}</p>
-          <p class="gifting-product-description">${(product.description || '').substring(0, 50)}...</p>
-        `;
-        productEl.addEventListener('click', () => handleProductSelect(product));
-        DOM.productList.appendChild(productEl);
-      });
-      
-      if (settings.useCarousel) {
-        DOM.carouselContainer.style.display = giftingProducts.length > 0 ? 'flex' : 'none';
-        DOM.carouselPrev.style.display = giftingProducts.length > state.carouselItemsPerPage ? 'flex' : 'none';
-        DOM.carouselNext.style.display = giftingProducts.length > state.carouselItemsPerPage ? 'flex' : 'none';
+    // Add carousel event listeners
+    prevBtn.addEventListener('click', () => {
+      if (currentSlide > 0) {
+        currentSlide--;
         updateCarousel();
-        createCarouselDots();
       }
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateCarousel();
+      }
+    });
+    
+    modal.querySelector('[data-gifting-loading]').style.display = 'none';
+    modal.querySelector('[data-gifting-products]').style.display = 'block';
+    
+    // Add quantity button effects after products are shown
+    addQuantityButtonEffects();
+  }
+  
+  function updateCarousel() {
+    const productList = modal.querySelector('[data-gifting-product-list]');
+    const itemWidth = 100 / settings.itemsPerSlide;
+    const translateX = -(currentSlide * itemWidth);
+    productList.style.transform = `translateX(${translateX}%)`;
+    updateCarouselButtons();
+  }
+  
+  function updateCarouselButtons() {
+    const prevBtn = modal.querySelector('[data-carousel-prev]');
+    const nextBtn = modal.querySelector('[data-carousel-next]');
+    
+    prevBtn.style.opacity = currentSlide === 0 ? '0.5' : '1';
+    prevBtn.style.cursor = currentSlide === 0 ? 'not-allowed' : 'pointer';
+    
+    nextBtn.style.opacity = currentSlide >= totalSlides ? '0.5' : '1';
+    nextBtn.style.cursor = currentSlide >= totalSlides ? 'not-allowed' : 'pointer';
+  }
+  
+  function selectProduct(product, element) {
+    selectedProduct = product;
+    
+    // Visual selection
+    modal.querySelectorAll('.gifting-product-item').forEach(el => {
+      el.classList.remove('selected');
+      el.style.borderColor = '#e5e7eb';
+      el.style.backgroundColor = 'white';
+      el.style.boxShadow = 'none';
+    });
+    element.classList.add('selected');
+    element.style.borderColor = '{{ block.settings.primary_color | default: "#2563eb" }}';
+    element.style.backgroundColor = '#eff6ff';
+    element.style.boxShadow = `0 4px 12px rgba(37, 99, 235, 0.15)`;
+    element.style.transform = 'translateY(-2px)';
+    
+    // Hide message section first
+    const messageSection = modal.querySelector('[data-gifting-message-section]');
+    const addBtn = modal.querySelector('[data-gifting-add]');
+    messageSection.style.display = 'none';
+    
+    // Enable add to cart button - altijd zichtbaar
+    addBtn.disabled = false;
+    addBtn.style.opacity = '1';
+    addBtn.style.cursor = 'pointer';
+    addBtn.style.pointerEvents = 'auto';
+    addBtn.textContent = '{{ block.settings.add_to_cart_text | default: "Voeg Toe Aan Winkelkar" }}';
+    
+    // Show message section only if customizable
+    if (product.customizable === true || product.customizable === 'true') {
+      const messageInput = modal.querySelector('[data-gifting-message]');
+      const counter = modal.querySelector('[data-gifting-counter]');
+      const maxEl = modal.querySelector('[data-gifting-max]');
+      const countEl = modal.querySelector('[data-gifting-count]');
+      
+      // Setup character limit
+      const maxChars = Number(product.maxCharacters) || 150;
+      messageInput.maxLength = maxChars;
+      messageInput.value = ''; // Clear previous text
+      maxEl.textContent = maxChars;
+      countEl.textContent = '0';
+      counter.style.display = 'block';
+      
+      // Remove any existing input listeners to prevent duplicates
+      messageInput.removeEventListener('input', handleMessageInput);
+      messageInput.addEventListener('input', handleMessageInput);
+      
+      // Show the message section with animation
+      messageSection.style.display = 'block';
+      messageSection.style.opacity = '0';
+      messageSection.style.transform = 'translateY(-10px)';
+      
+      setTimeout(() => {
+        messageSection.style.transition = 'all 0.3s ease';
+        messageSection.style.opacity = '1';
+        messageSection.style.transform = 'translateY(0)';
+        
+        // Auto-scroll to textbox after animation
+        setTimeout(() => {
+          messageInput.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          messageInput.focus(); // Focus on the textbox
+        }, 300);
+      }, 10);
     }
-
-    function handleProductSelect(product) {
-      state.selectedProduct = product;
-      state.selectedVariant = null;
-
-        document.querySelectorAll('.gifting-product-item').forEach(el => {
-        el.classList.toggle('selected', el.dataset.productId == product.id);
-      });
-
-      if (product.variants.length > 1) {
-            renderVariants(product.variants);
-        DOM.variantSection.style.display = 'block';
-        DOM.messageSection.style.display = 'none';
-        state.currentStep = 'variant';
-        } else {
-        handleVariantSelect(product.variants[0]);
-      }
-      updateAddToCartButton();
+  }
+  
+  function handleMessageInput() {
+    const countEl = modal.querySelector('[data-gifting-count]');
+    const messageSection = modal.querySelector('[data-gifting-message-section]');
+    
+    // Clear error styling when user starts typing
+    if (this.style.borderColor === 'rgb(220, 38, 38)' || this.style.borderColor === '#dc2626') {
+      this.style.borderColor = '#d1d5db';
+      this.style.borderWidth = '1px';
+      this.style.boxShadow = 'none';
+      
+      const errorText = messageSection.querySelector('.error-text');
+      if (errorText) errorText.remove();
     }
     
-    function renderVariants(variants) {
-      DOM.variantOptions.innerHTML = '';
-        variants.forEach(variant => {
-        const variantEl = document.createElement('div');
-        variantEl.className = 'gifting-variant-option';
-        variantEl.dataset.variantId = variant.id;
-        variantEl.textContent = variant.title;
-        variantEl.addEventListener('click', () => handleVariantSelect(variant));
-        DOM.variantOptions.appendChild(variantEl);
-      });
+    countEl.textContent = this.value.length;
+    
+    // Visual feedback for character limit
+    const maxChars = Number(selectedProduct?.maxCharacters) || 150;
+    const remaining = maxChars - this.value.length;
+    const counter = modal.querySelector('[data-gifting-counter]');
+    
+    if (remaining < 20) {
+      counter.style.color = '#dc2626'; // Red when close to limit
+    } else if (remaining < 50) {
+      counter.style.color = '#f59e0b'; // Orange when getting close
+    } else {
+      counter.style.color = '#6b7280'; // Default gray
     }
-
-    function handleVariantSelect(variant) {
-      state.selectedVariant = variant;
-      
-      if (DOM.variantOptions) {
-        document.querySelectorAll('.gifting-variant-option').forEach(el => {
-          el.classList.toggle('selected', el.dataset.variantId == variant.id);
-        });
-      }
-      
-      DOM.messageSection.style.display = 'block';
-      state.currentStep = 'message';
-      
-      setupCharacterCounter();
-      updateAddToCartButton();
+  }
+  
+  async function addToCart() {
+    if (!selectedProduct) {
+      return;
     }
     
-    function setupCharacterCounter() {
-      const maxChars = parseInt(state.selectedProduct?.metafields?.max_chars || '{{ block.settings.max_chars | default: 0 }}', 10);
-      if (maxChars > 0) {
-        DOM.charCount.textContent = `0/${maxChars}`;
-        DOM.charCount.style.display = 'block';
-        DOM.messageTextarea.maxLength = maxChars;
-        DOM.messageTextarea.addEventListener('input', () => {
-          const currentLength = DOM.messageTextarea.value.length;
-          DOM.charCount.textContent = `${currentLength}/${maxChars}`;
-          DOM.messageTextarea.classList.toggle('error', currentLength > maxChars);
-        });
-        } else {
-        DOM.charCount.style.display = 'none';
-      }
+    const message = modal.querySelector('[data-gifting-message]')?.value || '';
+    const properties = {};
+    
+    // Get variant ID - try different sources
+    let variantId;
+    if (selectedProduct.variantId) {
+      variantId = selectedProduct.variantId;
+    } else if (selectedProduct.variants && selectedProduct.variants.length > 0) {
+      variantId = selectedProduct.variants[0].id;
+    } else {
+      return;
     }
-
-    function updateAddToCartButton() {
-        const button = DOM.addToCartButton;
-        if (!button) return;
-        const buttonText = button.querySelector('.gifting-btn-text');
-
-        if (state.selectedVariant) {
-            // **CORRECTIE HIER**
-            if (state.selectedVariant.available) {
-                buttonText.textContent = `${settings.addToCartText} - ${formatMoney(state.selectedVariant.price)}`;
-                button.disabled = false;
-        } else {
-                buttonText.textContent = settings.soldOutText;
-                button.disabled = true;
-            }
-        } else if (state.selectedProduct) {
-            buttonText.textContent = settings.selectOptionText;
-            button.disabled = true;
-                } else {
-            buttonText.textContent = settings.selectProductText;
-            button.disabled = true;
+    
+    // Check if customizable product has message
+    if (selectedProduct.customizable === true || selectedProduct.customizable === 'true') {
+      if (!message.trim()) {
+        // Show error message and focus on textbox with red styling
+        const messageInput = modal.querySelector('[data-gifting-message]');
+        const messageSection = modal.querySelector('[data-gifting-message-section]');
+        
+        // Add red border and error styling
+        messageInput.style.borderColor = '#dc2626';
+        messageInput.style.borderWidth = '2px';
+        messageInput.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.1)';
+        
+        // Show error text
+        let errorText = messageSection.querySelector('.error-text');
+        if (!errorText) {
+          errorText = document.createElement('div');
+          errorText.className = 'error-text';
+          errorText.style.cssText = 'color: #dc2626; font-size: 14px; margin-top: 8px; font-weight: 500;';
+          messageSection.appendChild(errorText);
         }
+        errorText.textContent = 'Een persoonlijk bericht is verplicht voor dit product!';
+        
+        messageInput.focus();
+        
+        // Scroll to message section
+        messageSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Reset styling after 4 seconds
+        setTimeout(() => {
+          messageInput.style.borderColor = '#d1d5db';
+          messageInput.style.borderWidth = '1px';
+          messageInput.style.boxShadow = 'none';
+          if (errorText) errorText.remove();
+        }, 4000);
+        
+        return; // Don't add to cart
+      }
+      
+      properties['Persoonlijk bericht'] = message.trim();
     }
     
-    async function addProductToCart() {
-      // **CORRECTIE HIER**
-      if (!state.selectedVariant || !state.selectedVariant.available) {
-        showToast('Dit product is momenteel niet beschikbaar.', 'error');
-            return;
-        }
-
-      const button = DOM.addToCartButton;
-      const buttonText = button.querySelector('.gifting-btn-text');
-      const loadingSpinner = button.querySelector('.gifting-btn-loading');
-      const originalButtonText = buttonText.textContent;
-
-      button.disabled = true;
-      buttonText.textContent = 'Toevoegen...';
-      loadingSpinner.style.display = 'flex';
+    try {
+      // Clean variant ID - remove GraphQL prefix if present
+      const cleanVariantId = String(variantId).includes('/') ? String(variantId).split('/').pop() : String(variantId);
       
-      const formData = {
-                items: [{
-          id: state.selectedVariant.id,
-          quantity: settings.enableQuantitySelector ? parseInt(DOM.quantityInput.value, 10) : 1,
-          properties: {
-            'Gifting Product': state.selectedProduct.title,
-            'Gifting Variant': state.selectedVariant.title,
-            ...(DOM.messageTextarea.value && { 'Message': DOM.messageTextarea.value })
-          }
+      const cartData = {
+        items: [{
+          id: cleanVariantId,
+          quantity: getSelectedQuantity(),
+          properties
         }]
       };
-
-      try {
-            const response = await fetch('/cart/add.js', {
-                method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
-        });
-        const data = await response.json();
-            if (response.ok) {
-          showToast('Product toegevoegd!', 'success');
-          // Update cart icon, etc.
-          document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true, detail: data }));
+      
+      const response = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cartData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        let errorMessage = 'Er ging iets mis bij het toevoegen aan de winkelwagen.';
+        
+        try {
+          const errorObj = JSON.parse(errorData);
+          if (errorObj.message) {
+            if (errorObj.message.includes('sold out') || errorObj.message.includes('uitverkocht')) {
+              errorMessage = 'Dit product is helaas uitverkocht.';
+            } else if (errorObj.message.includes('inventory') || errorObj.message.includes('voorraad')) {
+              errorMessage = 'Er is onvoldoende voorraad beschikbaar.';
             } else {
-          throw new Error(data.description || 'Kon product niet toevoegen.');
+              errorMessage = errorObj.message;
+            }
+          }
+        } catch (e) {
+          // Use default error message if parsing fails
         }
-        } catch (error) {
-        showToast(error.message, 'error');
-      } finally {
-        button.disabled = false;
-        buttonText.textContent = originalButtonText;
-        loadingSpinner.style.display = 'none';
-        updateAddToCartButton(); // Reset to correct state
+        
+        showErrorMessage(errorMessage);
+        return;
       }
+      
+      const result = await response.json();
+      
+      // Trigger cart update event
+      document.dispatchEvent(new CustomEvent('cart:updated', { bubbles: true }));
+      
+      closeModal();
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showErrorMessage('Er ging iets mis bij het toevoegen aan de winkelwagen.');
     }
+  }
 
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `gifting-toast ${type}`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-        setTimeout(() => {
-        toast.classList.add('show');
-            setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => toast.remove(), 500);
-        }, 3000);
-      }, 100);
-    }
-
-    function formatMoney(priceInCents) {
-      const price = (priceInCents / 100).toFixed(2);
-      // This can be improved with Shopify's money formats if available
-      return `€${price}`;
-    }
-
-    function openModal() {
-      if (!DOM.modalInstance) {
-        const modalNode = DOM.modalTemplate.firstElementChild.cloneNode(true);
-        document.body.appendChild(modalNode);
-        DOM.modalInstance = modalNode;
-        setupModalEventListeners();
-      }
-      DOM.modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      state.isModalOpen = true;
-      renderProducts();
-    }
-
-    function closeModal() {
-      if (!DOM.modal) return;
-      DOM.modal.style.display = 'none';
-      document.body.style.overflow = '';
-      state.isModalOpen = false;
-      resetState();
+  // Show error message function
+  function showErrorMessage(message) {
+    // Remove any existing error message
+    const existingError = modal.querySelector('.cart-error-message');
+    if (existingError) {
+      existingError.remove();
     }
     
-    function resetState() {
-      state.selectedProduct = null;
-      state.selectedVariant = null;
-      state.currentStep = 'product';
-      if (DOM.variantSection) DOM.variantSection.style.display = 'none';
-      if (DOM.messageSection) DOM.messageSection.style.display = 'none';
-      if (DOM.messageTextarea) DOM.messageTextarea.value = '';
+    // Create error message element
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'cart-error-message';
+    errorDiv.style.cssText = `
+      background: #fef2f2; 
+      border: 1px solid #fecaca; 
+      color: #dc2626; 
+      padding: 12px 16px; 
+      border-radius: 6px; 
+      margin: 16px 24px 0 24px; 
+      font-size: 14px; 
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+    
+    errorDiv.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+      </svg>
+      ${message}
+    `;
+    
+    // Insert error message after modal body
+    const modalBody = modal.querySelector('.gifting-modal-body');
+    modalBody.parentNode.insertBefore(errorDiv, modalBody.nextSibling);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (errorDiv.parentNode) {
+        errorDiv.remove();
+      }
+    }, 5000);
+  }
+
+  // Quantity selector functions
+  function changeQuantity(productId, change) {
+    const input = document.getElementById(`gifting-quantity-${productId}`);
+    if (input) {
+      const currentValue = parseInt(input.value) || 1;
+      const maxQuantity = parseInt(input.max) || 99;
+      const newValue = Math.max(1, Math.min(maxQuantity, currentValue + change));
+      input.value = newValue;
     }
+  }
 
-    init();
-  };
+  function getSelectedQuantity() {
+    const input = document.getElementById('gifting-quantity-global');
+    return input ? parseInt(input.value) || 1 : 1;
+  }
 
-  GiftingApp('{{ block.id }}', {{ product | json }});
-});
+  // Add hover effects to quantity buttons
+  function addQuantityButtonEffects() {
+    const quantityButtons = modal.querySelectorAll('button[onclick*="changeQuantity"]');
+    quantityButtons.forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        button.style.backgroundColor = '#f3f4f6';
+        button.style.color = '{{ block.settings.primary_color | default: "#2563eb" }}';
+      });
+      button.addEventListener('mouseleave', () => {
+        button.style.backgroundColor = 'transparent';
+        button.style.color = '{{ block.settings.secondary_text_color | default: "#6b7280" }}';
+      });
+    });
+    
+    // Add hover effect to the quantity container
+    const quantityContainer = modal.querySelector('div[style*="border: 1px solid #d1d5db"][style*="height: 44px"]');
+    if (quantityContainer) {
+      quantityContainer.addEventListener('mouseenter', () => {
+        quantityContainer.style.borderColor = '{{ block.settings.primary_color | default: "#2563eb" }}';
+      });
+      quantityContainer.addEventListener('mouseleave', () => {
+        quantityContainer.style.borderColor = '#d1d5db';
+      });
+    }
+  }
+
+  // Make functions globally available
+  window.changeQuantity = changeQuantity;
+})();
 </script>
 
 {% schema %}
 {
-  "name": "Product Personalisatie",
+  "name": "Simple Gifting",
   "target": "section",
   "stylesheet": "gifting-styles.css",
-  "javascript": "gifting-app.js",
   "settings": [
     {
-      "type": "header",
-      "content": "Algemene Instellingen"
+      "type": "select",
+      "id": "trigger_type",
+      "label": "Trigger type",
+      "default": "checkbox",
+      "options": [
+        { "value": "button", "label": "Knop" },
+        { "value": "checkbox", "label": "Checkbox" },
+        { "value": "link", "label": "Link" }
+      ]
     },
     {
       "type": "text",
@@ -397,36 +735,23 @@ document.addEventListener('DOMContentLoaded', () => {
       "default": "Voeg personalisatie toe"
     },
     {
-      "type": "checkbox",
-      "id": "show_icon",
-      "label": "Toon icoon op knop",
-      "default": true
-    },
-    {
-      "type": "product_list",
-      "id": "gifting_products",
-      "label": "Selecteer personalisatie producten",
-      "limit": 10
-    },
-    {
       "type": "range",
-      "id": "products_to_show",
-      "label": "Aantal producten om te tonen",
+      "id": "items_per_slide",
+      "label": "Producten per slide",
       "min": 1,
-      "max": 10,
+      "max": 4,
       "step": 1,
-      "default": 6
-    },
-    {
-      "type": "checkbox",
-      "id": "use_carousel",
-      "label": "Gebruik carrousel voor producten",
-      "default": true,
-      "info": "Indien uitgeschakeld, wordt een grid getoond."
+      "default": 3
     },
     {
       "type": "header",
       "content": "Modal Instellingen"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_quantity_selector",
+      "label": "Aantal selector tonen",
+      "default": false
     },
     {
       "type": "text",
@@ -441,34 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
       "default": "Maak het extra speciaal"
     },
     {
-      "type": "range",
-      "id": "max_chars",
-      "label": "Max karakters voor bericht",
-      "min": 0,
-      "max": 500,
-      "step": 10,
-      "default": 250,
-      "info": "Zet op 0 om uit te schakelen."
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_quantity_selector",
-      "label": "Aantal selector tonen",
-      "default": false
-    },
-    {
-      "type": "range",
-      "id": "max_quantity",
-      "label": "Maximale aantal",
-      "min": 1,
-      "max": 99,
-      "step": 1,
-      "default": 10,
-      "info": "Alleen van toepassing als de aantal selector is ingeschakeld."
-    },
-    {
       "type": "header",
-      "content": "Knopteksten in Modal"
+      "content": "Teksten"
     },
     {
       "type": "text",
@@ -478,21 +777,21 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       "type": "text",
-      "id": "select_option_text",
-      "label": "Tekst: Selecteer Optie",
-      "default": "Selecteer een optie"
-    },
-    {
-      "type": "text",
       "id": "add_to_cart_text",
       "label": "Tekst: Toevoegen",
       "default": "Voeg toe"
     },
     {
       "type": "text",
-      "id": "sold_out_text",
-      "label": "Tekst: Uitverkocht",
-      "default": "Uitverkocht"
+      "id": "cancel_text",
+      "label": "Tekst: Annuleren",
+      "default": "Annuleren"
+    },
+    {
+      "type": "text",
+      "id": "message_placeholder",
+      "label": "Placeholder voor bericht",
+      "default": "Voeg hier je persoonlijke bericht toe..."
     },
     {
       "type": "header",
@@ -511,6 +810,18 @@ document.addEventListener('DOMContentLoaded', () => {
       "default": "#1D4ED8"
     },
     {
+      "type": "color",
+      "id": "background_color",
+      "label": "Achtergrondkleur modal",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Tekstkleur",
+      "default": "#1e293b"
+    },
+    {
       "type": "range",
       "id": "border_radius",
       "label": "Border Radius (px)",
@@ -523,19 +834,10 @@ document.addEventListener('DOMContentLoaded', () => {
       "type": "range",
       "id": "modal_width",
       "label": "Modal Width (%)",
-      "min": 40,
-      "max": 100,
-      "step": 5,
-      "default": 85
-    },
-    {
-      "type": "range",
-      "id": "modal_height",
-      "label": "Modal Height (vh)",
-      "min": 50,
+      "min": 60,
       "max": 95,
       "step": 5,
-      "default": 90
+      "default": 80
     },
     {
       "type": "range",
@@ -545,8 +847,22 @@ document.addEventListener('DOMContentLoaded', () => {
       "max": 200,
       "step": 10,
       "default": 120
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay kleur",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay dekking",
+      "min": 0,
+      "max": 0.9,
+      "step": 0.1,
+      "default": 0.5
     }
   ]
 }
 {% endschema %}
-

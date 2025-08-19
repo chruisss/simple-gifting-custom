@@ -17,6 +17,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     "Access-control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Content-Type": "application/json",
   };
 
   if (request.method === "OPTIONS") {
@@ -31,12 +32,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     // Handle different proxy endpoints
     switch (path) {
       case "products": {
-        // Use app proxy authentication for products
-        const { session, admin } = await authenticate.public.appProxy(request);
-        if (!session) {
-          return json({ error: "Unauthorized" }, { status: 401, headers });
-        }
-        return handleGiftingProductsRequest(admin, session.shop, headers);
+        const { admin } = await authenticate.public.appProxy(request);
+        return handleGiftingProductsRequest(admin, shop, headers);
       }
       
       case "styling": {
@@ -72,10 +69,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         
         // Return general configuration (without sensitive data)
         const publicConfig = {
-          popupTitle: config.popupTitle,
-          popupAddButtonText: config.popupAddButtonText,
-          popupCancelButtonText: config.popupCancelButtonText,
-          defaultCharLimit: config.defaultCharLimit,
+          popupTitle: "Voeg een persoonlijk bericht toe",
+          popupAddButtonText: "Voeg toe",
+          popupCancelButtonText: "Annuleren", 
+          defaultCharLimit: 250,
           appIsEnabled: config.appIsEnabled,
         };
         
@@ -87,86 +84,121 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     }
   } catch (error) {
     console.error("Public proxy error:", error);
-    return json({ error: "Internal server error" }, { status: 500, headers });
+    // For an app proxy, any error during authentication should result in a 401.
+    // We return a JSON response instead of letting Remix handle the thrown Response,
+    // which would result in an HTML page that breaks the client-side fetch.
+    return json({ error: "Authentication failed." }, { status: 401, headers });
   }
 };
 
 async function handleGiftingProductsRequest(admin: any, shop: string, headers: Record<string, string>) {
-  const response = await admin.graphql(
-    `#graphql
-      query getGiftingProducts($query: String!) {
-        products(first: 50, query: $query) {
-          edges {
-            node {
-              id
-              title
-              handle
-              featuredImage {
-                url
-              }
-              variants(first: 10) {
-                edges {
-                  node {
-                    id
-                    title
-                    price
+  try {
+    let query = `tag:${GIFTING_TAG}`;
+    
+    const response = await admin.graphql(
+      `#graphql
+        query getGiftingProducts($query: String!) {
+          products(first: 50, query: $query) {
+            edges {
+              node {
+                id
+                title
+                handle
+                featuredImage {
+                  url
+                }
+                variants(first: 10) {
+                  edges {
+                    node {
+                      id
+                      title
+                      price
+                    }
                   }
                 }
-              }
-              productType: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "product_type") {
-                value
-              }
-              maxChars: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "max_chars") {
-                value
-              }
-              ribbonLength: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "ribbon_length") {
-                value
-              }
-              customizable: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "customizable") {
-                value
+                productType: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "product_type") {
+                  value
+                }
+                maxChars: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "max_chars") {
+                  value
+                }
+                ribbonLength: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "ribbon_length") {
+                  value
+                }
+                customizable: metafield(namespace: "${METAFIELD_NAMESPACE}", key: "customizable") {
+                  value
+                }
               }
             }
           }
         }
+      `,
+      {
+        variables: { query }
       }
-    `,
-    {
-      variables: { query: `tag:${GIFTING_TAG}` }
-    }
-  );
+    );
 
-  const responseJson = await response.json();
-  const products = responseJson.data?.products?.edges?.map((edge: any) => {
-    const node = edge.node;
-    const firstVariant = node.variants.edges[0]?.node;
+    const responseJson = await response.json();
     
-    return {
-      id: node.id, // Using product GID as the main identifier
-      variantId: firstVariant?.id,
-      title: node.title,
-      handle: node.handle,
-      imageUrl: node.featuredImage?.url,
-      price: parseFloat(firstVariant?.price || "0"),
-      maxCharacters: parseInt(node.maxChars?.value || "150"),
-      customizable: node.customizable?.value === "true",
-      productType: node.productType?.value,
-      ribbonLength: parseInt(node.ribbonLength?.value || "0"),
-      variants: node.variants.edges.map((variantEdge: any) => ({
-        id: variantEdge.node.id,
-        title: variantEdge.node.title,
-        price: parseFloat(variantEdge.node.price || "0")
-      }))
+    if (responseJson.errors) {
+      console.error("GraphQL errors:", responseJson.errors);
+      return json({
+        products: [],
+        error: "GraphQL query failed",
+        debug: responseJson.errors
+      }, { headers });
+    }
+
+    const products = responseJson.data?.products?.edges
+      ?.map((edge: any) => {
+        const node = edge.node;
+        const firstVariant = node.variants.edges[0]?.node;
+        
+        if (!firstVariant) {
+          return null; // Skip product if no variants exist
+        }
+        
+        return {
+          id: node.id,
+          variantId: firstVariant.id,
+          title: node.title,
+          handle: node.handle,
+          imageUrl: node.featuredImage?.url,
+          price: parseFloat(firstVariant.price || "0"),
+          maxCharacters: parseInt(node.maxChars?.value || "150"),
+          customizable: node.customizable?.value === "true",
+          productType: node.productType?.value,
+          ribbonLength: parseInt(node.ribbonLength?.value || "0"),
+          variants: node.variants.edges
+            .map((variantEdge: any) => ({
+              id: variantEdge.node.id,
+              title: variantEdge.node.title,
+              price: parseFloat(variantEdge.node.price || "0")
+            }))
+        };
+      })
+      .filter(Boolean) || []; // Filter out null products
+
+    const responseData = {
+      products: products,
+      debug: {
+        shop,
+        tag: GIFTING_TAG,
+        namespace: METAFIELD_NAMESPACE,
+        productCount: products.length
+      }
     };
-  }) || [];
 
-  const config = await getShopConfiguration(shop);
-  
-  const responseData = {
-    products: products,
-    popupTitle: config.popupTitle,
-    addButtonText: config.popupAddButtonText,
-    cancelButtonText: config.popupCancelButtonText
-  };
-
-  return json(responseData, { headers });
-} 
+    return json(responseData, { headers });
+  } catch (error) {
+    console.error("Error in handleGiftingProductsRequest:", error);
+    return json({
+      products: [],
+      error: "Failed to fetch products",
+      debug: {
+        shop,
+        error: String(error)
+      }
+    }, { status: 500, headers });
+  }
+}

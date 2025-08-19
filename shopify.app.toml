@@ -3,7 +3,7 @@
 client_id = "8dfb08219af561d6761ad2f9b891702f"
 name = "Simple gifting"
 handle = "simple-gifting"
-application_url = "https://fees-validation-singapore-sixth.trycloudflare.com"
+application_url = "https://drug-cleveland-franklin-answering.trycloudflare.com"
 embedded = true
 
 [access]
@@ -31,16 +31,16 @@ api_version = "2025-07"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_products"
+scopes = "write_products,read_themes,write_themes,read_orders,write_orders"
 use_legacy_install_flow = false
 
 [auth]
-redirect_urls = ["https://fees-validation-singapore-sixth.trycloudflare.com/auth/callback", "https://fees-validation-singapore-sixth.trycloudflare.com/auth/shopify/callback", "https://fees-validation-singapore-sixth.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://drug-cleveland-franklin-answering.trycloudflare.com/auth/callback", "https://drug-cleveland-franklin-answering.trycloudflare.com/auth/shopify/callback", "https://drug-cleveland-franklin-answering.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
 
 [app_proxy]
-url = "https://fees-validation-singapore-sixth.trycloudflare.com/proxy"
+url = "https://drug-cleveland-franklin-answering.trycloudflare.com/proxy"
 subpath = "gifting"
 prefix = "apps"

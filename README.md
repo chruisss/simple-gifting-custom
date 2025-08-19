@@ -1,12 +1,24 @@
-# Shopify App Template - Remix
+# Simple Gifting - Shopify App
 
-This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) using the [Remix](https://remix.run) framework.
+A Shopify app built with Remix that allows customers to add personalized gifting products to their cart with custom messages. Perfect for gift cards, personalized items, and special occasion products.
 
-Rather than cloning this repo, you can use your preferred package manager and the Shopify CLI with [these steps](https://shopify.dev/docs/apps/getting-started/create).
+## 🎁 Features
 
-Visit the [`shopify.dev` documentation](https://shopify.dev/docs/api/shopify-app-remix) for more details on the Remix app package.
+- **Product Personalization**: Add custom messages to gifting products
+- **Theme Integration**: Works with any Shopify theme via app blocks and embeds
+- **Responsive Design**: Mobile-optimized interface
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **Customizable**: Extensive styling options for theme matching
+- **Performance Optimized**: Fast loading and smooth animations
 
-## Quick start
+## 📸 Screenshots
+
+- Customizable modal interface for product selection
+- Seamless theme integration via app blocks
+- Responsive design for all devices
+- Admin dashboard for configuration
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -16,37 +28,97 @@ Before you begin, you'll need the following:
 2. **Shopify Partner Account**: [Create an account](https://partners.shopify.com/signup) if you don't have one.
 3. **Test Store**: Set up either a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) or a [Shopify Plus sandbox store](https://help.shopify.com/en/partners/dashboard/managing-stores/plus-sandbox-store) for testing your app.
 
-### Setup
+### Installation
 
-If you used the CLI to create the template, you can skip this section.
+### Installation
 
-Using yarn:
-
+1. **Clone the repository:**
 ```shell
-yarn install
+git clone https://github.com/chruisss/simple-gifting.git
+cd simple-gifting
 ```
 
-Using npm:
-
+2. **Install dependencies:**
 ```shell
 npm install
 ```
 
-Using pnpm:
-
+3. **Set up environment variables:**
 ```shell
-pnpm install
+cp .env.example .env
+```
+Edit `.env` with your Shopify app credentials.
+
+4. **Set up the database:**
+```shell
+npm run setup
 ```
 
 ### Local Development
 
-Using yarn:
-
 ```shell
-yarn dev
+npm run dev
 ```
 
-Using npm:
+This will:
+- Start the Remix development server
+- Connect to your Shopify development store
+- Enable hot reloading for development
+
+### Building for Production
+
+```shell
+npm run build
+```
+
+### Deployment
+
+Deploy to your preferred hosting platform (Vercel, Railway, etc.):
+
+```shell
+npm run deploy
+```
+
+## 🎨 Theme Integration
+
+### Adding the App Block
+
+1. **Open your theme editor** in the Shopify admin
+2. **Navigate to a product page template**
+3. **Add the "Simple Gifting" app block** from the App blocks section
+4. **Position the block** where you want it to appear
+5. **Configure the settings** to match your store's design
+6. **Save your changes**
+
+### App Embed (Optional)
+
+For global functionality across your entire store:
+
+1. **Go to Theme Settings** in the theme editor
+2. **Find the App embeds section**
+3. **Enable "Simple Gifting"**
+4. **Save your changes**
+
+## ⚙️ Configuration
+
+### App Settings
+
+Access the app settings from your Shopify admin to configure:
+
+- **General Settings**: Button text, modal titles
+- **Styling**: Colors, fonts, border radius
+- **Behavior**: Character limits, quantity selectors
+- **Product Selection**: Choose which products are available for gifting
+
+### Metafields
+
+The app automatically creates these metafields for products:
+
+- `simple_gifting.max_chars`: Maximum characters for personalization
+- `simple_gifting.is_gifting_product`: Marks products as gifting items
+- `simple_gifting.gifting_product_handle`: Links to associated gifting products
+
+## 🛠️ Development
 
 ```shell
 npm run dev
