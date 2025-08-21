@@ -1,6 +1,6 @@
-# Simple Gifting - Shopify App
+# Simple Gifting - Shopify Development App
 
-A Shopify app built with Remix that allows customers to add personalized gifting products to their cart with custom messages. Perfect for gift cards, personalized items, and special occasion products.
+A Shopify development app built with Remix that allows customers to add personalized gifting products to their cart with custom messages. This app is configured as a **development app** for a single store.
 
 ## 🎁 Features
 
@@ -18,7 +18,7 @@ A Shopify app built with Remix that allows customers to add personalized gifting
 - Responsive design for all devices
 - Admin dashboard for configuration
 
-## 🚀 Quick Start
+## 🚀 Development App Setup
 
 ### Prerequisites
 
@@ -26,9 +26,8 @@ Before you begin, you'll need the following:
 
 1. **Node.js**: [Download and install](https://nodejs.org/en/download/) it if you haven't already.
 2. **Shopify Partner Account**: [Create an account](https://partners.shopify.com/signup) if you don't have one.
-3. **Test Store**: Set up either a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) or a [Shopify Plus sandbox store](https://help.shopify.com/en/partners/dashboard/managing-stores/plus-sandbox-store) for testing your app.
-
-### Installation
+3. **Development Store**: Set up a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) for testing your app.
+4. **Shopify CLI**: Install the Shopify CLI globally with `npm install -g @shopify/cli @shopify/theme`
 
 ### Installation
 
@@ -47,7 +46,34 @@ npm install
 ```shell
 cp .env.example .env
 ```
-Edit `.env` with your Shopify app credentials.
+
+4. **Configure your development store:**
+   - Update `shopify.app.toml` and replace `YOUR_STORE_DOMAIN.myshopify.com` with your actual store domain
+   - Update `package.json` dev script with your store domain
+   - Edit `.env` with your development store details:
+
+```env
+SHOPIFY_STORE_DOMAIN=your-store-domain.myshopify.com
+SHOPIFY_API_KEY=your_api_key_here
+SHOPIFY_API_SECRET=your_api_secret_here
+SHOPIFY_APP_URL=https://your-tunnel-url.ngrok.io
+```
+
+### Development Workflow
+
+1. **Generate app credentials:**
+```shell
+npm run shopify app generate
+```
+
+2. **Start development server:**
+```shell
+npm run dev
+```
+This will automatically create a tunnel and connect to your development store.
+
+3. **Install the app in your store:**
+The CLI will provide a URL to install the app in your development store.
 
 4. **Set up the database:**
 ```shell

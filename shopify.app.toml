@@ -13,6 +13,7 @@ admin.embedded_app_direct_api_access = true
 [build]
 include_config_on_deploy = true
 automatically_update_urls_on_dev = true
+dev_store_url = "coco-sebas.myshopify.com"
 
 [webhooks]
 api_version = "2025-07"

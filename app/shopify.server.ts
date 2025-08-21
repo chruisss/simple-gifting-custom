@@ -12,23 +12,11 @@ const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: ApiVersion.July25,
-  scopes: ["write_products"],
+  scopes: process.env.SCOPES?.split(",") || ["read_products", "write_products", "read_themes", "write_themes", "read_orders", "write_orders"],
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
-  distribution: AppDistribution.AppStore,
-  billing: {
-    "Monthly Subscription": {
-      lineItems: [
-        {
-          amount: 24.99,
-          currencyCode: "USD",
-          interval: BillingInterval.Every30Days,
-        },
-      ],
-      trialDays: 14,
-    },
-  },
+  distribution: AppDistribution.SingleMerchant,
   future: {
     unstable_newEmbeddedAuthStrategy: true,
     removeRest: true,
