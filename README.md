@@ -1,24 +1,35 @@
-# Simple Gifting - Shopify Development App
+# Simple Gifting - Custom App
 
-A Shopify development app built with Remix that allows customers to add personalized gifting products to their cart with custom messages. This app is configured as a **development app** for a single store.
+A custom Shopify app for gift card functionality, designed for single merchant deployment.
 
-## 🎁 Features
+## � Overview
 
-- **Product Personalization**: Add custom messages to gifting products
-- **Theme Integration**: Works with any Shopify theme via app blocks and embeds
-- **Responsive Design**: Mobile-optimized interface
-- **Accessibility**: Full keyboard navigation and screen reader support
-- **Customizable**: Extensive styling options for theme matching
-- **Performance Optimized**: Fast loading and smooth animations
+This is a **Custom App version** of the Simple Gifting app, configured to run as a single-merchant embedded app within your Shopify Admin. Unlike the App Store version, this runs exclusively on your store and gives you full control over the code and functionality.
 
-## 📸 Screenshots
+## 🚀 Quick Start
 
-- Customizable modal interface for product selection
-- Seamless theme integration via app blocks
-- Responsive design for all devices
-- Admin dashboard for configuration
+### 1. Custom App Setup
+Follow the instructions in [`CUSTOM_APP_SETUP.md`](./CUSTOM_APP_SETUP.md) to create and configure your custom app in Shopify Admin.
 
-## 🚀 Development App Setup
+### 2. Development Setup
+See [`DEVELOPMENT_SETUP.md`](./DEVELOPMENT_SETUP.md) for local development instructions.
+
+### 3. Environment Configuration
+```bash
+cp .env.example .env
+# Fill in your custom app credentials
+```
+
+### 4. Run Development Server
+```bash
+npm install
+npm run setup
+npm run dev
+```
+
+Your app will be available at `http://localhost:3000/app` and can be accessed through your Shopify Admin.
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -26,8 +37,9 @@ Before you begin, you'll need the following:
 
 1. **Node.js**: [Download and install](https://nodejs.org/en/download/) it if you haven't already.
 2. **Shopify Partner Account**: [Create an account](https://partners.shopify.com/signup) if you don't have one.
-3. **Development Store**: Set up a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) for testing your app.
-4. **Shopify CLI**: Install the Shopify CLI globally with `npm install -g @shopify/cli @shopify/theme`
+3. **Test Store**: Set up either a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) or a [Shopify Plus sandbox store](https://help.shopify.com/en/partners/dashboard/managing-stores/plus-sandbox-store) for testing your app.
+
+### Installation
 
 ### Installation
 
@@ -46,34 +58,7 @@ npm install
 ```shell
 cp .env.example .env
 ```
-
-4. **Configure your development store:**
-   - Update `shopify.app.toml` and replace `YOUR_STORE_DOMAIN.myshopify.com` with your actual store domain
-   - Update `package.json` dev script with your store domain
-   - Edit `.env` with your development store details:
-
-```env
-SHOPIFY_STORE_DOMAIN=your-store-domain.myshopify.com
-SHOPIFY_API_KEY=your_api_key_here
-SHOPIFY_API_SECRET=your_api_secret_here
-SHOPIFY_APP_URL=https://your-tunnel-url.ngrok.io
-```
-
-### Development Workflow
-
-1. **Generate app credentials:**
-```shell
-npm run shopify app generate
-```
-
-2. **Start development server:**
-```shell
-npm run dev
-```
-This will automatically create a tunnel and connect to your development store.
-
-3. **Install the app in your store:**
-The CLI will provide a URL to install the app in your development store.
+Edit `.env` with your Shopify app credentials.
 
 4. **Set up the database:**
 ```shell
