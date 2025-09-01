@@ -55,29 +55,47 @@ export default function Index() {
       </header>
 
       <main className={styles.main}>
-        <div className={styles.feature}>
-          <h2 className={styles.featureTitle}>Enhance Every Gift</h2>
-          <p>
-            Allow customers to add greeting cards, gift wrap, or other items to
-            their purchase with a single click. Boost your average order value by
-            offering thoughtful add-ons.
-          </p>
+        <div className={styles.features}>
+          <div className={styles.feature}>
+            <h2 className={styles.featureTitle}>🎁 Enhance Every Gift</h2>
+            <p className={styles.featureDescription}>
+              Allow customers to add greeting cards, gift wrap, or other items to their purchase with a single click. 
+              Boost your average order value by offering thoughtful add-ons.
+            </p>
+          </div>
+
+          <div className={styles.feature}>
+            <h2 className={styles.featureTitle}>💌 Personal Messages</h2>
+            <p className={styles.featureDescription}>
+              Let shoppers include a personal message with their gifts, creating a more meaningful and 
+              customized experience for the recipient.
+            </p>
+          </div>
+
+          <div className={styles.feature}>
+            <h2 className={styles.featureTitle}>⚡ Seamless Integration</h2>
+            <p className={styles.featureDescription}>
+              Our app blends perfectly into your product pages. The entire process happens in a sleek pop-up, 
+              so customers never have to leave the page.
+            </p>
+          </div>
         </div>
-        <div className={styles.feature}>
-          <h2 className={styles.featureTitle}>Personal Messages</h2>
-          <p>
-            Let shoppers include a personal message with their gifts, creating a
-            more meaningful and customized experience for the recipient.
-          </p>
-        </div>
-        <div className={styles.feature}>
-          <h2 className={styles.featureTitle}>Seamless Integration</h2>
-          <p>
-            Our app blends perfectly into your product pages. The entire process
-            happens in a sleek pop-up, so customers never have to leave the
-            page.
-          </p>
-        </div>
+
+        {!isEmbeddedApp && showForm && (
+          <div className={styles.loginSection}>
+            <h2>Get Started</h2>
+            <p>Enter your shop domain to install Simple Gifting:</p>
+            <form className={styles.form} method="post">
+              <label className={styles.label}>
+                Shop domain{" "}
+                <input className={styles.input} type="text" name="shop" />
+              </label>
+              <button className={styles.button} type="submit">
+                Install App
+              </button>
+            </form>
+          </div>
+        )}
       </main>
     </div>
   );
