@@ -191,6 +191,14 @@ export default function Index() {
               
               <InlineStack gap="300" wrap>
                 <Button
+                  onClick={() => navigate("/app/install")}
+                  icon={SettingsIcon}
+                  variant="primary"
+                >
+                  Setup & Installation
+                </Button>
+                
+                <Button
                   onClick={() => navigate("/app/settings")}
                   icon={SettingsIcon}
                 >

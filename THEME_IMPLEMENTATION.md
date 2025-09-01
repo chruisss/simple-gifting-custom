@@ -52,13 +52,17 @@ extensions/product-personalisatie/
 Je hebt **2 opties** om de Simple Gifting functionaliteit aan je theme toe te voegen:
 
 #### Optie A: Automatische Injection (Aanbevolen! 🚀)
-1. **Ga naar je app**: `https://jouw-vercel-app.vercel.app/app`
-2. **Ga naar Installation pagina**
-3. **Klik "Inject Code"** in de "Inject Theme Code" sectie
-4. **Wacht tot de injection compleet is** ✅
-5. **Klaar!** De code is automatisch toegevoegd aan:
+1. **Open je Simple Gifting app**: `https://jouw-vercel-app.vercel.app/app`
+2. **Klik op "Setup & Installation"** in de linker navigatie
+   
+   *Of ga direct naar: `https://jouw-vercel-app.vercel.app/app/install`*
+
+3. **Zoek de "Inject Theme Code" sectie**
+4. **Klik op "Inject Code"** button
+5. **Wacht tot de injection compleet is** ✅ (groen vinkje)
+6. **Klaar!** De code is automatisch toegevoegd aan:
    - `snippets/simple-gifting.liquid`
-   - `assets/simple-gifting.css`
+   - `assets/simple-gifting.css` 
    - `assets/simple-gifting.js`
    - Product template (automatisch snippet include)
    - Theme layout (CSS & JS references)
@@ -130,10 +134,13 @@ Je hebt **2 opties** om de Simple Gifting functionaliteit aan je theme toe te vo
 **Na de theme injection** moet je nog de producten configureren die gifting ondersteunen:
 
 #### Via Simple Gifting App (Aanbevolen):
-1. **Open je app**: `https://jouw-vercel-app.vercel.app/app`
-2. **Ga naar "Products" pagina**
+1. **Open je Simple Gifting app**: `https://jouw-vercel-app.vercel.app/app`
+2. **Klik op "Products"** in de linker navigatie
+   
+   *Of ga direct naar: `https://jouw-vercel-app.vercel.app/app/cards`*
+
 3. **Selecteer producten** die gifting moeten ondersteunen
-4. **Enable gifting** met één klik
+4. **Enable gifting** met één klik  
 5. **Stel max characters in** (default: 500)
 
 #### Handmatig via Shopify Admin:

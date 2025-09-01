@@ -31,6 +31,7 @@ export default function App() {
         <Link to="/app" rel="home">
           Dashboard
         </Link>
+        <Link to="/app/install">Setup & Installation</Link>
         <Link to="/app/cards">Products</Link>
         <Link to="/app/settings">Settings</Link>
         <Link to="/app/help">Help & Support</Link>
