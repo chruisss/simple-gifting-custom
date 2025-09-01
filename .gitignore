@@ -28,6 +28,11 @@ pnpm-debug.log
 /.idea
 *.iml
 
+# Backup files
+*.backup
+*.bak
+*~
+
 # OS
 .DS_Store
 Thumbs.db
