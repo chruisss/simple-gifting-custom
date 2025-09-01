@@ -2,5 +2,19 @@
   "framework": "remix",
   "installCommand": "npm install",
   "buildCommand": "npm run build",
-  "outputDirectory": "public/build"
+  "outputDirectory": "public/build",
+  "functions": {
+    "app/routes/**/*.ts": {
+      "maxDuration": 30
+    },
+    "app/routes/**/*.tsx": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "SHOPIFY_API_KEY": "@shopify_api_key",
+    "SHOPIFY_API_SECRET": "@shopify_api_secret",
+    "DATABASE_URL": "@database_url",
+    "SESSION_SECRET": "@session_secret"
+  }
 } 
