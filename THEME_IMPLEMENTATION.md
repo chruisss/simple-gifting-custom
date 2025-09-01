@@ -47,18 +47,35 @@ extensions/product-personalisatie/
 2. **Find "Simple Gifting"** → **Enable** ✅
 3. **Save**
 
-### Stap 3: Product Metafields instellen
+### Stap 3: Theme Code Injection
 
-Voor elk product dat gifting moet ondersteunen:
+Je hebt **2 opties** om de Simple Gifting functionaliteit aan je theme toe te voegen:
 
-1. **Product admin** → **Edit product**
-2. **Metafields sectie**:
-   - `simple_gifting.is_gifting_product` = `true`
-   - `simple_gifting.max_chars` = `500` (of gewenste limiet)
-   - `simple_gifting.gifting_product_handle` = handle van gift card product
-3. **Save product**
+#### Optie A: Automatische Injection (Aanbevolen! 🚀)
+1. **Ga naar je app**: `https://jouw-vercel-app.vercel.app/app`
+2. **Ga naar Installation pagina**
+3. **Klik "Inject Code"** in de "Inject Theme Code" sectie
+4. **Wacht tot de injection compleet is** ✅
+5. **Klaar!** De code is automatisch toegevoegd aan:
+   - `snippets/simple-gifting.liquid`
+   - `assets/simple-gifting.css`
+   - `assets/simple-gifting.js`
+   - Product template (automatisch snippet include)
+   - Theme layout (CSS & JS references)
 
-#### A. Product Template (product.liquid of product-form.liquid)
+#### Optie B: Handmatige Theme Implementation
+
+#### Optie B: Handmatige Theme Implementation
+
+##### A. Via Theme Editor (Theme Extension):
+1. **Ga naar Theme Editor**: `https://coco-sebas.myshopify.com/admin/themes`
+2. **Klik "Customize"** op je actieve theme
+3. **Ga naar een Product pagina**
+4. **Add section** → Zoek naar **"Simple Gifting"**
+5. **Sleep het naar gewenste positie** (meestal onder product form)
+6. **Configureer instellingen** en **Save**
+
+##### B. Handmatige Code Toevoegen:
 
 ```liquid
 {% comment %} Simple Gifting Integration {% endcomment %}
@@ -106,7 +123,28 @@ Voor elk product dat gifting moet ondersteunen:
 </script>
 ```
 
-## ⚙️ Configuratie Opties
+## ⚙️ Product Configuration
+
+### Stap 4: Product Metafields instellen
+
+**Na de theme injection** moet je nog de producten configureren die gifting ondersteunen:
+
+#### Via Simple Gifting App (Aanbevolen):
+1. **Open je app**: `https://jouw-vercel-app.vercel.app/app`
+2. **Ga naar "Products" pagina**
+3. **Selecteer producten** die gifting moeten ondersteunen
+4. **Enable gifting** met één klik
+5. **Stel max characters in** (default: 500)
+
+#### Handmatig via Shopify Admin:
+Voor elk product dat gifting moet ondersteunen:
+
+1. **Product admin** → **Edit product**
+2. **Metafields sectie**:
+   - `simple_gifting.is_gifting_product` = `true`
+   - `simple_gifting.max_chars` = `500` (of gewenste limiet)
+   - `simple_gifting.gifting_product_handle` = handle van gift card product
+3. **Save product**
 
 ### App Block Settings
 
