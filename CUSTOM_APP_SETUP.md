@@ -1,28 +1,30 @@
-# Custom App Setup Guide - Embedded App
+# Custom App Setup Guide - Private App
 
-## Stap 1: Custom App aanmaken in Shopify Admin
+## Stap 1: Custom App (Private App) aanmaken in Shopify Admin
+
+**⚠️ Belangrijk**: Dit is GEEN development app, maar een **Custom App** (private app) voor je eigen store.
 
 1. Ga naar je Shopify Admin: `https://coco-sebas.myshopify.com/admin`
 2. Navigeer naar **Settings** > **Apps and sales channels**
 3. Klik op **Develop apps** (rechtsboven)
-4. Klik op **Create an app**
-5. Vul in:
+4. Als dit je eerste custom app is, klik **Allow custom app development**
+5. Klik op **Create an app**
+6. Vul in:
    - **App name**: Simple Gifting
    - **App developer**: [Jouw naam/bedrijf]
-6. Klik **Create app**
+7. Klik **Create app**
 
-## Stap 2: App configureren voor Embedded mode
+## Stap 2: App configureren
 
 ### Configuration tab:
-1. **App URL**: `http://localhost:3000/app` (belangrijk: `/app` pad toevoegen!)
+1. **App URL**: `https://jouw-vercel-app.vercel.app/app` (gebruik je Vercel URL!)
 2. **Allowed redirection URLs**:
-   - `http://localhost:3000/auth/callback`
-   - `http://localhost:3000/auth/shopify/callback`
-   - `http://localhost:3000/api/auth/callback`
+   - `https://jouw-vercel-app.vercel.app/auth/callback`
+   - `https://jouw-vercel-app.vercel.app/auth/shopify/callback`
+   - `https://jouw-vercel-app.vercel.app/api/auth/callback`
 
-### Embedded App Settings:
-3. **Embedded app**: ✅ **Zorg dat dit is INGESCHAKELD**
-4. **App bridge version**: Latest (standaard)
+### ❌ GEEN Embedded App!
+3. **Embedded app**: ❌ **UITSCHAKELEN** - custom apps werken beter standalone
 
 ### Scopes configureren:
 In de **API Access** sectie, klik **Configure** en selecteer de volgende scopes:
@@ -52,16 +54,27 @@ Klik **Save** om de scopes op te slaan.
 
 1. Klik op **Install app** 
 2. Bevestig de installatie
+3. **Je custom app is nu geïnstalleerd!**
 
-## Stap 5: App openen in Shopify Admin
+## Stap 5: App gebruiken
 
-Na installatie:
-1. Ga naar **Apps** in je Shopify Admin sidebar
-2. Klik op **Simple Gifting** 
-3. Je app opent nu embedded in Shopify! 🎉
+**Custom apps verschijnen NIET in je Apps lijst zoals gewone apps.**
 
-## Voor Productie
+In plaats daarvan:
+1. Ga direct naar je app URL: `https://jouw-vercel-app.vercel.app/app`
+2. Of maak een bookmark in je browser
+3. Of voeg de URL toe aan je Shopify navigation (via theme customization)
 
-Voor productie deployment, update de URLs naar je live domain:
-- **App URL**: `https://jouw-domain.com/app`
-- **Allowed redirection URLs** met `https://jouw-domain.com/...`
+## Voor Local Development
+
+Voor lokale development:
+1. Update de URLs naar `http://localhost:3000/app`
+2. Gebruik ngrok voor een publieke URL tijdens testing
+3. Update weer naar je Vercel URL voor productie
+
+## ⚠️ Belangrijke verschillen met gewone apps:
+
+- **Geen embedded mode** - custom apps werken beter standalone
+- **Geen app lijst** - directe URL toegang
+- **Geen billing** - gratis voor je eigen store  
+- **Volledige controle** - je beheert je eigen hosting

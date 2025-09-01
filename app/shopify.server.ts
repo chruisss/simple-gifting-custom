@@ -17,6 +17,8 @@ const shopify = shopifyApp({
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.SingleMerchant,
+  // Custom apps work better without embedded mode
+  isEmbeddedApp: false,
   future: {
     unstable_newEmbeddedAuthStrategy: true,
     removeRest: true,

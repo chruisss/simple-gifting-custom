@@ -1,0 +1,295 @@
+<!-- Simple Gifting Product Block -->
+{% liquid
+  assign product_id = product.id | default: ''
+  assign product_handle = product.handle | default: ''
+  assign max_chars = product.metafields.simple_gifting.max_chars | default: 500
+  assign is_gifting_product = product.metafields.simple_gifting.is_gifting_product | default: false
+  assign block_id = block.id
+%}
+
+{% if is_gifting_product %}
+<div class="simple-gifting-block" 
+     data-block-id="{{ block_id }}"
+     data-product-id="{{ product_id }}"
+     data-product-handle="{{ product_handle }}"
+     data-max-chars="{{ max_chars }}">
+  
+  <div class="gifting-container">
+    <div class="gifting-header">
+      <h3 class="gifting-title">
+        {{ block.settings.title | default: '🎁 Personalize Your Gift' }}
+      </h3>
+      {% if block.settings.description != blank %}
+        <p class="gifting-description">{{ block.settings.description }}</p>
+      {% endif %}
+    </div>
+
+    <div class="gifting-form">
+      <div class="form-group">
+        <label for="gift-message-{{ block_id }}" class="gifting-label">
+          {{ block.settings.label | default: 'Your Message:' }}
+        </label>
+        <textarea 
+          id="gift-message-{{ block_id }}"
+          name="properties[Gift Message]"
+          class="gifting-textarea"
+          maxlength="{{ max_chars }}"
+          placeholder="{{ block.settings.placeholder | default: 'Write your personal message here...' }}"
+          rows="4"></textarea>
+        
+        <div class="char-counter">
+          <span class="current">0</span>/<span class="max">{{ max_chars }}</span>
+        </div>
+      </div>
+
+      {% if block.settings.show_recipient_name %}
+        <div class="form-group">
+          <label for="recipient-name-{{ block_id }}" class="gifting-label">
+            Recipient Name:
+          </label>
+          <input 
+            type="text" 
+            id="recipient-name-{{ block_id }}"
+            name="properties[Recipient Name]"
+            class="gifting-input"
+            placeholder="Enter recipient's name">
+        </div>
+      {% endif %}
+
+      {% if block.settings.show_sender_name %}
+        <div class="form-group">
+          <label for="sender-name-{{ block_id }}" class="gifting-label">
+            Your Name:
+          </label>
+          <input 
+            type="text" 
+            id="sender-name-{{ block_id }}"
+            name="properties[Sender Name]"
+            class="gifting-input"
+            placeholder="Enter your name">
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .simple-gifting-block {
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid {{ block.settings.border_color | default: '#e5e7eb' }};
+    border-radius: 8px;
+    background-color: {{ block.settings.background_color | default: '#ffffff' }};
+  }
+
+  .gifting-header {
+    margin-bottom: 16px;
+  }
+
+  .gifting-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: {{ block.settings.title_color | default: '#111827' }};
+    margin: 0 0 8px 0;
+  }
+
+  .gifting-description {
+    color: {{ block.settings.text_color | default: '#6b7280' }};
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .gifting-label {
+    display: block;
+    font-weight: 500;
+    color: {{ block.settings.label_color | default: '#374151' }};
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  .gifting-textarea,
+  .gifting-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid {{ block.settings.input_border_color | default: '#d1d5db' }};
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .gifting-input {
+    min-height: auto;
+  }
+
+  .gifting-textarea:focus,
+  .gifting-input:focus {
+    outline: none;
+    border-color: {{ block.settings.accent_color | default: '#2563eb' }};
+    box-shadow: 0 0 0 3px {{ block.settings.accent_color | default: '#2563eb' | color_modify: 'alpha', 0.1 }};
+  }
+
+  .char-counter {
+    text-align: right;
+    font-size: 12px;
+    color: {{ block.settings.counter_color | default: '#9ca3af' }};
+    margin-top: 4px;
+  }
+
+  .char-counter .current.near-limit {
+    color: #f59e0b;
+  }
+
+  .char-counter .current.at-limit {
+    color: #ef4444;
+  }
+
+  @media (max-width: 768px) {
+    .simple-gifting-block {
+      margin: 16px 0;
+      padding: 16px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const block = document.querySelector('[data-block-id="{{ block_id }}"]');
+    if (!block) return;
+
+    const textarea = block.querySelector('.gifting-textarea');
+    const counter = block.querySelector('.char-counter .current');
+    const maxChars = parseInt(block.dataset.maxChars);
+
+    if (textarea && counter) {
+      function updateCounter() {
+        const currentLength = textarea.value.length;
+        counter.textContent = currentLength;
+        
+        // Update counter styling based on character count
+        counter.classList.remove('near-limit', 'at-limit');
+        if (currentLength >= maxChars * 0.9) {
+          counter.classList.add('near-limit');
+        }
+        if (currentLength >= maxChars) {
+          counter.classList.add('at-limit');
+        }
+      }
+
+      textarea.addEventListener('input', updateCounter);
+      updateCounter(); // Initial count
+    }
+  });
+</script>
+
+{% endif %}
+
+{% schema %}
+{
+  "name": "Simple Gifting",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "🎁 Personalize Your Gift"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Add a personal message to make this gift special!"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Message Label",
+      "default": "Your Message:"
+    },
+    {
+      "type": "textarea",
+      "id": "placeholder",
+      "label": "Placeholder Text",
+      "default": "Write your personal message here..."
+    },
+    {
+      "type": "header",
+      "content": "Additional Fields"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_recipient_name",
+      "label": "Show Recipient Name Field",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sender_name",
+      "label": "Show Sender Name Field",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border Color",
+      "default": "#e5e7eb"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#6b7280"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label Color",
+      "default": "#374151"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input Border Color",
+      "default": "#d1d5db"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "default": "#2563eb"
+    },
+    {
+      "type": "color",
+      "id": "counter_color",
+      "label": "Character Counter Color",
+      "default": "#9ca3af"
+    }
+  ]
+}
+{% endschema %}
